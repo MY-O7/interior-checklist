@@ -1,0 +1,521 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════
+   솜씨인테리어 - Modern Design System
+   ═══════════════════════════════════════════════════════════ */
+
+/* Light Mode - 깔끔하고 밝은 느낌 */
+:root {
+  /* Primary Colors */
+  --brand-primary: #2563eb;
+  --brand-primary-hover: #1d4ed8;
+  --brand-primary-light: #dbeafe;
+  
+  /* Accent Colors */
+  --brand-accent: #f59e0b;
+  --brand-accent-hover: #d97706;
+  --brand-accent-light: #fef3c7;
+  
+  /* Background */
+  --background: #f8fafc;
+  --background-secondary: #ffffff;
+  
+  /* Foreground */
+  --foreground: #0f172a;
+  --foreground-secondary: #475569;
+  --foreground-muted: #94a3b8;
+  --muted-foreground: #94a3b8;
+  
+  /* Card */
+  --card: #ffffff;
+  --card-hover: #f1f5f9;
+  --card-border: #e2e8f0;
+  
+  /* Sidebar */
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e2e8f0;
+  --sidebar-hover: #f1f5f9;
+  --sidebar-active: #2563eb;
+  --sidebar-active-bg: #eff6ff;
+  
+  /* Input */
+  --input-bg: #ffffff;
+  --input-border: #cbd5e1;
+  --input-focus: #2563eb;
+  
+  /* Table */
+  --table-header: #f1f5f9;
+  --table-row-hover: #f8fafc;
+  --table-border: #e2e8f0;
+  
+  /* Status Colors */
+  --success: #10b981;
+  --success-bg: #d1fae5;
+  --warning: #f59e0b;
+  --warning-bg: #fef3c7;
+  --error: #ef4444;
+  --error-bg: #fee2e2;
+  --info: #3b82f6;
+  --info-bg: #dbeafe;
+  
+  /* Muted */
+  --muted: #f1f5f9;
+  
+  /* Border & Shadow */
+  --border: #e2e8f0;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Dark Mode - 눈 편안한 다크 테마 */
+.dark {
+  --brand-primary: #3b82f6;
+  --brand-primary-hover: #60a5fa;
+  --brand-primary-light: #1e3a5f;
+  
+  --brand-accent: #fbbf24;
+  --brand-accent-hover: #fcd34d;
+  --brand-accent-light: #422006;
+  
+  --background: #0f172a;
+  --background-secondary: #1e293b;
+  
+  --foreground: #f1f5f9;
+  --foreground-secondary: #cbd5e1;
+  --foreground-muted: #64748b;
+  --muted-foreground: #64748b;
+  
+  --card: #1e293b;
+  --card-hover: #334155;
+  --card-border: #334155;
+  
+  --sidebar-bg: #1e293b;
+  --sidebar-border: #334155;
+  --sidebar-hover: #334155;
+  --sidebar-active: #3b82f6;
+  --sidebar-active-bg: #1e3a5f;
+  
+  --input-bg: #1e293b;
+  --input-border: #475569;
+  --input-focus: #3b82f6;
+  
+  --table-header: #334155;
+  --table-row-hover: #1e293b;
+  --table-border: #334155;
+  
+  --success: #34d399;
+  --success-bg: #064e3b;
+  --warning: #fbbf24;
+  --warning-bg: #422006;
+  --error: #f87171;
+  --error-bg: #450a0a;
+  --info: #60a5fa;
+  --info-bg: #1e3a5f;
+  
+  --muted: #334155;
+  
+  --border: #334155;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Base Styles
+   ═══════════════════════════════════════════════════════════ */
+
+* {
+  border-color: var(--border);
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Typography
+   ═══════════════════════════════════════════════════════════ */
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--foreground);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+h1 { font-size: 1.875rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+
+.text-brand { color: var(--brand-primary); }
+.bg-brand { background-color: var(--brand-primary); }
+.border-brand { border-color: var(--brand-primary); }
+
+/* ═══════════════════════════════════════════════════════════
+   Components - Sidebar
+   ═══════════════════════════════════════════════════════════ */
+
+aside {
+  background-color: var(--sidebar-bg);
+  border-color: var(--sidebar-border);
+}
+
+aside button:hover {
+  background-color: var(--sidebar-hover);
+}
+
+aside button.active,
+aside button[class*="bg-brand"] {
+  background-color: var(--sidebar-active-bg) !important;
+  color: var(--sidebar-active) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Components - Cards
+   ═══════════════════════════════════════════════════════════ */
+
+.card, [class*="Card"] {
+  background-color: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.card:hover, [class*="Card"]:hover {
+  box-shadow: var(--shadow);
+  border-color: var(--brand-primary-light);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Components - Buttons
+   ═══════════════════════════════════════════════════════════ */
+
+button, .btn {
+  transition: all 0.15s ease;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+button:focus-visible, .btn:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+/* Primary Button */
+button[type="submit"],
+button[class*="bg-brand"]:not([class*="outline"]) {
+  background-color: var(--brand-primary) !important;
+  color: white !important;
+  border: none;
+}
+
+button[type="submit"]:hover,
+button[class*="bg-brand"]:not([class*="outline"]):hover {
+  background-color: var(--brand-primary-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Outline Button */
+button[class*="outline"] {
+  background-color: transparent !important;
+  color: var(--foreground) !important;
+  border: 1px solid var(--border) !important;
+}
+
+button[class*="outline"]:hover {
+  background-color: var(--card-hover) !important;
+  border-color: var(--brand-primary) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Components - Inputs
+   ═══════════════════════════════════════════════════════════ */
+
+input, textarea, select {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  color: var(--foreground);
+  transition: all 0.15s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 3px var(--brand-primary-light);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--foreground-muted);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Components - Tables
+   ═══════════════════════════════════════════════════════════ */
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+thead {
+  background-color: var(--table-header);
+}
+
+th {
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--table-border);
+  color: var(--foreground-secondary);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--table-border);
+  color: var(--foreground);
+}
+
+tr:hover td {
+  background-color: var(--table-row-hover);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Components - Checkbox & Radio
+   ═══════════════════════════════════════════════════════════ */
+
+input[type="checkbox"], input[type="radio"] {
+  accent-color: var(--brand-primary);
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Components - Badges
+   ═══════════════════════════════════════════════════════════ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-success {
+  background-color: var(--success-bg);
+  color: var(--success);
+}
+
+.badge-warning {
+  background-color: var(--warning-bg);
+  color: var(--warning);
+}
+
+.badge-error {
+  background-color: var(--error-bg);
+  color: var(--error);
+}
+
+.badge-info {
+  background-color: var(--info-bg);
+  color: var(--info);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Scrollbar
+   ═══════════════════════════════════════════════════════════ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--foreground-muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground-secondary);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Print Styles
+   ═══════════════════════════════════════════════════════════ */
+
+@media print {
+  @page {
+    margin: 10mm;
+    size: A4;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    padding: 0;
+    font-size: 10px;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* 인쇄 영역 */
+  .print-area {
+    display: block !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  .print\:hidden { display: none !important; }
+  .print\:block { display: block !important; }
+  
+  aside, nav, .no-print { display: none !important; }
+  header { display: none !important; }
+
+  main { 
+    padding: 0 !important; 
+    overflow: visible !important;
+    height: auto !important;
+  }
+  
+  /* h-screen, h-full 인쇄 시 해제 */
+  .h-screen, .h-full {
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+  
+  .overflow-hidden, .overflow-y-auto {
+    overflow: visible !important;
+  }
+
+  .print-area { display: block !important; }
+
+  /* 섹션 헤더 색상 유지 */
+  .bg-slate-800 { background-color: #1e293b !important; color: white !important; }
+  .bg-slate-100 { background-color: #f1f5f9 !important; }
+  .bg-slate-50 { background-color: #f8fafc !important; }
+  .text-emerald-600 { color: #059669 !important; }
+  .text-blue-700 { color: #1d4ed8 !important; }
+
+  table { border-collapse: collapse; }
+  table th { background: #f1f5f9 !important; }
+  table td, table th { border-color: #e2e8f0 !important; }
+  
+  .break-inside-avoid { break-inside: avoid; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Animations
+   ═══════════════════════════════════════════════════════════ */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Utilities
+   ═══════════════════════════════════════════════════════════ */
+
+.shadow-soft { box-shadow: var(--shadow); }
+.shadow-hover { box-shadow: var(--shadow-md); }
+
+.transition-all { transition: all 0.2s ease; }
+
+/* ═══════════════════════════════════════════════════════════
+   Mobile Optimizations
+   ═══════════════════════════════════════════════════════════ */
+
+@media screen and (max-width: 767px) {
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+  
+  /* 네비게이션/액션 버튼만 44px 최소 높이 적용 (체크박스/태그 제외) */
+  nav button,
+  nav a,
+  header button,
+  header a,
+  .print\\:hidden > .flex > button {
+    min-height: 44px;
+  }
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sidebar-mobile {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 50;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  width: 280px;
+  max-width: 85vw;
+}
+
+.sidebar-mobile.open {
+  transform: translateX(0);
+}
+
+@supports (padding: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* iOS / Safari Fixes */
+@supports (-webkit-touch-callout: none) {
+  button[class*="rounded-lg"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+}

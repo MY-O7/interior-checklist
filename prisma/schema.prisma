@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projects       Project[]
+  estimates      Estimate[]
+  checklists     Checklist[]
+  sharedProjects ProjectShare[]
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  clientName  String?
+  address     String?
+  status      String   @default("대기")
+  color       String   @default("#3b82f6") // 프로젝트 색상 (캘린더 표시용)
+  startDate   DateTime? // 시공 시작일
+  endDate     DateTime? // 시공 종료일
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  estimates   Estimate[]
+  checklists  Checklist[]
+  schedules   ProjectSchedule[]
+  shares      ProjectShare[]
+}
+
+// 프로젝트 공유 (계정간)
+model ProjectShare {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+}
+
+// 프로젝트 일정 (공종별)
+model ProjectSchedule {
+  id          String   @id @default(cuid())
+  date        DateTime // 작업 날짜
+  task        String   // 작업 내용 (예: 목공, 타일, 필름)
+  note        String?  // 비고
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Estimate {
+  id          String   @id @default(cuid())
+  laborCost   Int      @default(0)
+  discount    Int      @default(0)
+  vatRate     Int      @default(10)
+  includeVat  Boolean  @default(true)
+  notes       String?
+  items          String   @default("[]")  // JSON string
+  categoryOrder  String?  // JSON string of ordered category names
+  createdAt      DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Checklist {
+  id          String   @id @default(cuid())
+  data        String   // JSON string
+  siteInfo    String?  // JSON string
+  specialNotes String?
+  roomData    String?  // JSON string - 방별 체크 데이터
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

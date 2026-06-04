@@ -6,7 +6,6 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y openssl libssl-dev && rm -rf /var/lib/apt/lists/*
 
 COPY package*.json ./
-RUN npm install -g npm@latest
 RUN npm ci
 
 COPY . .
@@ -24,21 +23,28 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # PostgreSQL 클라이언트 라이브러리 설치
 RUN apt-get update && apt-get install -y openssl libssl-dev curl && rm -rf /var/lib/apt/lists/*
 
-# nextjs 사용자 생성 (홈 디렉토리 설정)
+# nextjs 사용자 생성 (홈 디렉토리를 /app으로 설정)
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 --home /app nextjs
 
+# Next.js standalone 빌드 결과물
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+
+# Prisma: 생성된 클라이언트 + CLI (db push 실행에 필요)
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 
-# 마이그레이션 및 시드 스크립트
+# package.json 및 시작 스크립트
 COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/docker-entrypoint.sh ./
 
-RUN chown -R nextjs:nodejs /app
+# 권한 설정 (USER 전환 전에 root로 처리)
+RUN chmod +x docker-entrypoint.sh && \
+    chown -R nextjs:nodejs /app
 
 USER nextjs
 
@@ -46,10 +52,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 ENV HOME=/app
-ENV NPM_CONFIG_CACHE=/app/.npm
-
-# 시작 스크립트: DB 마이그레이션 후 서버 실행
-COPY --chown=nextjs:nodejs --from=builder /app/docker-entrypoint.sh ./
-RUN chmod +x docker-entrypoint.sh
 
 ENTRYPOINT ["./docker-entrypoint.sh"]

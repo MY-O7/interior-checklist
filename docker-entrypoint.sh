@@ -1,20 +1,12 @@
 #!/bin/sh
 set -e
 
-# npm 업데이트 알림 숨기기
-export NPM_CONFIG_UPDATE_NOTIFIER=false
-
-# npm 캐시 디렉토리 설정
-export NPM_CONFIG_CACHE=/app/.npm
-mkdir -p /app/.npm
-
 echo "⏳ 데이터베이스 연결 대기 중..."
-until npx prisma migrate deploy; do
+until node /app/node_modules/prisma/build/index.js db push --accept-data-loss; do
   echo "  데이터베이스 준비 중... 잠시 후 다시 시도"
-  sleep 2
+  sleep 3
 done
 
-echo "✅ 데이터베이스 마이그레이션 완료"
-
+echo "✅ 데이터베이스 준비 완료"
 echo "🚀 서버 시작..."
 exec node server.js

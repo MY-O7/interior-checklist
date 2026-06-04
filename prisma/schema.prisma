@@ -87,6 +87,7 @@ model Estimate {
   notes       String?
   items          String   @default("[]")  // JSON string
   categoryOrder  String?  // JSON string of ordered category names
+  shareToken     String?  @unique          // 고객용 읽기전용 공유 링크 토큰
   createdAt      DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

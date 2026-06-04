@@ -48,6 +48,13 @@ prisma/schema.prisma          # DB 스키마 (User, Project, Estimate, Checklist
 5. **useSearchParams** — `dashboard/page.tsx`에서 Suspense로 감싸야 함 (적용 완료)
 6. **HOSTNAME=0.0.0.0** — Tailscale IP 접속을 위해 docker-compose 환경변수에 필수
 
+## 기능: 견적서 고객 공유 링크
+- 견적 페이지 사이드바 "고객 공유 링크 복사" → 토큰 생성 후 `/share/<token>` URL 클립보드 복사.
+- `Estimate.shareToken`(unique)에 랜덤 토큰 저장. `POST /api/estimates/[projectId]/share`(생성), `DELETE`(해제).
+- `GET /api/share/[token]` — 비인증 공개 조회. 견적 금액/항목 + 현장명만 노출.
+- `/share/[token]` 페이지 — 로그인 없이 읽기전용 견적서 표시(인쇄/PDF 가능). `PrintEstimate`를 `onClose` 없이 재사용.
+- miscRate(공과잡비)는 DB 미저장이라 공유 화면에선 0으로 계산됨 (소유자 화면도 새로고침 시 동일).
+
 ## DB 정책
 다른 PC에 Docker로 배포할 때 기존 데이터 마이그레이션 불필요. 새 DB로 시작해도 됨.
 `prisma db push --accept-data-loss`로 스키마만 생성.

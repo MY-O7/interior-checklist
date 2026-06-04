@@ -20,7 +20,7 @@ interface PrintEstimateProps {
   vatAmount: number;
   total: number;
   categoryOrder?: string[] | null;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
 export function PrintEstimate({ project, estimate, companyInfo, materialTotal, laborTotal, miscRate, miscAmount, subtotal, vatAmount, total, categoryOrder, onClose }: PrintEstimateProps) {
@@ -86,7 +86,9 @@ export function PrintEstimate({ project, estimate, companyInfo, materialTotal, l
     <div className="space-y-0 print-area max-w-[800px] mx-auto">
       {/* 액션 바 */}
       <div className="flex items-center justify-between bg-slate-800 text-white rounded-xl px-6 py-4 mb-6 print:hidden">
-        <button onClick={onClose} className="flex items-center gap-2 text-sm hover:text-slate-300 transition">← 돌아가기</button>
+        {onClose
+          ? <button onClick={onClose} className="flex items-center gap-2 text-sm hover:text-slate-300 transition">← 돌아가기</button>
+          : <span className="w-16" />}
         <span className="text-sm font-medium">견적서 미리보기</span>
         <button onClick={() => window.print()} className="flex items-center gap-2 bg-white text-slate-800 px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-slate-100 transition">🖨 인쇄하기</button>
       </div>
@@ -248,7 +250,7 @@ export function PrintEstimate({ project, estimate, companyInfo, materialTotal, l
 
       {/* 하단 액션 */}
       <div className="flex items-center justify-center gap-4 mt-6 print:hidden">
-        <button onClick={onClose} className="px-6 py-3 rounded-lg border border-slate-300 text-sm font-medium hover:bg-slate-50 transition">← 돌아가기</button>
+        {onClose && <button onClick={onClose} className="px-6 py-3 rounded-lg border border-slate-300 text-sm font-medium hover:bg-slate-50 transition">← 돌아가기</button>}
         <button onClick={() => window.print()} className="px-6 py-3 rounded-lg bg-slate-800 text-white text-sm font-bold hover:bg-slate-700 transition">🖨 인쇄하기</button>
       </div>
     </div>

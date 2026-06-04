@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SidebarWrapper } from '@/components/mobile-menu';
-import { Plus, Trash2, Save, Printer, X, ChevronLeft, Download, Menu, Home, ArrowLeft, ArrowUp, ArrowDown, ListOrdered } from 'lucide-react';
+import { Plus, Trash2, Save, Printer, X, ChevronLeft, Download, Menu, Home, ArrowLeft, ArrowUp, ArrowDown, ListOrdered, Link2 } from 'lucide-react';
 import { NumInput, PageNav } from '@/components/shared';
 import { PrintEstimate } from '@/components/estimate/print-estimate';
 import { ESTIMATE_PRESETS, CHECKLIST_TO_ESTIMATE, CATEGORIES, PRESET_CATEGORIES } from '@/config/estimate';
@@ -217,6 +217,39 @@ export default function EstimatePage() {
       setDebugInfo(`저장 에러: ${e.message}`);
     }
     setTimeout(() => setSaving(false), 500);
+  };
+
+  // 고객용 읽기전용 공유 링크 생성 후 클립보드에 복사
+  const shareEstimate = async () => {
+    try {
+      // 최신 견적이 DB에 반영되도록 먼저 저장
+      await fetch(`/api/estimates/${projectId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ ...estimate, categoryOrder }),
+      });
+
+      const res = await fetch(`/api/estimates/${projectId}/share`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (!res.ok || !data.token) {
+        alert(data.error || '공유 링크 생성에 실패했습니다');
+        return;
+      }
+      const url = `${window.location.origin}/share/${data.token}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        alert(`공유 링크가 복사되었습니다.\n고객에게 전달하세요:\n\n${url}`);
+      } catch {
+        // 클립보드 권한이 없는 경우 링크를 직접 보여줌
+        prompt('아래 공유 링크를 복사하세요:', url);
+      }
+    } catch {
+      alert('공유 링크 생성 중 오류가 발생했습니다');
+    }
   };
 
   const addPreset = (preset: typeof ESTIMATE_PRESETS[0]) => {
@@ -495,6 +528,9 @@ export default function EstimatePage() {
             </button>
             <button onClick={() => setPrintMode(true)} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm">
               <Printer className="w-4 h-4" /> 인쇄
+            </button>
+            <button onClick={shareEstimate} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm text-blue-600 dark:text-blue-400 font-medium">
+              <Link2 className="w-4 h-4" /> 고객 공유 링크 복사
             </button>
           </div>
           <PageNav projectId={projectId} current="estimate" />

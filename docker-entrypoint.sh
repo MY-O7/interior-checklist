@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# npm 업데이트 알림 숨기기
+export NPM_CONFIG_UPDATE_NOTIFIER=false
+
 # npm 캐시 디렉토리 설정
 export NPM_CONFIG_CACHE=/app/.npm
 mkdir -p /app/.npm

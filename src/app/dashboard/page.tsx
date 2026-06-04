@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { MobileMenuButton, SidebarWrapper } from '@/components/mobile-menu';
 import { Plus, FolderOpen, Trash2, Moon, Sun, Settings, LogOut, FileText, Calculator, ChevronRight, ChevronDown, ChevronUp, Calendar, User, MapPin, Menu, Search, Ruler, Edit2, ClipboardList, Palette, Share2, X, UserPlus, ExternalLink } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
+import { apiGet, apiPost, apiPatch, apiDelete } from '@/lib/api';
 import { CalendarView } from '@/components/dashboard/calendar-view';
 
 interface Project {
@@ -81,13 +82,7 @@ function DashboardContent() {
 
   useEffect(() => {
     // 사용자 확인
-    fetch('/api/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ action: 'me' }),
-    })
-      .then(r => r.json())
+    apiPost('/api/auth', { action: 'me' })
       .then(data => {
         if (!data.user) {
           router.push('/login');
@@ -100,8 +95,7 @@ function DashboardContent() {
 
   const loadProjects = async () => {
     try {
-      const res = await fetch('/api/projects', { credentials: 'include' });
-      const data = await res.json();
+      const data = await apiGet('/api/projects');
       setProjects(data.projects || []);
     } catch (e) {
       console.error('Failed to load projects:', e);
@@ -111,12 +105,7 @@ function DashboardContent() {
   };
 
   const handleLogout = async () => {
-    await fetch('/api/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ action: 'logout' }),
-    });
+    await apiPost('/api/auth', { action: 'logout' });
     router.push('/login');
   };
 
@@ -124,13 +113,7 @@ function DashboardContent() {
     if (!newProject.name) return;
     
     try {
-      const res = await fetch('/api/projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(newProject),
-      });
-      const data = await res.json();
+      const data = await apiPost('/api/projects', newProject);
       if (data.project) {
         setProjects([data.project, ...projects]);
         setNewProject({ name: '', clientName: '', address: '' });
@@ -145,7 +128,7 @@ function DashboardContent() {
     if (!confirm('정말 삭제하시겠습니까?')) return;
     
     try {
-      await fetch(`/api/projects/${id}`, { method: 'DELETE', credentials: 'include' });
+      await apiDelete(`/api/projects/${id}`);
       setProjects(projects.filter(p => p.id !== id));
     } catch (e) {
       console.error('Failed to delete project:', e);
@@ -164,13 +147,7 @@ function DashboardContent() {
   const saveEditProject = async () => {
     if (!editingProject || !editForm.name) return;
     try {
-      const res = await fetch(`/api/projects/${editingProject.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(editForm),
-      });
-      const data = await res.json();
+      const data = await apiPatch(`/api/projects/${editingProject.id}`, editForm);
       if (data.project) {
         setProjects(projects.map(p => p.id === editingProject.id ? { ...p, ...editForm } : p));
       }
@@ -183,22 +160,14 @@ function DashboardContent() {
   const updateMyName = async () => {
     if (!newName.trim()) return;
     try {
-      const res = await fetch('/api/auth', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-        body: JSON.stringify({ action: 'updateName', name: newName.trim() }),
-      });
-      const data = await res.json();
+      const data = await apiPost('/api/auth', { action: 'updateName', name: newName.trim() });
       if (data.user) { setUser(data.user); setEditingName(false); }
     } catch (e) { console.error(e); }
   };
 
   const loadUsers = async () => {
     try {
-      const res = await fetch('/api/auth', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-        body: JSON.stringify({ action: 'listUsers' }),
-      });
-      const data = await res.json();
+      const data = await apiPost('/api/auth', { action: 'listUsers' });
       if (data.users) { setAllUsers(data.users); setUsersLoaded(true); }
     } catch (e) { console.error(e); }
   };
@@ -206,10 +175,7 @@ function DashboardContent() {
   const deleteUser = async (userId: string) => {
     if (!confirm('이 계정을 삭제하시겠습니까?')) return;
     try {
-      await fetch('/api/auth', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-        body: JSON.stringify({ action: 'deleteUser', userId }),
-      });
+      await apiPost('/api/auth', { action: 'deleteUser', userId });
       setAllUsers(allUsers.filter(u => u.id !== userId));
     } catch (e) { console.error(e); }
   };
@@ -217,11 +183,7 @@ function DashboardContent() {
   const toggleUserRole = async (userId: string, currentRole: string) => {
     const newRole = currentRole === 'ADMIN' ? 'USER' : 'ADMIN';
     try {
-      const res = await fetch('/api/auth', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-        body: JSON.stringify({ action: 'updateUserRole', userId, role: newRole }),
-      });
-      const data = await res.json();
+      const data = await apiPost('/api/auth', { action: 'updateUserRole', userId, role: newRole });
       if (data.user) setAllUsers(allUsers.map(u => u.id === userId ? { ...u, role: newRole } : u));
     } catch (e) { console.error(e); }
   };
@@ -231,8 +193,7 @@ function DashboardContent() {
     setShareEmail('');
     setShareError('');
     try {
-      const res = await fetch(`/api/projects/${project.id}/shares`, { credentials: 'include' });
-      const data = await res.json();
+      const data = await apiGet(`/api/projects/${project.id}/shares`);
       setShares(data.shares || []);
     } catch { setShares([]); }
   };
@@ -242,14 +203,8 @@ function DashboardContent() {
     setShareLoading(true);
     setShareError('');
     try {
-      const res = await fetch(`/api/projects/${sharingProject.id}/shares`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email: shareEmail.trim() }),
-      });
-      const data = await res.json();
-      if (res.ok && data.share) {
+      const data = await apiPost(`/api/projects/${sharingProject.id}/shares`, { email: shareEmail.trim() });
+      if (data.share) {
         setShares([data.share, ...shares]);
         setShareEmail('');
       } else {
@@ -262,12 +217,7 @@ function DashboardContent() {
   const removeShare = async (shareId: string) => {
     if (!sharingProject) return;
     try {
-      await fetch(`/api/projects/${sharingProject.id}/shares`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ shareId }),
-      });
+      await apiDelete(`/api/projects/${sharingProject.id}/shares`, { shareId });
       setShares(shares.filter(s => s.id !== shareId));
     } catch { console.error('Failed to remove share'); }
   };

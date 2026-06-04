@@ -30,6 +30,7 @@ services:
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://somssi:Somssi!Interior2026@db:5432/somssi_interior
+      - SESSION_SECRET=L1eqqZWTleNIoa3NUznngSzwTnzYX6sAH4oNyLG8l8gGzBzad1owjyUTirYBmDgQ
       - HOSTNAME=0.0.0.0
       - PORT=3000
     depends_on:

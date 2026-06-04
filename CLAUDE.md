@@ -33,6 +33,12 @@ prisma/schema.prisma          # DB 스키마 (User, Project, Estimate, Checklist
 - DB 유저: `somssi` / PW: `Somssi!Interior2026` / DB명: `somssi_interior`
 - 앱 포트: `3000`
 - `HOSTNAME=0.0.0.0` (Tailscale 접속용)
+- `SESSION_SECRET` — 세션 쿠키 HMAC 서명용 (docker-compose.yml에 지정). 바꾸면 기존 로그인 세션이 전부 무효화되어 재로그인 필요.
+
+## 인증/세션
+- 세션은 쿠키에 `base64url(payload).HMAC-SHA256(payload)` 형태로 저장 (`src/lib/auth.ts`). 서명 검증으로 위조 차단.
+- 쿠키의 role은 신뢰하지 않고 `getSessionUser`가 항상 DB에서 실제 role 조회.
+- 세션 생성/삭제/조회는 `lib/auth.ts`의 `setSessionCookie` / `clearSessionCookie` / `getSessionUser` 사용 (직접 쿠키 파싱 금지).
 
 ## 해결된 주요 문제들
 1. **Prisma 버전 고정** — `6.19.2` 정확히 고정 (7.x 문법 충돌 방지)

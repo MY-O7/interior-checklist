@@ -36,9 +36,9 @@ prisma/schema.prisma          # DB 스키마 (User, Project, Estimate, Checklist
 
 ## 해결된 주요 문제들
 1. **Prisma 버전 고정** — `6.19.2` 정확히 고정 (7.x 문법 충돌 방지)
-2. **`prisma.config.ts`** — 단순 형태 유지, dotenv/datasource 설정 추가하면 빌드 실패
+2. **`prisma.config.ts` 삭제** — TS 파일이라 런타임(runner)에서 실행 불가. Prisma 6.x는 기본으로 `prisma/schema.prisma`를 찾으므로 config 파일 불필요. (남겨두면 `MODULE_NOT_FOUND` 발생)
 3. **npx 권한 오류** — `docker-entrypoint.sh`에서 `npx prisma` 대신 `node /app/node_modules/prisma/build/index.js` 직접 호출
-4. **Prisma CLI 누락** — runner 스테이지에 `node_modules/prisma` 복사 필요 (없으면 npx가 인터넷 다운로드 시도 → EACCES)
+4. **Prisma CLI 의존성 체인** — `db push`는 Prisma CLI를 실행하는데 CLI가 `@prisma/config → effect → fast-check → ...` 깊은 의존성을 런타임에 끌고 옴. 모듈 하나씩 복사하면 끝없이 다음 모듈을 요구함. → **runner 스테이지에 `node_modules` 전체를 복사**해야 확실히 해결 (`COPY --from=builder /app/node_modules ./node_modules`)
 5. **useSearchParams** — `dashboard/page.tsx`에서 Suspense로 감싸야 함 (적용 완료)
 6. **HOSTNAME=0.0.0.0** — Tailscale IP 접속을 위해 docker-compose 환경변수에 필수
 

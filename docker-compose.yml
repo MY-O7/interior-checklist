@@ -30,6 +30,8 @@ services:
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://somssi:Somssi!Interior2026@db:5432/somssi_interior
+      - HOSTNAME=0.0.0.0
+      - PORT=3000
     depends_on:
       db:
         condition: service_healthy

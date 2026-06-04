@@ -1,5 +1,5 @@
 # --- 빌드 스테이지 ---
-FROM node:20-slim AS builder
+FROM node:22-slim AS builder
 WORKDIR /app
 
 # PostgreSQL 클라이언트 라이브러리 설치 (Prisma 필요)
@@ -14,7 +14,7 @@ RUN npx prisma generate
 RUN npm run build
 
 # --- 런타임 스테이지 ---
-FROM node:20-slim AS runner
+FROM node:22-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

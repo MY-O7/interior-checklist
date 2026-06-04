@@ -2,7 +2,7 @@
 set -e
 
 echo "⏳ 데이터베이스 연결 대기 중..."
-until npx prisma migrate deploy 2>/dev/null; do
+until npx prisma migrate deploy; do
   echo "  데이터베이스 준비 중... 잠시 후 다시 시도"
   sleep 2
 done

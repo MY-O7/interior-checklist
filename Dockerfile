@@ -10,6 +10,7 @@ RUN npm install -g npm@latest
 RUN npm ci
 
 COPY . .
+ENV DATABASE_URL="postgresql://somssi:Somssi!Interior2026@db:5432/somssi_interior"
 RUN npx prisma generate
 RUN npm run build
 

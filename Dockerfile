@@ -22,6 +22,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # PostgreSQL 클라이언트 라이브러리 설치
 RUN apt-get update && apt-get install -y openssl libssl-dev curl && rm -rf /var/lib/apt/lists/*
 
+# nextjs 사용자 생성 (홈 디렉토리 설정)
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 --home /app nextjs
 
@@ -42,6 +43,8 @@ USER nextjs
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+ENV HOME=/app
+ENV NPM_CONFIG_CACHE=/app/.npm
 
 # 시작 스크립트: DB 마이그레이션 후 서버 실행
 COPY --chown=nextjs:nodejs --from=builder /app/docker-entrypoint.sh ./

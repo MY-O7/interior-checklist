@@ -32,12 +32,9 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Prisma: 생성된 클라이언트 + CLI (db push 실행에 필요)
+# Prisma 스키마 + 전체 node_modules (db push CLI 의존성 체인 때문에 전체 필요)
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/effect ./node_modules/effect
+COPY --from=builder /app/node_modules ./node_modules
 
 # package.json 및 시작 스크립트
 COPY --from=builder /app/package*.json ./

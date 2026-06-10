@@ -92,7 +92,8 @@ function DashboardContent() {
           setUser(data.user);
           loadProjects();
         }
-      });
+      })
+      .catch(() => router.push('/login'));
   }, [router]);
 
   const loadProjects = async () => {
@@ -210,9 +211,9 @@ function DashboardContent() {
         setShares([data.share, ...shares]);
         setShareEmail('');
       } else {
-        setShareError(data.error || '공유 실패');
+        setShareError('공유 실패');
       }
-    } catch { setShareError('서버 오류'); }
+    } catch (e: any) { setShareError(e?.message || '서버 오류'); }
     setShareLoading(false);
   };
 

@@ -1,5 +1,14 @@
 // API 호출 헬퍼. credentials/헤더/JSON 직렬화 보일러플레이트를 한 곳으로 모음.
-// 항상 파싱된 JSON을 반환 (본문이 없으면 빈 객체).
+// 실패(non-2xx, 네트워크 오류)는 ApiError/TypeError 로 throw 한다 — 호출부는 try/catch 로 처리.
+
+export class ApiError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
+}
 
 async function request<T = any>(method: string, path: string, body?: unknown): Promise<T> {
   const res = await fetch(path, {
@@ -9,11 +18,16 @@ async function request<T = any>(method: string, path: string, body?: unknown): P
       ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
       : {}),
   });
+  let data: any = null;
   try {
-    return (await res.json()) as T;
+    data = await res.json();
   } catch {
-    return {} as T;
+    // 본문이 없거나 JSON이 아님 (예: 프록시가 뱉은 HTML 에러 페이지)
   }
+  if (!res.ok) {
+    throw new ApiError(res.status, data?.error || `요청 실패 (${res.status})`);
+  }
+  return (data ?? {}) as T;
 }
 
 export const apiGet = <T = any>(path: string) => request<T>('GET', path);

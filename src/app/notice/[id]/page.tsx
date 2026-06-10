@@ -5,6 +5,8 @@ import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
+import { apiGet } from '@/lib/api';
+import { toLocalDateStr } from '@/lib/utils';
 import { ArrowLeft, Printer, Trash2 } from 'lucide-react';
 
 interface Project {
@@ -22,13 +24,6 @@ interface Schedule {
   task: string;
   note: string | null;
   projectId: string;
-}
-
-function toLocalDateStr(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
 }
 
 function formatShortDate(dateStr: string): string {
@@ -120,8 +115,8 @@ export default function NoticePage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`/api/projects/${projectId}`, { credentials: 'include' }).then(r => r.json()),
-      fetch(`/api/schedules?projectId=${projectId}`, { credentials: 'include' }).then(r => r.json()),
+      apiGet(`/api/projects/${projectId}`),
+      apiGet(`/api/schedules?projectId=${projectId}`),
     ]).then(([projectData, scheduleData]) => {
       const proj = projectData;
       setProject(proj);

@@ -31,3 +31,37 @@ export function calcArea(value: string): { mm2: number; pyeong: number; m2: numb
 export function calcJwa(value: string): number {
   return calcArea(value).jwa;
 }
+
+// ═══════════════════ 견적 합계 ═══════════════════
+
+type TotalsItem = { quantity: number; unitPrice: number; labor?: { days: number; dayRate: number }[] };
+
+export type EstimateTotals = {
+  materialTotal: number;
+  laborTotal: number;
+  itemsSubtotal: number;
+  miscRate: number;
+  miscAmount: number;
+  subtotal: number;
+  vatAmount: number;
+  total: number;
+};
+
+/** 견적 합계 공식의 단일 소스 — 견적 페이지와 고객 공유 페이지가 함께 사용 */
+export function calcEstimateTotals(
+  items: TotalsItem[],
+  opts: { discount?: number; vatRate?: number; includeVat?: boolean; miscRate?: number } = {}
+): EstimateTotals {
+  const { discount = 0, vatRate = 10, includeVat = true, miscRate = 0 } = opts;
+  const materialTotal = items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+  const laborTotal = items.reduce(
+    (sum, item) => sum + (item.labor || []).reduce((s, l) => s + l.days * l.dayRate, 0),
+    0
+  );
+  const itemsSubtotal = materialTotal + laborTotal;
+  const miscAmount = Math.round((itemsSubtotal * miscRate) / 100);
+  const subtotal = itemsSubtotal + miscAmount;
+  const vatAmount = includeVat ? Math.round((subtotal * (vatRate || 10)) / 100) : 0;
+  const total = subtotal + vatAmount - discount;
+  return { materialTotal, laborTotal, itemsSubtotal, miscRate, miscAmount, subtotal, vatAmount, total };
+}

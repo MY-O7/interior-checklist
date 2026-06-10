@@ -10,9 +10,10 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { SidebarWrapper } from '@/components/mobile-menu';
 import { ArrowLeft, Download, Save, Printer, ChevronLeft, ChevronRight, Menu, FolderOpen, Calculator, Settings, Ruler, Home } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
+import { apiGet, apiPost } from '@/lib/api';
 import { OptionTag, DimensionInputs, RoomCheckGrid } from '@/components/checklist';
 import { PageNav } from '@/components/shared';
-import { SECTIONS, DEFAULT_ROOMS } from '@/config/sections';
+import { SECTIONS, DEFAULT_ROOMS, migrateChecklistKeys, migrateRoomChecklistKeys } from '@/config/sections';
 import { calcPyeong } from '@/lib/calc';
 import type { ChecklistItemData, RoomMeasurement, SectionItem, Section, TagColor } from '@/types/checklist';
 import { TAG_COLORS } from '@/types/checklist';
@@ -119,17 +120,17 @@ export default function ProjectPage() {
   }, [printMode]);
 
   useEffect(() => {
-    fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ action: 'me' }) })
-      .then(r => r.json())
-      .then(data => { if (!data.user) { router.push('/login'); return; } loadChecklist(); });
+    apiPost('/api/auth', { action: 'me' })
+      .then(data => { if (!data.user) { router.push('/login'); return; } loadChecklist(); })
+      .catch(() => router.push('/login'));
   }, [projectId]);
 
   const loadChecklist = async () => {
     try {
-      const res = await fetch(`/api/checklists/${projectId}`, { credentials: 'include' });
-      const data = await res.json();
-      setChecklist(data.checklist || {});
-      setRoomChecklist(data.roomChecklist || {});
+      const data = await apiGet(`/api/checklists/${projectId}`);
+      // 섹션/항목 이름이 바뀌어도 옛 저장 데이터가 사라지지 않게 키 이관
+      setChecklist(migrateChecklistKeys(data.checklist || {}));
+      setRoomChecklist(migrateRoomChecklistKeys(data.roomChecklist || {}));
       setSiteInfo({
         apartmentName: '', squareMeters: '', desiredDate: '', manager: '', floor: '',
         isOccupied: '', hasElevator: '', clientPhone: '', workScope: '',
@@ -146,11 +147,7 @@ export default function ProjectPage() {
   const saveChecklist = async () => {
     setSaving(true);
     try {
-      await fetch(`/api/checklists/${projectId}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ checklist, roomChecklist, siteInfo, specialNotes }),
-      });
+      await apiPost(`/api/checklists/${projectId}`, { checklist, roomChecklist, siteInfo, specialNotes });
     } catch (e) { console.error('Failed to save:', e); }
     setTimeout(() => setSaving(false), 500);
   };
@@ -159,12 +156,8 @@ export default function ProjectPage() {
   useEffect(() => {
     if (!project || Object.keys(checklist).length === 0) return;
     const timer = setTimeout(() => {
-      fetch(`/api/checklists/${projectId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ checklist, roomChecklist, siteInfo, specialNotes }),
-      }).catch(e => console.error('자동 저장 실패:', e));
+      apiPost(`/api/checklists/${projectId}`, { checklist, roomChecklist, siteInfo, specialNotes })
+        .catch(e => console.error('자동 저장 실패:', e));
     }, 3000);
     return () => clearTimeout(timer);
   }, [checklist, roomChecklist, siteInfo, specialNotes, projectId, project]);

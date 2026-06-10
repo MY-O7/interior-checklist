@@ -27,7 +27,8 @@ export default function LoginPage() {
       .then(r => r.json())
       .then(data => {
         if (data.user) router.push('/dashboard');
-      });
+      })
+      .catch(() => {});
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {

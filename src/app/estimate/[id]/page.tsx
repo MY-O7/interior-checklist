@@ -11,7 +11,9 @@ import { Plus, Trash2, Save, Printer, X, ChevronLeft, Download, Menu, Home, Arro
 import { NumInput, PageNav } from '@/components/shared';
 import { PrintEstimate } from '@/components/estimate/print-estimate';
 import { ESTIMATE_PRESETS, CHECKLIST_TO_ESTIMATE, CATEGORIES, PRESET_CATEGORIES } from '@/config/estimate';
-import { calcPyeong } from '@/lib/calc';
+import { calcPyeong, calcEstimateTotals } from '@/lib/calc';
+import { apiGet, apiPost, ApiError } from '@/lib/api';
+import { safeParse } from '@/lib/utils';
 import type { LaborEntry, EstimateItem, EstimateData, CompanyInfo } from '@/types/checklist';
 
 function EstimateItemCard({ item, onUpdate, onRemove }: {
@@ -136,43 +138,35 @@ export default function EstimatePage() {
     async function load() {
       // Load project from API
       try {
-        const res = await fetch(`/api/projects/${projectId}`, { credentials: 'include' });
-        if (res.ok) {
-          const data = await res.json();
-          setProject(data);
-        }
+        const data = await apiGet(`/api/projects/${projectId}`);
+        setProject(data);
       } catch (e) {
         console.error('프로젝트 로드 실패:', e);
       }
-      
+
       // Load estimate from API (DB)
       try {
-        const res = await fetch(`/api/estimates/${projectId}`, { credentials: 'include' });
-        if (res.ok) {
-          const data = await res.json();
-          setDebugInfo(`API: 200, 항목 ${data.items?.length || 0}개`);
-          setEstimate({
-            items: (data.items || []).map((item: any) => ({
-              ...item,
-              labor: item.labor || []
-            })),
-            discount: data.discount || 0,
-            vatRate: data.vatRate ?? 10,
-            includeVat: data.includeVat ?? true,
-            notes: data.notes || ''
-          });
-          if (data.categoryOrder) setCategoryOrder(data.categoryOrder);
-        } else {
-          setDebugInfo(`API 실패: ${res.status}`);
-        }
+        const data = await apiGet(`/api/estimates/${projectId}`);
+        setDebugInfo(`API: 200, 항목 ${data.items?.length || 0}개`);
+        setEstimate({
+          items: (data.items || []).map((item: any) => ({
+            ...item,
+            labor: item.labor || []
+          })),
+          discount: data.discount || 0,
+          vatRate: data.vatRate ?? 10,
+          includeVat: data.includeVat ?? true,
+          notes: data.notes || ''
+        });
+        if (data.categoryOrder) setCategoryOrder(data.categoryOrder);
       } catch (e: any) {
-        setDebugInfo(`에러: ${e.message}`);
+        setDebugInfo(e instanceof ApiError ? `API 실패: ${e.status}` : `에러: ${e.message}`);
       }
-      
-      // Load company info
+
+      // Load company info (저장소가 깨져 있어도 페이지가 죽지 않게 safeParse)
       const ci = localStorage.getItem(`companyInfo-${projectId}`) || localStorage.getItem('companyInfo-default');
-      if (ci) setCompanyInfo(JSON.parse(ci));
-      
+      setCompanyInfo(prev => safeParse(ci, prev));
+
       setLoaded(true); // 로드 완료
     }
     load();
@@ -183,12 +177,8 @@ export default function EstimatePage() {
     if (!loaded) return; // 초기 로드 전엔 저장 안 함
     if (!estimate.items || estimate.items.length === 0) return;
     const timer = setTimeout(() => {
-      fetch(`/api/estimates/${projectId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ ...estimate, categoryOrder })
-      }).catch(e => console.error('자동 저장 실패:', e));
+      apiPost(`/api/estimates/${projectId}`, { ...estimate, categoryOrder })
+        .catch(e => console.error('자동 저장 실패:', e));
       localStorage.setItem(`estimate-${projectId}`, JSON.stringify(estimate));
     }, 2000);
     return () => clearTimeout(timer);
@@ -201,20 +191,10 @@ export default function EstimatePage() {
     localStorage.setItem('companyInfo-default', JSON.stringify(companyInfo));
     // DB에 저장
     try {
-      const res = await fetch(`/api/estimates/${projectId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ ...estimate, categoryOrder })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setDebugInfo(`저장 성공! 항목 ${estimate.items.length}개`);
-      } else {
-        setDebugInfo(`저장 실패: ${res.status} ${JSON.stringify(data)}`);
-      }
+      await apiPost(`/api/estimates/${projectId}`, { ...estimate, categoryOrder });
+      setDebugInfo(`저장 성공! 항목 ${estimate.items.length}개`);
     } catch (e: any) {
-      setDebugInfo(`저장 에러: ${e.message}`);
+      setDebugInfo(e instanceof ApiError ? `저장 실패: ${e.status} ${e.message}` : `저장 에러: ${e.message}`);
     }
     setTimeout(() => setSaving(false), 500);
   };
@@ -223,20 +203,11 @@ export default function EstimatePage() {
   const shareEstimate = async () => {
     try {
       // 최신 견적이 DB에 반영되도록 먼저 저장
-      await fetch(`/api/estimates/${projectId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ ...estimate, categoryOrder }),
-      });
+      await apiPost(`/api/estimates/${projectId}`, { ...estimate, categoryOrder });
 
-      const res = await fetch(`/api/estimates/${projectId}/share`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-      const data = await res.json();
-      if (!res.ok || !data.token) {
-        alert(data.error || '공유 링크 생성에 실패했습니다');
+      const data = await apiPost(`/api/estimates/${projectId}/share`);
+      if (!data.token) {
+        alert('공유 링크 생성에 실패했습니다');
         return;
       }
       const url = `${window.location.origin}/share/${data.token}`;
@@ -298,8 +269,7 @@ export default function EstimatePage() {
   // 체크리스트에서 견적 항목 자동 가져오기
   const importFromChecklist = async () => {
     try {
-      const res = await fetch(`/api/checklists/${projectId}`);
-      const data = await res.json();
+      const data = await apiGet(`/api/checklists/${projectId}`);
       if (!data.checklist || Object.keys(data.checklist).length === 0) { alert('체크리스트 데이터가 없습니다'); return; }
       const ck: Record<string, Record<string, any>> = data.checklist || {};
       const roomCk: Record<string, Record<string, any>> = data.roomChecklist || {};
@@ -475,14 +445,14 @@ export default function EstimatePage() {
     }));
   };
 
-  const materialTotal = estimate.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
-  const laborTotal = estimate.items.reduce((sum, item) => sum + (item.labor || []).reduce((s, l) => s + l.days * l.dayRate, 0), 0);
-  const itemsSubtotal = materialTotal + laborTotal;
+  // 합계 공식은 lib/calc.ts 단일 소스 — 고객 공유 페이지(share)와 항상 동일해야 함
   const miscRate = (estimate as any).miscRate ?? 0;
-  const miscAmount = Math.round(itemsSubtotal * miscRate / 100);
-  const subtotal = itemsSubtotal + miscAmount;
-  const vatAmount = estimate.includeVat ? Math.round(subtotal * (estimate.vatRate || 10) / 100) : 0;
-  const total = subtotal + vatAmount - estimate.discount;
+  const { materialTotal, laborTotal, miscAmount, subtotal, vatAmount, total } = calcEstimateTotals(estimate.items, {
+    discount: estimate.discount,
+    vatRate: estimate.vatRate,
+    includeVat: estimate.includeVat,
+    miscRate,
+  });
 
   if (!project) return null;
 

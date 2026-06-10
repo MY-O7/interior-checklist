@@ -4,6 +4,8 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { apiGet, apiPost, apiPatch, apiDelete } from '@/lib/api';
+import { safeParse, toLocalDateStr } from '@/lib/utils';
 import { ChevronLeft, ChevronRight, X, ChevronDown, ChevronUp, Trash2, Edit2, Plus, Download, Printer, Filter, FileText, Copy, Check } from 'lucide-react';
 
 interface Project {
@@ -25,14 +27,6 @@ interface ProjectSchedule {
 
 const STORAGE_KEY = 'interior-task-presets';
 const COLOR_PRESETS = ['#ef4444', '#f97316', '#f59e0b', '#10b981', '#22c55e', '#8b5cf6', '#6366f1', '#ec4899', '#14b8a6', '#9333ea', '#06b6d4', '#84cc16', '#64748b'];
-
-// 로컬 날짜 문자열 (YYYY-MM-DD) — UTC 변환 없이
-function toLocalDateStr(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
 
 // 서버에서 받은 날짜 문자열을 로컬 Date로 파싱
 function parseScheduleDate(dateStr: string): string {
@@ -112,50 +106,43 @@ export function CalendarView() {
     setToast({ message, type });
   }, []);
 
-  // 일정 추가 모달
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [addModalDate, setAddModalDate] = useState('');
-  const [addModalProject, setAddModalProject] = useState('');
-  const [newTask, setNewTask] = useState('');
-  const [newNote, setNewNote] = useState('');
+  // 모달별 상태는 객체 하나로 묶어 열기/닫기/폼 리셋을 한 곳에서 처리한다
   const [saving, setSaving] = useState(false);
 
+  // 일정 추가 모달
+  const [addModal, setAddModal] = useState({ open: false, date: '', projectId: '', task: '', note: '' });
+
   // 일정 편집 모달
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editSchedule, setEditSchedule] = useState<ProjectSchedule | null>(null);
-  const [editDate, setEditDate] = useState('');
-  const [editTask, setEditTask] = useState('');
-  const [editNote, setEditNote] = useState('');
-  const [editProject, setEditProject] = useState('');
+  const [editModal, setEditModal] = useState<{ open: boolean; schedule: ProjectSchedule | null; date: string; task: string; note: string; projectId: string }>(
+    { open: false, schedule: null, date: '', task: '', note: '', projectId: '' }
+  );
 
   // 날짜 상세 모달 (일정 많을 때)
-  const [showDayModal, setShowDayModal] = useState(false);
-  const [dayModalDate, setDayModalDate] = useState('');
-  const [dayModalSchedules, setDayModalSchedules] = useState<ProjectSchedule[]>([]);
+  const [dayModal, setDayModal] = useState<{ open: boolean; date: string; schedules: ProjectSchedule[] }>({ open: false, date: '', schedules: [] });
 
   // 프로젝트 편집 모달
-  const [showProjectModal, setShowProjectModal] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [editProjectName, setEditProjectName] = useState('');
-  const [editProjectColor, setEditProjectColor] = useState('');
+  const [projectModal, setProjectModal] = useState<{ open: boolean; project: Project | null; name: string; color: string }>(
+    { open: false, project: null, name: '', color: '' }
+  );
 
   // 내보내기/인쇄 드롭다운
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [showPrintMenu, setShowPrintMenu] = useState(false);
 
   // 공종별 요약 모달
-  const [showSummaryModal, setShowSummaryModal] = useState(false);
-  const [summaryText, setSummaryText] = useState('');
+  const [summaryModal, setSummaryModal] = useState({ open: false, text: '' });
   const [copied, setCopied] = useState(false);
+
+  // 인쇄 대기 상태 — 필터가 렌더에 반영된 "후" effect에서 인쇄하고, afterprint에 복원한다
+  const [pendingPrint, setPendingPrint] = useState<{ prevFilter: string | null } | null>(null);
 
   // 프리셋
   const [taskPresets, setTaskPresets] = useState<string[]>([]);
   const [newPresetInput, setNewPresetInput] = useState('');
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const parsed: string[] = JSON.parse(saved);
+    const parsed = safeParse<string[]>(localStorage.getItem(STORAGE_KEY), []);
+    if (Array.isArray(parsed) && parsed.length > 0) {
       const unique = Array.from(new Set(parsed)).sort((a, b) => a.localeCompare(b, 'ko'));
       setTaskPresets(unique);
     } else {
@@ -167,14 +154,13 @@ export function CalendarView() {
   }, []);
 
   useEffect(() => {
-    fetch('/api/projects', { credentials: 'include' })
-      .then(r => r.json())
+    apiGet('/api/projects')
       .then(data => {
         setProjects(data.projects || []);
-        if (data.projects?.length > 0) setAddModalProject(data.projects[0].id);
+        if (data.projects?.length > 0) setAddModal(m => ({ ...m, projectId: data.projects[0].id }));
       })
-      .catch(console.error);
-  }, []);
+      .catch(e => { console.error(e); showToast('프로젝트를 불러오지 못했습니다', 'error'); });
+  }, [showToast]);
 
   useEffect(() => {
     if (projects.length === 0) {
@@ -183,12 +169,11 @@ export function CalendarView() {
       return;
     }
     setLoading(true);
-    fetch(`/api/schedules?year=${currentYear}`, { credentials: 'include' })
-      .then(r => r.json())
+    apiGet(`/api/schedules?year=${currentYear}`)
       .then(data => setSchedules(data.schedules || []))
-      .catch(console.error)
+      .catch(e => { console.error(e); showToast('일정을 불러오지 못했습니다', 'error'); })
       .finally(() => setLoading(false));
-  }, [currentYear, projects.length]);
+  }, [currentYear, projects.length, showToast]);
 
   // 필터 적용된 일정
   const filteredSchedules = useMemo(() => {
@@ -250,60 +235,55 @@ export function CalendarView() {
     return days;
   };
 
+  const openAddModal = (dateStr: string) => {
+    setAddModal(m => ({ open: true, date: dateStr, projectId: projects[0]?.id || m.projectId, task: '', note: '' }));
+  };
+
   const handleDateClick = (date: Date) => {
     const dateStr = toLocalDateStr(date);
     const daySchedules = scheduleMap.get(dateStr) || [];
 
     // 일정이 있으면 상세 모달, 없으면 바로 추가
     if (daySchedules.length > 0) {
-      setDayModalDate(dateStr);
-      setDayModalSchedules(daySchedules);
-      setShowDayModal(true);
+      setDayModal({ open: true, date: dateStr, schedules: daySchedules });
     } else {
-      setAddModalDate(dateStr);
-      setNewTask('');
-      setNewNote('');
-      if (projects.length > 0) setAddModalProject(projects[0].id);
-      setShowAddModal(true);
+      openAddModal(dateStr);
     }
   };
 
   const openAddFromDay = () => {
-    setAddModalDate(dayModalDate);
-    setNewTask('');
-    setNewNote('');
-    if (projects.length > 0) setAddModalProject(projects[0].id);
-    setShowDayModal(false);
-    setShowAddModal(true);
+    setDayModal(m => ({ ...m, open: false }));
+    openAddModal(dayModal.date);
   };
 
   const handleScheduleClick = (schedule: ProjectSchedule, e?: React.MouseEvent) => {
     e?.stopPropagation();
-    setEditSchedule(schedule);
-    setEditDate(parseScheduleDate(schedule.date));
-    setEditTask(schedule.task);
-    setEditNote(schedule.note || '');
-    setEditProject(schedule.projectId);
-    setShowDayModal(false);
-    setShowEditModal(true);
+    setDayModal(m => ({ ...m, open: false }));
+    setEditModal({
+      open: true,
+      schedule,
+      date: parseScheduleDate(schedule.date),
+      task: schedule.task,
+      note: schedule.note || '',
+      projectId: schedule.projectId,
+    });
   };
 
   const addSchedule = async () => {
-    if (!addModalProject || !addModalDate || !newTask.trim()) return;
+    if (!addModal.projectId || !addModal.date || !addModal.task.trim()) return;
     setSaving(true);
     try {
-      const res = await fetch('/api/schedules', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ projectId: addModalProject, date: addModalDate + 'T12:00:00', task: newTask.trim(), note: newNote.trim() || null })
+      const data = await apiPost('/api/schedules', {
+        projectId: addModal.projectId,
+        date: addModal.date + 'T12:00:00',
+        task: addModal.task.trim(),
+        note: addModal.note.trim() || null,
       });
-      const data = await res.json();
       if (data.schedule) {
         setSchedules(prev => [...prev, data.schedule]);
         showToast('일정이 추가되었습니다');
       }
-      setShowAddModal(false);
+      setAddModal(m => ({ ...m, open: false }));
     } catch {
       showToast('일정 추가 실패', 'error');
     } finally {
@@ -312,21 +292,20 @@ export function CalendarView() {
   };
 
   const updateSchedule = async () => {
-    if (!editSchedule || !editProject || !editDate || !editTask.trim()) return;
+    if (!editModal.schedule || !editModal.projectId || !editModal.date || !editModal.task.trim()) return;
     setSaving(true);
     try {
-      const res = await fetch(`/api/schedules/${editSchedule.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ projectId: editProject, date: editDate + 'T12:00:00', task: editTask.trim(), note: editNote.trim() || null })
+      const data = await apiPatch(`/api/schedules/${editModal.schedule.id}`, {
+        projectId: editModal.projectId,
+        date: editModal.date + 'T12:00:00',
+        task: editModal.task.trim(),
+        note: editModal.note.trim() || null,
       });
-      const data = await res.json();
       if (data.schedule) {
-        setSchedules(prev => prev.map(s => s.id === editSchedule.id ? data.schedule : s));
+        setSchedules(prev => prev.map(s => s.id === editModal.schedule!.id ? data.schedule : s));
         showToast('일정이 수정되었습니다');
       }
-      setShowEditModal(false);
+      setEditModal(m => ({ ...m, open: false }));
     } catch {
       showToast('일정 수정 실패', 'error');
     } finally {
@@ -335,12 +314,12 @@ export function CalendarView() {
   };
 
   const deleteSchedule = async () => {
-    if (!editSchedule) return;
+    if (!editModal.schedule) return;
     if (!confirm('이 일정을 삭제하시겠습니까?')) return;
     try {
-      await fetch(`/api/schedules/${editSchedule.id}`, { method: 'DELETE', credentials: 'include' });
-      setSchedules(prev => prev.filter(s => s.id !== editSchedule.id));
-      setShowEditModal(false);
+      await apiDelete(`/api/schedules/${editModal.schedule.id}`);
+      setSchedules(prev => prev.filter(s => s.id !== editModal.schedule!.id));
+      setEditModal(m => ({ ...m, open: false }));
       showToast('일정이 삭제되었습니다');
     } catch {
       showToast('삭제 실패', 'error');
@@ -348,51 +327,48 @@ export function CalendarView() {
   };
 
   const openProjectModal = (project: Project) => {
-    setSelectedProject(project);
-    setEditProjectName(project.name);
-    setEditProjectColor(project.color);
-    setShowProjectModal(true);
+    setProjectModal({ open: true, project, name: project.name, color: project.color });
   };
 
   const saveProject = async () => {
-    if (!selectedProject) return;
+    const target = projectModal.project;
+    if (!target) return;
     try {
-      const res = await fetch(`/api/projects/${selectedProject.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ name: editProjectName, color: editProjectColor })
-      });
-      const data = await res.json();
+      const data = await apiPatch(`/api/projects/${target.id}`, { name: projectModal.name, color: projectModal.color });
       if (data.project) {
-        setProjects(prev => prev.map(p => p.id === selectedProject.id ? { ...p, name: editProjectName, color: editProjectColor } : p));
+        setProjects(prev => prev.map(p => p.id === target.id ? { ...p, name: projectModal.name, color: projectModal.color } : p));
         setSchedules(prev => prev.map(s =>
-          s.projectId === selectedProject.id
-            ? { ...s, project: { ...s.project, name: editProjectName, color: editProjectColor } }
+          s.projectId === target.id
+            ? { ...s, project: { ...s.project, name: projectModal.name, color: projectModal.color } }
             : s
         ));
         showToast('프로젝트가 저장되었습니다');
       }
-      setShowProjectModal(false);
+      setProjectModal(m => ({ ...m, open: false }));
     } catch {
       showToast('프로젝트 저장 실패', 'error');
     }
   };
 
-  // 인쇄 (전체 인쇄는 필터 해제 후 인쇄, 프로젝트별은 필터 적용 후 인쇄)
+  // 인쇄: 필터를 먼저 상태로 바꾸고, 렌더에 반영된 뒤(effect) 인쇄 → afterprint 에서 복원.
+  // setTimeout 타이밍에 기대지 않으므로 느린 기기에서도 필터가 적용된 화면이 인쇄된다.
   const handlePrint = (projectId?: string) => {
-    const prevFilter = filterProjectId;
-    if (projectId) {
-      // 특정 프로젝트만
-      setFilterProjectId(projectId);
-      setTimeout(() => { window.print(); setTimeout(() => setFilterProjectId(prevFilter), 500); }, 100);
-    } else {
-      // 전체 인쇄 → 필터 해제
-      setFilterProjectId(null);
-      setTimeout(() => { window.print(); setTimeout(() => setFilterProjectId(prevFilter), 500); }, 100);
-    }
     setShowPrintMenu(false);
+    setPendingPrint({ prevFilter: filterProjectId });
+    setFilterProjectId(projectId ?? null);
   };
+
+  useEffect(() => {
+    if (!pendingPrint) return;
+    const prev = pendingPrint.prevFilter;
+    const restore = () => {
+      setFilterProjectId(prev);
+      setPendingPrint(null);
+    };
+    window.addEventListener('afterprint', restore, { once: true });
+    window.print();
+    return () => window.removeEventListener('afterprint', restore);
+  }, [pendingPrint]);
 
   // 연속 날짜 병합 (3월 16일, 17일, 18일 → 3월 16~18일)
   const mergeDates = (dates: string[]): string => {
@@ -527,22 +503,20 @@ export function CalendarView() {
   };
 
   const generateTaskSummary = (projectFilter?: string | null) => {
-    const text = buildSummaryText(projectFilter);
-    setSummaryText(text);
+    setSummaryModal({ open: true, text: buildSummaryText(projectFilter) });
     setCopied(false);
-    setShowSummaryModal(true);
     setShowExportMenu(false);
   };
 
   const copySummary = async () => {
     try {
-      await navigator.clipboard.writeText(summaryText);
+      await navigator.clipboard.writeText(summaryModal.text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
       // fallback
       const ta = document.createElement('textarea');
-      ta.value = summaryText;
+      ta.value = summaryModal.text;
       document.body.appendChild(ta);
       ta.select();
       document.execCommand('copy');
@@ -874,16 +848,16 @@ export function CalendarView() {
       )}
 
       {/* ===== 날짜 상세 모달 ===== */}
-      {showDayModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 print:hidden" onClick={() => setShowDayModal(false)}>
+      {dayModal.open && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 print:hidden" onClick={() => setDayModal(m => ({ ...m, open: false }))}>
           <Card className="w-full max-w-sm" onClick={e => e.stopPropagation()}>
             <CardContent className="p-5 space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold">{dayModalDate.replace(/-/g, '.')} 일정</h3>
-                <button onClick={() => setShowDayModal(false)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
+                <h3 className="text-lg font-bold">{dayModal.date.replace(/-/g, '.')} 일정</h3>
+                <button onClick={() => setDayModal(m => ({ ...m, open: false }))} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
               </div>
               <div className="space-y-2 max-h-[50vh] overflow-y-auto">
-                {dayModalSchedules.map(s => {
+                {dayModal.schedules.map(s => {
                   const project = projects.find(p => p.id === s.projectId);
                   return (
                     <div key={s.id} onClick={() => handleScheduleClick(s)}
@@ -907,34 +881,34 @@ export function CalendarView() {
       )}
 
       {/* ===== 일정 추가 모달 ===== */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 print:hidden" onClick={() => setShowAddModal(false)}>
+      {addModal.open && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 print:hidden" onClick={() => setAddModal(m => ({ ...m, open: false }))}>
           <Card className="w-full max-w-sm" onClick={e => e.stopPropagation()}>
             <CardContent className="p-5 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold flex items-center gap-2"><Plus className="w-5 h-5" /> 일정 추가</h3>
-                <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
+                <button onClick={() => setAddModal(m => ({ ...m, open: false }))} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
               </div>
               <div>
                 <label className="text-xs text-slate-500">날짜</label>
-                <Input type="date" value={addModalDate} onChange={e => setAddModalDate(e.target.value)} className="mt-1 h-10" />
+                <Input type="date" value={addModal.date} onChange={e => setAddModal(m => ({ ...m, date: e.target.value }))} className="mt-1 h-10" />
               </div>
               <div>
                 <label className="text-xs text-slate-500">프로젝트</label>
-                {renderProjectSelector(addModalProject, setAddModalProject)}
+                {renderProjectSelector(addModal.projectId, id => setAddModal(m => ({ ...m, projectId: id })))}
               </div>
               <div>
                 <label className="text-xs text-slate-500">작업 내용</label>
-                {renderPresetButtons(newTask, setNewTask)}
-                <Input placeholder="직접 입력" value={newTask} onChange={e => setNewTask(e.target.value)} className="h-10" />
+                {renderPresetButtons(addModal.task, v => setAddModal(m => ({ ...m, task: v })))}
+                <Input placeholder="직접 입력" value={addModal.task} onChange={e => setAddModal(m => ({ ...m, task: e.target.value }))} className="h-10" />
               </div>
               <div>
                 <label className="text-xs text-slate-500">비고 (선택)</label>
-                <Input placeholder="참고사항" value={newNote} onChange={e => setNewNote(e.target.value)} className="h-10 mt-1" />
+                <Input placeholder="참고사항" value={addModal.note} onChange={e => setAddModal(m => ({ ...m, note: e.target.value }))} className="h-10 mt-1" />
               </div>
               <div className="flex gap-2 pt-2">
-                <Button variant="outline" className="flex-1 h-10" onClick={() => setShowAddModal(false)}>취소</Button>
-                <Button className="flex-1 h-10" onClick={addSchedule} disabled={!addModalProject || !addModalDate || !newTask.trim() || saving}>{saving ? '추가 중...' : '추가'}</Button>
+                <Button variant="outline" className="flex-1 h-10" onClick={() => setAddModal(m => ({ ...m, open: false }))}>취소</Button>
+                <Button className="flex-1 h-10" onClick={addSchedule} disabled={!addModal.projectId || !addModal.date || !addModal.task.trim() || saving}>{saving ? '추가 중...' : '추가'}</Button>
               </div>
             </CardContent>
           </Card>
@@ -942,37 +916,37 @@ export function CalendarView() {
       )}
 
       {/* ===== 일정 편집 모달 ===== */}
-      {showEditModal && editSchedule && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 print:hidden" onClick={() => setShowEditModal(false)}>
+      {editModal.open && editModal.schedule && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 print:hidden" onClick={() => setEditModal(m => ({ ...m, open: false }))}>
           <Card className="w-full max-w-sm" onClick={e => e.stopPropagation()}>
             <CardContent className="p-5 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold flex items-center gap-2"><Edit2 className="w-5 h-5" /> 일정 편집</h3>
-                <button onClick={() => setShowEditModal(false)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
+                <button onClick={() => setEditModal(m => ({ ...m, open: false }))} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
               </div>
               <div>
                 <label className="text-xs text-slate-500">날짜</label>
-                <Input type="date" value={editDate} onChange={e => setEditDate(e.target.value)} className="mt-1 h-10" />
+                <Input type="date" value={editModal.date} onChange={e => setEditModal(m => ({ ...m, date: e.target.value }))} className="mt-1 h-10" />
               </div>
               <div>
                 <label className="text-xs text-slate-500">프로젝트</label>
-                {renderProjectSelector(editProject, setEditProject)}
+                {renderProjectSelector(editModal.projectId, id => setEditModal(m => ({ ...m, projectId: id })))}
               </div>
               <div>
                 <label className="text-xs text-slate-500">작업 내용</label>
-                {renderPresetButtons(editTask, setEditTask)}
-                <Input placeholder="직접 입력" value={editTask} onChange={e => setEditTask(e.target.value)} className="h-10" />
+                {renderPresetButtons(editModal.task, v => setEditModal(m => ({ ...m, task: v })))}
+                <Input placeholder="직접 입력" value={editModal.task} onChange={e => setEditModal(m => ({ ...m, task: e.target.value }))} className="h-10" />
               </div>
               <div>
                 <label className="text-xs text-slate-500">비고 (선택)</label>
-                <Input placeholder="참고사항" value={editNote} onChange={e => setEditNote(e.target.value)} className="h-10 mt-1" />
+                <Input placeholder="참고사항" value={editModal.note} onChange={e => setEditModal(m => ({ ...m, note: e.target.value }))} className="h-10 mt-1" />
               </div>
               <div className="flex gap-2 pt-2">
                 <Button variant="destructive" size="sm" className="h-10 px-3" onClick={deleteSchedule}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
-                <Button variant="outline" className="flex-1 h-10" onClick={() => setShowEditModal(false)}>취소</Button>
-                <Button className="flex-1 h-10" onClick={updateSchedule} disabled={!editProject || !editDate || !editTask.trim() || saving}>{saving ? '저장 중...' : '저장'}</Button>
+                <Button variant="outline" className="flex-1 h-10" onClick={() => setEditModal(m => ({ ...m, open: false }))}>취소</Button>
+                <Button className="flex-1 h-10" onClick={updateSchedule} disabled={!editModal.projectId || !editModal.date || !editModal.task.trim() || saving}>{saving ? '저장 중...' : '저장'}</Button>
               </div>
             </CardContent>
           </Card>
@@ -980,30 +954,30 @@ export function CalendarView() {
       )}
 
       {/* ===== 프로젝트 편집 모달 ===== */}
-      {showProjectModal && selectedProject && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 print:hidden" onClick={() => setShowProjectModal(false)}>
+      {projectModal.open && projectModal.project && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 print:hidden" onClick={() => setProjectModal(m => ({ ...m, open: false }))}>
           <Card className="w-full max-w-sm" onClick={e => e.stopPropagation()}>
             <CardContent className="p-5 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold">프로젝트 편집</h3>
-                <button onClick={() => setShowProjectModal(false)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
+                <button onClick={() => setProjectModal(m => ({ ...m, open: false }))} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
               </div>
               <div>
                 <label className="text-xs text-slate-500">프로젝트명</label>
-                <Input value={editProjectName} onChange={e => setEditProjectName(e.target.value)} className="mt-1 h-10" />
+                <Input value={projectModal.name} onChange={e => setProjectModal(m => ({ ...m, name: e.target.value }))} className="mt-1 h-10" />
               </div>
               <div>
                 <label className="text-xs text-slate-500">색상</label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {COLOR_PRESETS.map(color => (
-                    <button key={color} onClick={() => setEditProjectColor(color)}
-                      className={`w-7 h-7 rounded-full border-2 transition ${editProjectColor === color ? 'border-slate-800 dark:border-white scale-110' : 'border-transparent hover:scale-105'}`}
+                    <button key={color} onClick={() => setProjectModal(m => ({ ...m, color }))}
+                      className={`w-7 h-7 rounded-full border-2 transition ${projectModal.color === color ? 'border-slate-800 dark:border-white scale-110' : 'border-transparent hover:scale-105'}`}
                       style={{ backgroundColor: color }} />
                   ))}
                 </div>
               </div>
               <div className="flex gap-2 pt-2">
-                <Button variant="outline" className="flex-1 h-10" onClick={() => setShowProjectModal(false)}>취소</Button>
+                <Button variant="outline" className="flex-1 h-10" onClick={() => setProjectModal(m => ({ ...m, open: false }))}>취소</Button>
                 <Button className="flex-1 h-10" onClick={saveProject}>저장</Button>
               </div>
             </CardContent>
@@ -1012,22 +986,22 @@ export function CalendarView() {
       )}
 
       {/* ===== 공종별 요약 모달 ===== */}
-      {showSummaryModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 print:hidden" onClick={() => setShowSummaryModal(false)}>
+      {summaryModal.open && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 print:hidden" onClick={() => setSummaryModal(m => ({ ...m, open: false }))}>
           <Card className="w-full max-w-lg" onClick={e => e.stopPropagation()}>
             <CardContent className="p-5 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold flex items-center gap-2"><FileText className="w-5 h-5" /> 공종별 요약</h3>
-                <button onClick={() => setShowSummaryModal(false)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
+                <button onClick={() => setSummaryModal(m => ({ ...m, open: false }))} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
               </div>
               <div className="text-xs text-slate-500">업체에 보낼 문자로 사용하세요. 내용을 직접 수정한 뒤 복사할 수 있습니다.</div>
               <textarea
-                value={summaryText}
-                onChange={e => setSummaryText(e.target.value)}
+                value={summaryModal.text}
+                onChange={e => setSummaryModal(m => ({ ...m, text: e.target.value }))}
                 className="w-full h-[50vh] p-3 text-sm font-mono bg-slate-50 dark:bg-slate-900 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-slate-400"
               />
               <div className="flex gap-2">
-                <Button variant="outline" className="flex-1 h-10" onClick={() => setShowSummaryModal(false)}>닫기</Button>
+                <Button variant="outline" className="flex-1 h-10" onClick={() => setSummaryModal(m => ({ ...m, open: false }))}>닫기</Button>
                 <Button className="flex-1 h-10" onClick={copySummary}>
                   {copied ? <><Check className="w-4 h-4 mr-1" /> 복사됨!</> : <><Copy className="w-4 h-4 mr-1" /> 클립보드 복사</>}
                 </Button>

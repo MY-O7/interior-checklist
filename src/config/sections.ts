@@ -120,3 +120,42 @@ export const SECTIONS: Section[] = [
   // 특이사항
   { id: 'notes', title: '특이사항 및 추가 요청', subtitle: 'Special Notes', items: [] },
 ];
+
+// ───────── 저장 데이터 키 마이그레이션 ─────────
+// 체크리스트 저장 데이터는 섹션 id / 항목 "이름"을 키로 쓴다.
+// 위 SECTIONS 의 id나 항목명을 바꾸면 기존 저장 데이터가 고아가 되므로,
+// 이름을 바꿀 때는 반드시 여기에 (옛 키 → 새 키) 매핑을 추가할 것.
+export const LEGACY_SECTION_KEYS: Record<string, string> = {};
+export const LEGACY_ITEM_KEYS: Record<string, string> = {};
+
+/** 저장된 체크리스트의 옛 키를 현재 키로 이관 (새 키에 이미 값이 있으면 보존) */
+export function migrateChecklistKeys(
+  saved: Record<string, Record<string, any>>
+): Record<string, Record<string, any>> {
+  const out: Record<string, Record<string, any>> = {};
+  for (const [sectionKey, items] of Object.entries(saved || {})) {
+    const sk = LEGACY_SECTION_KEYS[sectionKey] || sectionKey;
+    const target = (out[sk] = out[sk] || {});
+    for (const [itemKey, val] of Object.entries(items || {})) {
+      const ik = LEGACY_ITEM_KEYS[itemKey] || itemKey;
+      if (!(ik in target)) target[ik] = val;
+    }
+  }
+  return out;
+}
+
+/** roomChecklist 키(`섹션id_항목명`)도 같은 매핑으로 이관 */
+export function migrateRoomChecklistKeys(
+  saved: Record<string, Record<string, any>>
+): Record<string, Record<string, any>> {
+  const out: Record<string, Record<string, any>> = {};
+  for (const [key, val] of Object.entries(saved || {})) {
+    const sep = key.indexOf('_');
+    if (sep < 0) { if (!(key in out)) out[key] = val; continue; }
+    const sk = LEGACY_SECTION_KEYS[key.slice(0, sep)] || key.slice(0, sep);
+    const ik = LEGACY_ITEM_KEYS[key.slice(sep + 1)] || key.slice(sep + 1);
+    const nk = `${sk}_${ik}`;
+    if (!(nk in out)) out[nk] = val;
+  }
+  return out;
+}

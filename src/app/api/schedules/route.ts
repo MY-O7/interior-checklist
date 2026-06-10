@@ -34,9 +34,13 @@ export async function GET(request: NextRequest) {
     const where: Record<string, unknown> = {};
 
     if (year) {
+      // 서버 TZ(컨테이너=UTC)와 클라이언트 로컬 날짜(KST)가 어긋나도 연말/연초 일정이
+      // 빠지지 않게 UTC 기준 경계에 하루씩 여유를 둔다. 화면은 어차피 날짜별로 다시 매핑함.
+      const y = parseInt(year);
+      const DAY_MS = 24 * 60 * 60 * 1000;
       where.date = {
-        gte: new Date(parseInt(year), 0, 1),
-        lte: new Date(parseInt(year), 11, 31, 23, 59, 59)
+        gte: new Date(Date.UTC(y, 0, 1) - DAY_MS),
+        lt: new Date(Date.UTC(y + 1, 0, 1) + DAY_MS),
       };
     }
 

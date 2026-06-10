@@ -28,6 +28,13 @@ export async function PATCH(
       return NextResponse.json({ error: '접근 권한이 없습니다' }, { status: 403 });
     }
 
+    // 일정을 다른 프로젝트로 옮기는 경우, 옮겨갈 프로젝트의 권한도 확인 (IDOR 방지)
+    if (projectId !== undefined && projectId !== existing.projectId) {
+      if (!(await canAccessProject(user.id, user.role, projectId))) {
+        return NextResponse.json({ error: '대상 프로젝트에 접근 권한이 없습니다' }, { status: 403 });
+      }
+    }
+
     const schedule = await prisma.projectSchedule.update({
       where: { id },
       data: {

@@ -6,6 +6,25 @@ import { getSessionUser, setSessionCookie, clearSessionCookie } from '@/lib/auth
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD = 6;
 
+// 로그인 브루트포스 방지: IP+이메일 기준 1분 창에 10회 (단일 인스턴스 인메모리)
+const LOGIN_WINDOW_MS = 60_000;
+const LOGIN_MAX_ATTEMPTS = 10;
+const loginAttempts = new Map<string, { count: number; resetAt: number }>();
+function isLoginRateLimited(key: string): boolean {
+  const now = Date.now();
+  const entry = loginAttempts.get(key);
+  if (!entry || entry.resetAt < now) {
+    loginAttempts.set(key, { count: 1, resetAt: now + LOGIN_WINDOW_MS });
+    // 만료 항목이 무한히 쌓이지 않게 가끔 청소
+    if (loginAttempts.size > 1000) {
+      loginAttempts.forEach((v, k) => { if (v.resetAt < now) loginAttempts.delete(k); });
+    }
+    return false;
+  }
+  entry.count += 1;
+  return entry.count > LOGIN_MAX_ATTEMPTS;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -13,6 +32,11 @@ export async function POST(req: NextRequest) {
 
     // 로그인
     if (action === 'login') {
+      const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
+      if (isLoginRateLimited(`${ip}:${email ?? ''}`)) {
+        return NextResponse.json({ error: '시도가 너무 많습니다. 잠시 후 다시 시도해주세요.' }, { status: 429 });
+      }
+
       const user = await prisma.user.findUnique({ where: { email } });
       // 사용자 존재 여부를 노출하지 않도록 동일한 메시지 사용
       const invalid = () =>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { PrintEstimate } from '@/components/estimate/print-estimate';
+import { calcEstimateTotals } from '@/lib/calc';
 import type { EstimateItem, CompanyInfo } from '@/types/checklist';
 
 interface ShareData {
@@ -47,18 +48,11 @@ export default function SharePage({ params }: { params: { token: string } }) {
     );
   }
 
-  // 합계 계산 (견적 페이지와 동일한 공식. miscRate는 DB에 저장되지 않으므로 0)
-  const materialTotal = data.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
-  const laborTotal = data.items.reduce(
-    (s, i) => s + (i.labor || []).reduce((sum, l) => sum + l.days * l.dayRate, 0),
-    0
+  // 합계 공식은 lib/calc.ts 단일 소스 — 견적 페이지와 항상 동일 (miscRate는 DB에 저장되지 않으므로 0)
+  const { materialTotal, laborTotal, miscRate, miscAmount, subtotal, vatAmount, total } = calcEstimateTotals(
+    data.items,
+    { discount: data.discount, vatRate: data.vatRate, includeVat: data.includeVat, miscRate: 0 }
   );
-  const itemsSubtotal = materialTotal + laborTotal;
-  const miscRate = 0;
-  const miscAmount = 0;
-  const subtotal = itemsSubtotal + miscAmount;
-  const vatAmount = data.includeVat ? Math.round(subtotal * (data.vatRate || 10) / 100) : 0;
-  const total = subtotal + vatAmount - data.discount;
 
   const companyInfo: CompanyInfo = { ceoName: '', bizNumber: '', address: '' };
 

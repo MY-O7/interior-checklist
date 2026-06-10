@@ -8,6 +8,7 @@ import { Printer, Clipboard, ChevronLeft, Ruler, Menu, Copy, Home } from 'lucide
 import { useTheme } from '@/lib/theme';
 import { PageNav } from '@/components/shared';
 import { calcArea } from '@/lib/calc';
+import { apiGet } from '@/lib/api';
 
 // 실측 관심 항목 (sectionId + itemName → roomChecklist key = "sectionId_itemName")
 const MEASUREMENT_ITEMS = [
@@ -43,14 +44,15 @@ export default function MeasurementPage() {
 
   useEffect(() => {
     if (!projectId) return;
-    fetch(`/api/projects/${projectId}`, { credentials: 'include' }).then(r => r.json()).then(d => setProject(d.project));
-    fetch(`/api/checklists/${projectId}`, { credentials: 'include' }).then(r => r.json()).then(d => {
+    // GET /api/projects/[id] 는 프로젝트 객체를 그대로 반환한다 (d.project 아님 — 기존엔 항상 undefined였음)
+    apiGet(`/api/projects/${projectId}`).then(d => setProject(d)).catch(console.error);
+    apiGet(`/api/checklists/${projectId}`).then(d => {
       if (d.checklist) {
         setChecklist(d.checklist || {});
         setRoomChecklist(d.roomChecklist || {});
         setSiteInfo(d.siteInfo || null);
       }
-    });
+    }).catch(console.error);
   }, [projectId]);
 
   // 방 사이즈 데이터

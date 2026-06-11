@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SidebarWrapper } from '@/components/mobile-menu';
-import { Plus, Trash2, Save, Printer, X, ChevronLeft, Download, Menu, Home, ArrowLeft, ArrowUp, ArrowDown, ListOrdered, Link2 } from 'lucide-react';
+import { Plus, Trash2, Save, Printer, X, ChevronLeft, Download, Menu, Home, ArrowLeft, ArrowUp, ArrowDown, ListOrdered, Link2, FileSpreadsheet } from 'lucide-react';
+import ExcelImportDialog from '@/components/ExcelImportDialog';
 import { NumInput, PageNav } from '@/components/shared';
 import { PrintEstimate } from '@/components/estimate/print-estimate';
 import { ESTIMATE_PRESETS, CHECKLIST_TO_ESTIMATE, CATEGORIES, PRESET_CATEGORIES } from '@/config/estimate';
@@ -128,6 +129,7 @@ export default function EstimatePage() {
     if (printMode) window.scrollTo(0, 0);
   }, [printMode]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const [companyInfo, setCompanyInfo] = useState({
     ceoName: '',
     bizNumber: '',
@@ -502,10 +504,22 @@ export default function EstimatePage() {
             <button onClick={shareEstimate} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm text-blue-600 dark:text-blue-400 font-medium">
               <Link2 className="w-4 h-4" /> 고객 공유 링크 복사
             </button>
+            <button onClick={() => setShowImport(true)} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm">
+              <FileSpreadsheet className="w-4 h-4" /> 엑셀에서 가져오기
+            </button>
           </div>
           <PageNav projectId={projectId} current="estimate" />
         </div>
       </SidebarWrapper>
+
+      {showImport && (
+        <ExcelImportDialog
+          mode="overwrite"
+          projectId={projectId}
+          onClose={() => setShowImport(false)}
+          onDone={() => window.location.reload()}
+        />
+      )}
 
       <main className="flex-1 flex flex-col overflow-hidden">
         <header className="h-14 border-b bg-[var(--card)] flex items-center justify-between px-4 print:hidden sticky top-0 z-10 shrink-0">

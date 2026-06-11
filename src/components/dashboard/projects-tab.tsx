@@ -4,7 +4,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Plus, Search, User, MapPin, Calendar, FileText, Calculator, Ruler, Edit2, Share2, Trash2, FolderOpen } from 'lucide-react';
+import { Plus, Search, User, MapPin, Calendar, FileText, Calculator, Ruler, Edit2, Share2, Trash2, FolderOpen, FileSpreadsheet } from 'lucide-react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import ExcelImportDialog from '@/components/ExcelImportDialog';
 
 interface Project {
   id: string;
@@ -39,6 +42,8 @@ export function ProjectsTab({
   newProject, setNewProject, createProject, openProject, onMeasure,
   startEditProject, openShareModal, deleteProject,
 }: ProjectsTabProps) {
+  const [showImport, setShowImport] = useState(false);
+  const router = useRouter();
   return (
     <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -52,10 +57,23 @@ export function ProjectsTab({
             )}
           </p>
         </div>
-        <Button onClick={() => setShowNewProject(true)} className="w-full sm:w-auto">
-          <Plus className="w-4 h-4 mr-2" /> 새 프로젝트
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={() => setShowImport(true)} className="w-full sm:w-auto">
+            <FileSpreadsheet className="w-4 h-4 mr-2" /> 엑셀 견적서 가져오기
+          </Button>
+          <Button onClick={() => setShowNewProject(true)} className="w-full sm:w-auto">
+            <Plus className="w-4 h-4 mr-2" /> 새 프로젝트
+          </Button>
+        </div>
       </div>
+
+      {showImport && (
+        <ExcelImportDialog
+          mode="newProject"
+          onClose={() => setShowImport(false)}
+          onDone={pid => { setShowImport(false); router.push(`/estimate/${pid}`); }}
+        />
+      )}
 
       {/* 검색 */}
       <div className="relative">

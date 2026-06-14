@@ -51,7 +51,12 @@ const wonKorean = (n: number): string => {
 };
 
 export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAmount, subtotal, vatAmount, total, categoryOrder, onClose }: Props) {
-  const grouped = estimate.items.reduce((acc, item) => {
+  // 엑셀 반올림 조정 항목은 공정 목록에서 빼고 합계 요약에 별도 줄로 표기
+  const isRoundAdjust = (i: EstimateItem) => i.category === '기타' && (/반올림/.test(i.name) || /반올림/.test(i.note || ''));
+  const realItems = estimate.items.filter(i => !isRoundAdjust(i));
+  const roundAdjust = estimate.items.filter(isRoundAdjust).reduce((s, i) => s + i.quantity * i.unitPrice, 0);
+
+  const grouped = realItems.reduce((acc, item) => {
     const cat = CATEGORY_DISPLAY[item.category] || item.category;
     (acc[cat] ||= []).push(item);
     return acc;
@@ -67,8 +72,8 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
   });
 
   const dateStr = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
-  const matTotal = estimate.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
-  const labTotal = estimate.items.reduce((s, i) => s + (i.labor || []).reduce((x, l) => x + l.days * l.dayRate, 0), 0);
+  const matTotal = realItems.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
+  const labTotal = realItems.reduce((s, i) => s + (i.labor || []).reduce((x, l) => x + l.days * l.dayRate, 0), 0);
 
   // ── 렌더 조각들 ──
   const estNo = (() => {
@@ -184,6 +189,7 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
           <div className="rounded-lg overflow-hidden border border-slate-200 text-[13.5px]">
             <div className="flex justify-between px-4 py-2.5 border-b border-slate-100"><span className="text-slate-500">자재·인건비 합계</span><span className="font-medium text-slate-800">{won(matTotal + labTotal)}원</span></div>
             <div className="flex justify-between px-4 py-2.5 border-b border-slate-100"><span className="text-slate-500">공과잡비{miscRate > 0 ? ` (${miscRate}%)` : ''}</span><span className="font-medium text-slate-800">{won(miscAmount)}원</span></div>
+            {roundAdjust !== 0 && <div className="flex justify-between px-4 py-2.5 border-b border-slate-100"><span className="text-slate-500">반올림 조정</span><span className="font-medium text-slate-800">{roundAdjust > 0 ? '+' : ''}{won(roundAdjust)}원</span></div>}
             <div className="flex justify-between px-4 py-2.5 border-b border-slate-100"><span className="text-slate-500">공급가액 (부가세 전)</span><span className="font-medium text-slate-800">{won(subtotal)}원</span></div>
             <div className="flex justify-between px-4 py-2.5 border-b border-slate-100"><span className="text-slate-500">부가세 ({estimate.vatRate ?? 10}%)</span><span className="font-medium text-slate-800">{won(estimate.includeVat !== false ? vatAmount : 0)}원</span></div>
             <div className="flex justify-between px-4 py-2.5 border-b border-slate-100"><span className="text-slate-500">할인</span><span className={`font-medium ${estimate.discount > 0 ? 'text-red-500' : 'text-slate-800'}`}>{estimate.discount > 0 ? `-${won(estimate.discount)}` : '0'}원</span></div>

@@ -522,6 +522,11 @@ export default function EstimatePage() {
     includeVat: estimate.includeVat,
     miscRate,
   });
+  // 엑셀 반올림 조정 항목: 편집 목록엔 숨기고 합계 요약에 별도 줄로 표기
+  const isRoundAdjust = (i: EstimateItem) => i.category === '기타' && (/반올림/.test(i.name) || /반올림/.test(i.note || ''));
+  const visibleItems = estimate.items.filter(i => !isRoundAdjust(i));
+  const roundAdjust = estimate.items.filter(isRoundAdjust).reduce((s, i) => s + i.quantity * i.unitPrice, 0);
+  const realMaterialTotal = materialTotal - roundAdjust;
 
   if (!project) return null;
 
@@ -626,7 +631,7 @@ export default function EstimatePage() {
 
         {/* 모바일: 카드 뷰 */}
         <div className="space-y-3 md:hidden">
-          {estimate.items.map(item => (
+          {visibleItems.map(item => (
             <EstimateItemCard
               key={item.id}
               item={item}
@@ -662,7 +667,7 @@ export default function EstimatePage() {
                 </tr>
               </thead>
               <tbody>
-                {estimate.items.map(item => (
+                {visibleItems.map(item => (
                   <tr key={item.id} className="border-b">
                     <td className="p-2 print:hidden">
                       <Button variant="ghost" size="sm" onClick={() => removeItem(item.id)}>
@@ -750,10 +755,13 @@ export default function EstimatePage() {
               </div>
               <div className="bg-[var(--muted)] rounded-xl p-4">
                 <div className="space-y-2 text-sm">
-                  <div className="flex justify-between"><span>자재비 소계</span><span>{materialTotal.toLocaleString()}원</span></div>
+                  <div className="flex justify-between"><span>자재비 소계</span><span>{realMaterialTotal.toLocaleString()}원</span></div>
                   <div className="flex justify-between"><span>인건비 소계</span><span>{laborTotal.toLocaleString()}원</span></div>
                   {miscRate > 0 && (
                     <div className="flex justify-between"><span>공과잡비 ({miscRate}%)</span><span>{miscAmount.toLocaleString()}원</span></div>
+                  )}
+                  {roundAdjust !== 0 && (
+                    <div className="flex justify-between text-[var(--foreground-muted)]"><span>반올림 조정</span><span>{roundAdjust > 0 ? '+' : ''}{roundAdjust.toLocaleString()}원</span></div>
                   )}
                   <div className="flex justify-between border-t pt-1"><span>공급가액</span><span>{subtotal.toLocaleString()}원</span></div>
                   {estimate.includeVat !== false && (

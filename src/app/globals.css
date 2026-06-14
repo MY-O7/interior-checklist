@@ -8,42 +8,42 @@
 
 /* Light Mode - 깔끔하고 밝은 느낌 */
 :root {
-  /* Primary Colors */
-  --brand-primary: #2563eb;
-  --brand-primary-hover: #1d4ed8;
-  --brand-primary-light: #dbeafe;
+  /* Primary Colors — 딥 그린 */
+  --brand-primary: #2f7d5f;
+  --brand-primary-hover: #276a50;
+  --brand-primary-light: #d8ece2;
   
   /* Accent Colors */
   --brand-accent: #f59e0b;
   --brand-accent-hover: #d97706;
   --brand-accent-light: #fef3c7;
   
-  /* Background — 카드(흰색)가 떠 보이도록 한 톤 낮춤 */
-  --background: #e7ecf2;
+  /* Background — 따뜻한 그레이지 (흰 카드가 떠 보이게) */
+  --background: #efece4;
   --background-secondary: #ffffff;
 
-  /* Foreground */
-  --foreground: #0f172a;
-  --foreground-secondary: #3f4b5b;
-  --foreground-muted: #5b6675;
-  --muted-foreground: #5b6675;
+  /* Foreground — 웜 차콜 */
+  --foreground: #1f2a24;
+  --foreground-secondary: #47524c;
+  --foreground-muted: #6c7670;
+  --muted-foreground: #6c7670;
 
   /* Card */
   --card: #ffffff;
-  --card-hover: #f1f5f9;
-  --card-border: #cbd5e1;
-  
+  --card-hover: #f4f1ea;
+  --card-border: #d8d2c6;
+
   /* Sidebar */
   --sidebar-bg: #ffffff;
-  --sidebar-border: #e2e8f0;
-  --sidebar-hover: #f1f5f9;
-  --sidebar-active: #2563eb;
-  --sidebar-active-bg: #eff6ff;
-  
+  --sidebar-border: #e6e1d7;
+  --sidebar-hover: #f4f1ea;
+  --sidebar-active: #2f7d5f;
+  --sidebar-active-bg: #e3efe8;
+
   /* Input */
   --input-bg: #ffffff;
-  --input-border: #cbd5e1;
-  --input-focus: #2563eb;
+  --input-border: #d0c9bc;
+  --input-focus: #2f7d5f;
   
   /* Table */
   --table-header: #f1f5f9;
@@ -61,10 +61,10 @@
   --info-bg: #dbeafe;
   
   /* Muted */
-  --muted: #f1f5f9;
-  
+  --muted: #ece8e0;
+
   /* Border & Shadow */
-  --border: #cbd5e1;
+  --border: #d8d2c6;
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -73,9 +73,9 @@
 
 /* Dark Mode - 눈 편안한 다크 테마 */
 .dark {
-  --brand-primary: #3b82f6;
-  --brand-primary-hover: #60a5fa;
-  --brand-primary-light: #1e3a5f;
+  --brand-primary: #45b083;
+  --brand-primary-hover: #5cc197;
+  --brand-primary-light: #143229;
   
   --brand-accent: #fbbf24;
   --brand-accent-hover: #fcd34d;
@@ -96,12 +96,12 @@
   --sidebar-bg: #1e293b;
   --sidebar-border: #334155;
   --sidebar-hover: #334155;
-  --sidebar-active: #3b82f6;
-  --sidebar-active-bg: #1e3a5f;
-  
+  --sidebar-active: #45b083;
+  --sidebar-active-bg: #143229;
+
   --input-bg: #1e293b;
   --input-border: #475569;
-  --input-focus: #3b82f6;
+  --input-focus: #45b083;
   
   --table-header: #334155;
   --table-row-hover: #1e293b;

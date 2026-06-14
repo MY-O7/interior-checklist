@@ -39,7 +39,7 @@ function ChecklistRow({ item, sectionId, data, roomData, onUpdate, onRoomUpdate,
       <div className="flex items-start gap-3">
         <Checkbox checked={data.checked} onCheckedChange={(c) => onUpdate('checked', c)} className="w-6 h-6 border-2 mt-0.5" />
         <div className="flex-1 min-w-0">
-          {parentLabel && <p className="text-xs text-[#CD363A] font-semibold mb-0.5 tracking-wide">▶ {parentLabel}</p>}
+          {parentLabel && <p className="text-xs text-[var(--brand-primary)] font-semibold mb-0.5 tracking-wide">▶ {parentLabel}</p>}
           <p className="font-semibold text-base sm:text-lg text-slate-800 dark:text-slate-200">
             {item.name}
             {item.badge && <span className={`ml-2 px-2 py-0.5 rounded text-xs font-bold ${item.badge === 'high' ? 'bg-rose-100 text-rose-700 border border-rose-300' : item.badge === 'req' ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-100 text-indigo-700'}`}>{item.badge === 'high' ? 'HIGH-END' : item.badge === 'req' ? '필수' : '선택'}</span>}
@@ -334,7 +334,7 @@ export default function ProjectPage() {
                   ].map(({ label, key, placeholder }) => (
                     <div key={key} className="flex flex-col sm:flex-row">
                       <div className="px-4 py-3 sm:w-48 bg-slate-50 dark:bg-slate-900/50 flex items-center"><Label className="text-sm font-semibold text-slate-600 dark:text-slate-400">{label}</Label></div>
-                      <div className="flex-1 px-4 py-2"><Input value={(siteInfo as any)[key]} onChange={(e) => setSiteInfo({ ...siteInfo, [key]: e.target.value })} placeholder={placeholder} className="h-12 text-lg border-0 border-b border-dashed border-slate-200 dark:border-slate-700 rounded-none bg-transparent focus:ring-0 focus:border-[#CD363A]" /></div>
+                      <div className="flex-1 px-4 py-2"><Input value={(siteInfo as any)[key]} onChange={(e) => setSiteInfo({ ...siteInfo, [key]: e.target.value })} placeholder={placeholder} className="h-12 text-lg border-0 border-b border-dashed border-slate-200 dark:border-slate-700 rounded-none bg-transparent focus:ring-0 focus:border-[var(--brand-primary)]" /></div>
                     </div>
                   ))}
                   <div className="flex flex-col sm:flex-row"><div className="px-4 py-3 sm:w-48 bg-slate-50 dark:bg-slate-900/50"><Label className="text-sm font-semibold text-slate-600 dark:text-slate-400">거주 여부</Label></div><div className="flex-1 px-4 py-3"><RadioGroup value={siteInfo.isOccupied} onValueChange={(v) => setSiteInfo({ ...siteInfo, isOccupied: v })} className="flex gap-6">{['공실', '거주중'].map(v => <div key={v} className="flex items-center space-x-2"><RadioGroupItem value={v} id={`occ-${v}`} /><Label htmlFor={`occ-${v}`}>{v}</Label></div>)}</RadioGroup></div></div>
@@ -357,7 +357,7 @@ export default function ProjectPage() {
                   </div>
                   {SECTIONS[currentSection].id === 'notes' ? (
                     <div className="bg-white dark:bg-slate-800 p-4">
-                      <textarea className="w-full min-h-[250px] px-4 py-3 text-lg border border-dashed border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 resize-y focus:outline-none focus:border-[#CD363A]" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="특이사항 및 추가 요청사항을 입력하세요..." />
+                      <textarea className="w-full min-h-[250px] px-4 py-3 text-lg border border-dashed border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 resize-y focus:outline-none focus:border-[var(--brand-primary)]" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="특이사항 및 추가 요청사항을 입력하세요..." />
                     </div>
                   ) : SECTIONS[currentSection].id === 'roomSize' ? (
                     <RoomSizeSection

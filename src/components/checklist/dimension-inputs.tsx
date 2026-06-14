@@ -71,14 +71,14 @@ export function DimensionInputs({ value, onChange, showJwa }: {
 
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <button onClick={addSegment}
-          className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 font-semibold px-2 py-1 rounded-md hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors">
+          className="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 font-semibold px-2 py-1 rounded-md hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors">
           + 구역 추가 <span className="text-xs font-normal text-slate-400">(ㄱ자방 등)</span>
         </button>
         {pyeong > 0 && (
-          <div className="flex items-center gap-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 px-3 py-1.5">
-            <span className="text-xs text-blue-500 dark:text-blue-400">≈</span>
-            <span className="text-base font-bold text-blue-700 dark:text-blue-300">{pyeong.toFixed(1)}평</span>
-            <span className="text-xs text-blue-500 dark:text-blue-400">/ {m2.toFixed(1)}㎡{jwa > 0 ? ` / ${jwa.toFixed(1)}좌` : ''}</span>
+          <div className="flex items-center gap-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5">
+            <span className="text-xs text-emerald-500 dark:text-emerald-400">≈</span>
+            <span className="text-base font-bold text-emerald-700 dark:text-emerald-300">{pyeong.toFixed(1)}평</span>
+            <span className="text-xs text-emerald-500 dark:text-emerald-400">/ {m2.toFixed(1)}㎡{jwa > 0 ? ` / ${jwa.toFixed(1)}좌` : ''}</span>
           </div>
         )}
       </div>

@@ -37,7 +37,7 @@ export function RoomSizeSection({ rooms, presets, onAdd, onRemove, onUpdate }: {
           가로·세로를 mm로 입력하세요. 평수는 자동 계산됩니다.
         </p>
         {totalPyeong > 0 && (
-          <div className="rounded-lg bg-blue-600 text-white px-3.5 py-1.5 shrink-0">
+          <div className="rounded-lg bg-emerald-600 text-white px-3.5 py-1.5 shrink-0">
             <span className="text-xs opacity-80">총 면적 </span>
             <span className="text-base font-bold">{totalPyeong.toFixed(1)}평</span>
           </div>
@@ -51,7 +51,7 @@ export function RoomSizeSection({ rooms, presets, onAdd, onRemove, onUpdate }: {
           <div className="flex flex-wrap gap-2 mb-3">
             {availablePresets.map(name => (
               <button key={name} onClick={() => onAdd(name)}
-                className="px-3.5 py-2 rounded-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-sm font-medium text-slate-700 dark:text-slate-200 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors">
+                className="px-3.5 py-2 rounded-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-sm font-medium text-slate-700 dark:text-slate-200 hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors">
                 + {name}
               </button>
             ))}
@@ -61,7 +61,7 @@ export function RoomSizeSection({ rooms, presets, onAdd, onRemove, onUpdate }: {
           <input value={custom} onChange={e => setCustom(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCustom(); } }}
             placeholder="직접 입력 (예: 드레스룸, 펜트리)"
-            className="flex-1 h-11 px-3 text-base rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-500 placeholder:text-slate-400 placeholder:text-sm" />
+            className="flex-1 h-11 px-3 text-base rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-emerald-500 placeholder:text-slate-400 placeholder:text-sm" />
           <button onClick={addCustom}
             className="h-11 px-4 rounded-lg bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900 text-sm font-bold hover:bg-slate-700 dark:hover:bg-white transition-colors shrink-0">
             추가

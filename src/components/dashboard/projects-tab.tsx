@@ -51,7 +51,7 @@ export function ProjectsTab({
           <h2 className="text-xl sm:text-2xl font-bold">프로젝트 목록</h2>
           <p className="text-sm text-slate-400 mt-1">
             총 {projects.length}개의 프로젝트
-            {user?.role === 'ADMIN' && <span className="ml-2 text-[#CD363A]">(전체 조회)</span>}
+            {user?.role === 'ADMIN' && <span className="ml-2 text-[var(--brand-primary)]">(전체 조회)</span>}
             {user?.role !== 'ADMIN' && projects.some(p => p.ownership === 'shared') && (
               <span className="ml-2 text-purple-500">(공유 {projects.filter(p => p.ownership === 'shared').length}개 포함)</span>
             )}

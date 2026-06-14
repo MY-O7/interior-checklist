@@ -86,8 +86,11 @@ export default function NoticePage() {
   const [noticeScale, setNoticeScale] = useState(1);
   useEffect(() => {
     const calc = () => {
-      const w = noticeWrapRef.current?.clientWidth ?? 794;
-      setNoticeScale(Math.min(1, w / 793.7)); // 210mm ≈ 793.7px
+      const el = noticeWrapRef.current;
+      if (!el) return;
+      const cs = getComputedStyle(el);
+      const inner = el.clientWidth - parseFloat(cs.paddingLeft || '0') - parseFloat(cs.paddingRight || '0');
+      setNoticeScale(Math.min(1, inner / 793.7)); // 210mm ≈ 793.7px (패딩 제외 실폭)
     };
     calc();
     window.addEventListener('resize', calc);
@@ -270,11 +273,11 @@ export default function NoticePage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-slate-500">공사 시작일</label>
-                  <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="mt-1 h-10" />
+                  <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="mt-1 h-10 w-full min-w-0 block appearance-none text-sm" style={{ WebkitAppearance: 'none' }} />
                 </div>
                 <div>
                   <label className="text-xs text-slate-500">공사 종료일</label>
-                  <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="mt-1 h-10" />
+                  <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="mt-1 h-10 w-full min-w-0 block appearance-none text-sm" style={{ WebkitAppearance: 'none' }} />
                 </div>
               </div>
 

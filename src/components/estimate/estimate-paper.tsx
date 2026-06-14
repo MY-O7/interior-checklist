@@ -93,7 +93,7 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
     <div style={{ paddingBottom: 40 }}>
       <div className="flex items-end justify-between mb-6 pb-4" style={{ borderBottom: '2.5px solid #1e293b' }}>
         <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="SOMSSI" className="w-[60px] h-[60px] object-contain" />
+          <img src="/logo.png" alt="SOMSSI" className="w-[78px] h-[78px] object-contain" />
           <div>
             <h1 className="text-3xl font-black tracking-[0.2em] text-slate-900">견 적 서</h1>
             <p className="text-[11px] text-slate-400 tracking-[0.25em] mt-1">SOMSSI INTERIOR ESTIMATE</p>

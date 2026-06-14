@@ -49,16 +49,21 @@ export function DimensionInputs({ value, onChange, showJwa }: {
                   className="text-xs text-slate-400 hover:text-rose-500 transition-colors">✕ 삭제</button>
               </div>
             )}
-            {/* 가로 × 세로를 하나의 박스로 */}
-            <div className="flex items-center rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 overflow-hidden focus-within:border-blue-500 transition-colors">
-              <input type="text" inputMode="numeric" value={w || ''} onChange={e => update(idx, 'w', e.target.value)}
-                placeholder="가로"
-                className="w-full h-14 text-xl font-bold text-slate-800 dark:text-slate-100 bg-transparent text-center focus:outline-none placeholder:text-slate-300 placeholder:text-base placeholder:font-medium" />
-              <span className="px-1 text-xl font-bold text-slate-300 dark:text-slate-500 shrink-0">×</span>
-              <input type="text" inputMode="numeric" value={h || ''} onChange={e => update(idx, 'h', e.target.value)}
-                placeholder="세로"
-                className="w-full h-14 text-xl font-bold text-slate-800 dark:text-slate-100 bg-transparent text-center focus:outline-none placeholder:text-slate-300 placeholder:text-base placeholder:font-medium" />
-              <span className="px-3 text-sm font-medium text-slate-400 shrink-0 border-l border-slate-200 dark:border-slate-700 self-stretch flex items-center">mm</span>
+            <div className="flex items-end gap-2">
+              <label className="flex-1">
+                <span className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">가로</span>
+                <input type="text" inputMode="numeric" value={w || ''} onChange={e => update(idx, 'w', e.target.value)}
+                  placeholder="예: 3500"
+                  className="w-full h-14 px-3 text-xl font-bold text-center text-slate-800 dark:text-slate-100 placeholder:text-slate-300 placeholder:text-base placeholder:font-medium" />
+              </label>
+              <span className="pb-4 text-lg font-bold text-slate-400 shrink-0">×</span>
+              <label className="flex-1">
+                <span className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">세로</span>
+                <input type="text" inputMode="numeric" value={h || ''} onChange={e => update(idx, 'h', e.target.value)}
+                  placeholder="예: 2400"
+                  className="w-full h-14 px-3 text-xl font-bold text-center text-slate-800 dark:text-slate-100 placeholder:text-slate-300 placeholder:text-base placeholder:font-medium" />
+              </label>
+              <span className="pb-4 text-sm font-medium text-slate-400 shrink-0">mm</span>
             </div>
           </div>
         );

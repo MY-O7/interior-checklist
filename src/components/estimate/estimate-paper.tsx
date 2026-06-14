@@ -25,7 +25,18 @@ const PAGE_W = 794;
 const PAGE_H = 1123;
 const PAD = 48;
 const USABLE_H = PAGE_H - PAD * 2;
-const BLOCK_GAP = 22; // 블록 간 여백 보정
+const GRID = '28px 1fr 46px 46px 92px 100px 92px';
+const COL = 'grid items-center whitespace-nowrap';
+
+const won = (n: number) => n.toLocaleString('ko-KR');
+
+// 단위들: 측정 가능한 최소 조각으로 분해 (행 단위로 페이지를 꽉 채워 낭비 최소화)
+type Unit =
+  | { kind: 'headerInfo'; el: ReactNode }
+  | { kind: 'chead'; cat: string; first: boolean }
+  | { kind: 'row'; cat: string; el: ReactNode }
+  | { kind: 'sub'; cat: string; el: ReactNode }
+  | { kind: 'tail'; el: ReactNode };
 
 export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAmount, subtotal, vatAmount, total, categoryOrder, onClose }: Props) {
   const grouped = estimate.items.reduce((acc, item) => {
@@ -43,33 +54,31 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
     return ai - bi;
   });
 
-  const won = (n: number) => n.toLocaleString('ko-KR');
-  let no = 0;
   const dateStr = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
 
-  // ── 블록 정의 ──
-  const headerInfo = (
+  // ── 렌더 조각들 ──
+  const headerInfoEl = (
     <div>
-      <div className="flex items-end justify-between mb-6 pb-4" style={{ borderBottom: '3px solid #2f7d5f' }}>
+      <div className="flex items-end justify-between mb-6 pb-4" style={{ borderBottom: '2px solid #334155' }}>
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="SOMSSI" className="w-12 h-12 object-contain" />
           <div>
-            <h1 className="text-3xl font-black tracking-wider text-slate-800">견 적 서</h1>
-            <p className="text-[12px] tracking-widest mt-0.5" style={{ color: '#2f7d5f' }}>SOMSSI INTERIOR ESTIMATE</p>
+            <h1 className="text-3xl font-black tracking-wider text-slate-900">견 적 서</h1>
+            <p className="text-[12px] text-slate-400 tracking-widest mt-0.5">SOMSSI INTERIOR ESTIMATE</p>
           </div>
         </div>
         <p className="text-[13px] text-slate-500">{dateStr}</p>
       </div>
       <div className="grid grid-cols-2 gap-6 text-[13px]">
         <div>
-          <p className="text-[12px] font-bold uppercase tracking-widest mb-2" style={{ color: '#2f7d5f' }}>현장 정보</p>
+          <p className="text-[12px] font-bold text-slate-500 uppercase tracking-widest mb-2">현장 정보</p>
           <div className="space-y-2">
             <div className="flex"><span className="w-16 text-slate-400 shrink-0">현장명</span><span className="font-semibold text-slate-800">{project?.name || '-'}</span></div>
             <div className="flex"><span className="w-16 text-slate-400 shrink-0">연락처</span><span className="text-slate-700">{project?.clientPhone || '-'}</span></div>
           </div>
         </div>
         <div>
-          <p className="text-[12px] font-bold uppercase tracking-widest mb-2" style={{ color: '#2f7d5f' }}>공급자</p>
+          <p className="text-[12px] font-bold text-slate-500 uppercase tracking-widest mb-2">공급자</p>
           <div className="space-y-2">
             <div className="flex"><span className="w-20 text-slate-400 shrink-0">업체명</span><span className="font-semibold text-slate-800">솜씨인테리어</span></div>
             {companyInfo.ceoName && <div className="flex"><span className="w-20 text-slate-400 shrink-0">대표자</span><span className="text-slate-700">{companyInfo.ceoName}</span></div>}
@@ -81,119 +90,150 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
     </div>
   );
 
-  const categoryBlock = (cat: string) => {
-    const items = grouped[cat];
-    const catMat = items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
-    const catLab = items.reduce((s, i) => s + (i.labor || []).reduce((x, l) => x + l.days * l.dayRate, 0), 0);
+  const cheadEl = (cat: string, first: boolean, cont = false) => (
+    <div style={{ marginTop: first ? 0 : 16 }}>
+      <div className="flex items-center gap-2 mb-1.5">
+        <span className="inline-block w-1.5 h-5 rounded-sm bg-slate-700" />
+        <span className="font-bold text-lg text-slate-900">{cat}{cont && <span className="text-[12px] font-normal text-slate-400 ml-1">(이어서)</span>}</span>
+        <div className="flex-1 border-b border-slate-200" />
+        <span className="text-[13px] text-slate-400">{grouped[cat].length}건</span>
+      </div>
+      <div className={`${COL} text-[12px] font-semibold text-slate-400`} style={{ gridTemplateColumns: GRID, backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+        <span className="px-2 py-1.5 text-center">NO</span>
+        <span className="px-2 py-1.5 text-left">항목명</span>
+        <span className="px-2 py-1.5 text-center">단위</span>
+        <span className="px-2 py-1.5 text-center">수량</span>
+        <span className="px-2 py-1.5 text-right">단가</span>
+        <span className="px-2 py-1.5 text-right">자재비</span>
+        <span className="px-2 py-1.5 text-right">인건비</span>
+      </div>
+    </div>
+  );
+
+  const rowEl = (item: EstimateItem, idx: number) => {
+    const lab = (item.labor || []).reduce((s, l) => s + l.days * l.dayRate, 0);
     return (
-      <div>
-        <div className="flex items-center gap-2 mb-1.5">
-          <span className="inline-block w-1.5 h-5 rounded-sm" style={{ backgroundColor: '#2f7d5f' }} />
-          <span className="font-bold text-lg text-slate-800">{cat}</span>
-          <div className="flex-1 border-b border-slate-200" />
-          <span className="text-[13px] font-medium" style={{ color: '#2f7d5f' }}>{items.length}건</span>
-        </div>
-        <table className="w-full border-collapse text-[14px]">
-          <thead>
-            <tr style={{ backgroundColor: '#f8fafc' }}>
-              <th className="px-2 py-2 text-center w-7 text-[13px] font-semibold text-slate-400 border-b-2 border-slate-200">NO</th>
-              <th className="px-2.5 py-2.5 text-left text-[13px] font-semibold text-slate-400 border-b-2 border-slate-200">항목명</th>
-              <th className="px-2.5 py-2.5 text-center w-10 text-[13px] font-semibold text-slate-400 border-b-2 border-slate-200">단위</th>
-              <th className="px-2.5 py-2.5 text-center w-10 text-[13px] font-semibold text-slate-400 border-b-2 border-slate-200">수량</th>
-              <th className="px-2.5 py-2.5 text-right w-16 text-[13px] font-semibold text-slate-400 border-b-2 border-slate-200">단가</th>
-              <th className="px-2.5 py-2.5 text-right w-20 text-[13px] font-semibold text-slate-400 border-b-2 border-slate-200">자재비</th>
-              <th className="px-2.5 py-2.5 text-right w-20 text-[13px] font-semibold text-slate-400 border-b-2 border-slate-200">인건비</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item) => {
-              no++;
-              const lab = (item.labor || []).reduce((s, l) => s + l.days * l.dayRate, 0);
-              return (
-                <tr key={item.id} className="border-b border-slate-100">
-                  <td className="px-2.5 py-2.5 text-center text-[13px] text-slate-400">{no}</td>
-                  <td className="px-2.5 py-2.5 font-medium text-slate-700 text-[13px]">{item.name || '-'}{item.note && <span className="text-[11.5px] text-slate-400 ml-1">({item.note})</span>}</td>
-                  <td className="px-2.5 py-2.5 text-center text-slate-500 text-[13px]">{item.unit}</td>
-                  <td className="px-2.5 py-2.5 text-center text-slate-700 font-medium text-[13px]">{item.quantity}</td>
-                  <td className="px-2.5 py-2.5 text-right text-slate-500 text-[13px]">{won(item.unitPrice)}</td>
-                  <td className="px-2.5 py-2.5 text-right font-medium text-[13px]">{won(item.quantity * item.unitPrice)}</td>
-                  <td className="px-2.5 py-2.5 text-right font-medium text-[13px]">{lab > 0 ? won(lab) : '-'}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-          <tfoot>
-            <tr style={{ backgroundColor: '#f8fafc' }}>
-              <td colSpan={5} className="px-2.5 py-2.5 text-right font-bold text-slate-500 text-[13px] border-t-2 border-slate-200">{cat} 소계</td>
-              <td className="px-2.5 py-2.5 text-right font-bold text-[13px] border-t-2 border-slate-200">{won(catMat)}</td>
-              <td className="px-2.5 py-2.5 text-right font-bold text-[13px] border-t-2 border-slate-200">{won(catLab)}</td>
-            </tr>
-          </tfoot>
-        </table>
+      <div className={`${COL} text-[14px] border-b border-slate-100`} style={{ gridTemplateColumns: GRID }}>
+        <span className="px-2 py-1.5 text-center text-[12px] text-slate-400">{idx}</span>
+        <span className="px-2 py-1.5 text-left font-medium text-slate-700 whitespace-normal break-words">{item.name || '-'}{item.note && <span className="text-[11.5px] text-slate-400 ml-1">({item.note})</span>}</span>
+        <span className="px-2 py-1.5 text-center text-slate-500">{item.unit}</span>
+        <span className="px-2 py-1.5 text-center font-medium text-slate-700">{item.quantity}</span>
+        <span className="px-2 py-1.5 text-right text-slate-500">{won(item.unitPrice)}</span>
+        <span className="px-2 py-1.5 text-right font-medium text-slate-800">{won(item.quantity * item.unitPrice)}</span>
+        <span className="px-2 py-1.5 text-right font-medium text-slate-800">{lab > 0 ? won(lab) : '-'}</span>
       </div>
     );
   };
 
-  const totalsBlock = (
-    <div className="flex justify-end">
-      <div className="w-72 text-[14px]">
-        {miscRate > 0 && <div className="flex justify-between py-2 border-b border-slate-100"><span className="text-slate-500">공과잡비 ({miscRate}%)</span><span className="font-medium">{won(miscAmount)}원</span></div>}
-        <div className="flex justify-between py-2 border-b border-slate-100"><span className="text-slate-500">공급가액</span><span className="font-medium">{won(subtotal)}원</span></div>
-        {estimate.includeVat !== false && <div className="flex justify-between py-2 border-b border-slate-100"><span className="text-slate-500">부가세 ({estimate.vatRate ?? 10}%)</span><span className="font-medium">{won(vatAmount)}원</span></div>}
-        {estimate.discount > 0 && <div className="flex justify-between py-2 border-b border-slate-100 text-red-500"><span>할인</span><span className="font-medium">-{won(estimate.discount)}원</span></div>}
-        <div className="flex justify-between items-center py-3 mt-2 px-4 rounded-lg" style={{ backgroundColor: '#ecfdf5' }}>
-          <span className="text-[15px] font-black text-slate-800">총 견적금액</span>
-          <span className="text-xl font-black" style={{ color: '#2f7d5f' }}>{won(total)}원</span>
+  const subEl = (cat: string) => {
+    const items = grouped[cat];
+    const m = items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
+    const l = items.reduce((s, i) => s + (i.labor || []).reduce((x, ll) => x + ll.days * ll.dayRate, 0), 0);
+    return (
+      <div className={`${COL} text-[13px] font-bold`} style={{ gridTemplateColumns: GRID, backgroundColor: '#f1f5f9', borderTop: '2px solid #e2e8f0' }}>
+        <span className="px-2 py-2 col-span-5 text-right text-slate-500" style={{ gridColumn: 'span 5' }}>{cat} 소계</span>
+        <span className="px-2 py-1.5 text-right text-slate-800">{won(m)}</span>
+        <span className="px-2 py-1.5 text-right text-slate-800">{won(l)}</span>
+      </div>
+    );
+  };
+
+  const tailEl = (
+    <div style={{ marginTop: 18 }}>
+      <div className="flex justify-end mb-6">
+        <div className="w-72 text-[14px]">
+          {miscRate > 0 && <div className="flex justify-between py-2 border-b border-slate-100"><span className="text-slate-500">공과잡비 ({miscRate}%)</span><span className="font-medium">{won(miscAmount)}원</span></div>}
+          <div className="flex justify-between py-2 border-b border-slate-100"><span className="text-slate-500">공급가액</span><span className="font-medium">{won(subtotal)}원</span></div>
+          {estimate.includeVat !== false && <div className="flex justify-between py-2 border-b border-slate-100"><span className="text-slate-500">부가세 ({estimate.vatRate ?? 10}%)</span><span className="font-medium">{won(vatAmount)}원</span></div>}
+          {estimate.discount > 0 && <div className="flex justify-between py-2 border-b border-slate-100 text-red-500"><span>할인</span><span className="font-medium">-{won(estimate.discount)}원</span></div>}
+          <div className="flex justify-between items-center py-3 mt-2 px-4 rounded-lg" style={{ backgroundColor: '#1e293b' }}>
+            <span className="text-[15px] font-black text-white">총 견적금액</span>
+            <span className="text-xl font-black text-white">{won(total)}원</span>
+          </div>
+        </div>
+      </div>
+      <div className="mb-6">
+        <p className="text-[12px] font-bold text-slate-500 uppercase tracking-widest mb-2">특이사항</p>
+        <div className="rounded-lg px-4 py-3 text-[13px] text-slate-600 leading-[1.9] whitespace-pre-wrap border-l-4 border-slate-300" style={{ backgroundColor: '#f8fafc' }}>
+          {estimate.notes && <>{estimate.notes}{'\n\n'}</>}
+          <span className="text-slate-500">※ 견적 외 추가공사는 별도 협의 후 진행됩니다.{'\n'}※ 하자 발생 시 신의성실하게 보수합니다. (단, 정상적 노후 및 고객 부주의에 의한 것은 제외){'\n'}※ 부가세 {estimate.includeVat !== false ? '포함' : '별도'}{'\n'}※ 대금지불조건: 계약금 50% / 잔금 50%{'\n'}※ 본 견적서는 발행일로부터 30일간 유효합니다.{'\n'}※ 현장 확인 후 공사금액이 변동될 수 있습니다.</span>
+        </div>
+      </div>
+      <div className="pt-5 border-t border-slate-200 flex justify-between items-end">
+        <p className="text-[13px] text-slate-400">위 금액으로 견적합니다.</p>
+        <div className="text-center">
+          <div className="w-20 h-20 border border-dashed border-slate-300 rounded-lg flex items-center justify-center mb-1.5">
+            <img src="/stamp.png" alt="직인" className="w-16 h-16 object-contain" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+          </div>
+          <p className="text-[13px] text-slate-400">솜씨인테리어</p>
         </div>
       </div>
     </div>
   );
 
-  const notesBlock = (
-    <div>
-      <p className="text-[13px] font-bold tracking-widest mb-2" style={{ color: '#2f7d5f' }}>특이사항</p>
-      <div className="rounded-lg px-4 py-3 text-[13px] text-slate-600 leading-[1.9] whitespace-pre-wrap border-l-4" style={{ backgroundColor: '#f6faf8', borderColor: '#2f7d5f' }}>
-        {estimate.notes && <>{estimate.notes}{'\n\n'}</>}
-        <span className="text-slate-500">※ 견적 외 추가공사는 별도 협의 후 진행됩니다.{'\n'}※ 하자 발생 시 신의성실하게 보수합니다. (단, 정상적 노후 및 고객 부주의에 의한 것은 제외){'\n'}※ 부가세 {estimate.includeVat !== false ? '포함' : '별도'}{'\n'}※ 대금지불조건: 계약금 50% / 잔금 50%{'\n'}※ 본 견적서는 발행일로부터 30일간 유효합니다.{'\n'}※ 현장 확인 후 공사금액이 변동될 수 있습니다.</span>
-      </div>
-    </div>
-  );
+  // ── 측정용 단위 목록 ──
+  let no = 0;
+  const units: Unit[] = [{ kind: 'headerInfo', el: headerInfoEl }];
+  cats.forEach((cat, ci) => {
+    units.push({ kind: 'chead', cat, first: ci === 0 });
+    grouped[cat].forEach((item) => { no++; units.push({ kind: 'row', cat, el: rowEl(item, no) }); });
+    units.push({ kind: 'sub', cat, el: subEl(cat) });
+  });
+  units.push({ kind: 'tail', el: tailEl });
 
-  const signBlock = (
-    <div className="pt-5 border-t border-slate-200 flex justify-between items-end">
-      <p className="text-[13px] text-slate-400">위 금액으로 견적합니다.</p>
-      <div className="text-center">
-        <div className="w-20 h-20 border border-dashed border-slate-300 rounded-lg flex items-center justify-center mb-1.5">
-          <img src="/stamp.png" alt="직인" className="w-16 h-16 object-contain" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-        </div>
-        <p className="text-[13px] text-slate-400">솜씨인테리어</p>
-      </div>
-    </div>
-  );
+  const renderUnit = (u: Unit, cont = false): ReactNode =>
+    u.kind === 'chead' ? cheadEl(u.cat, u.first, cont) : (u as any).el;
 
-  const blocks: ReactNode[] = [headerInfo, ...cats.map(categoryBlock), totalsBlock, notesBlock, signBlock];
-
-  // ── 측정 후 A4 페이지 단위로 분할 ──
+  // ── 측정 → 페이지 분할 (행 단위, 연속 시 헤더 재표기, tail은 한 덩어리) ──
   const measureRef = useRef<HTMLDivElement>(null);
-  const [pages, setPages] = useState<number[][]>([blocks.map((_, i) => i)]);
-  const depKey = useMemo(() => JSON.stringify({ items: estimate.items, total, categoryOrder, notes: estimate.notes }), [estimate.items, total, categoryOrder, estimate.notes]);
+  const [pages, setPages] = useState<{ u: Unit; cont?: boolean }[][]>([units.map(u => ({ u }))]);
+  const depKey = useMemo(() => JSON.stringify({ items: estimate.items, total, categoryOrder, notes: estimate.notes, miscRate }), [estimate.items, total, categoryOrder, estimate.notes, miscRate]);
 
   useLayoutEffect(() => {
     let alive = true;
     const measure = () => {
       const root = measureRef.current;
       if (!root) return;
-      const heights = Array.from(root.children).map((c) => (c as HTMLElement).offsetHeight + BLOCK_GAP);
-      const result: number[][] = [];
-      let cur: number[] = [];
-      let h = 0;
-      heights.forEach((bh, i) => {
-        if (i === 0) { cur = [0]; h = bh; return; } // 헤더는 항상 1페이지 상단
-        if (cur.length > 0 && h + bh > USABLE_H) { result.push(cur); cur = []; h = 0; }
-        cur.push(i);
-        h += bh;
+      const h = Array.from(root.children).map(c => (c as HTMLElement).offsetHeight);
+      const cheadH = (cat: string) => { const i = units.findIndex(u => u.kind === 'chead' && u.cat === cat); return i >= 0 ? h[i] : 0; };
+
+      const result: { u: Unit; cont?: boolean }[][] = [];
+      let cur: { u: Unit; cont?: boolean }[] = [];
+      let used = 0;
+      let pageCat: string | null = null;
+      const flush = () => { if (cur.length) { result.push(cur); cur = []; used = 0; pageCat = null; } };
+
+      units.forEach((u, i) => {
+        const uh = h[i] || 0;
+        if (u.kind === 'row' || u.kind === 'sub') {
+          // 같은 페이지에 해당 공정 헤더가 없으면 연속 헤더 필요
+          const needCont = pageCat !== u.cat;
+          const contH = needCont ? cheadH(u.cat) : 0;
+          if (used > 0 && used + uh + contH > USABLE_H) flush();
+          if (pageCat !== u.cat) {
+            const ci = units.findIndex(x => x.kind === 'chead' && x.cat === u.cat);
+            cur.push({ u: units[ci], cont: true });
+            used += cheadH(u.cat);
+            pageCat = u.cat;
+          }
+          cur.push({ u });
+          used += uh;
+        } else if (u.kind === 'chead') {
+          // 헤더 단독 고아 방지: 헤더 + 첫 행이 안 들어가면 다음 페이지로
+          const firstRowH = h[i + 1] || 0;
+          if (used > 0 && used + uh + firstRowH > USABLE_H) flush();
+          cur.push({ u });
+          used += uh;
+          pageCat = u.cat;
+        } else {
+          // headerInfo / tail — 통째 유지
+          if (used > 0 && used + uh > USABLE_H) flush();
+          cur.push({ u });
+          used += uh;
+          pageCat = null;
+        }
       });
-      if (cur.length) result.push(cur);
+      flush();
       if (alive && result.length) setPages(result);
     };
     if (typeof document !== 'undefined' && (document as any).fonts?.ready) {
@@ -206,30 +246,26 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
 
   return (
     <div className="estimate-paper-root">
-      {/* 액션 바 */}
-      <div className="flex items-center justify-between bg-emerald-700 text-white rounded-xl px-4 sm:px-6 py-4 mb-5 no-print">
+      <div className="flex items-center justify-between bg-slate-800 text-white rounded-xl px-4 sm:px-6 py-4 mb-5 no-print">
         {onClose ? <button onClick={onClose} className="text-sm hover:text-slate-200 transition">← 돌아가기</button> : <span className="w-12" />}
         <span className="text-sm font-medium hidden sm:inline">견적서 미리보기 · {pages.length}p</span>
         <button onClick={() => window.print()} className="bg-white text-slate-800 px-5 py-2 rounded-lg text-sm font-bold hover:bg-slate-100 transition">🖨 인쇄</button>
       </div>
 
-      {/* A4 페이지들 (모바일에선 가로 스크롤) */}
       <div className="paper-stack flex flex-col items-center gap-6 overflow-x-auto">
-        {pages.map((idxs, pi) => (
+        {pages.map((pageUnits, pi) => (
           <div key={pi} className="a4-sheet bg-white text-slate-800 shadow-lg relative"
             style={{ width: PAGE_W, minHeight: PAGE_H, padding: PAD, fontFamily: "'Pretendard', sans-serif" }}>
-            <div className="flex flex-col gap-[22px]">
-              {idxs.map((bi) => <div key={bi}>{blocks[bi]}</div>)}
-            </div>
-            <div className="paper-pageno absolute left-0 right-0 text-center text-[13px] text-slate-400" style={{ bottom: 18 }}>{pi + 1} / {pages.length}</div>
+            <div>{pageUnits.map((pu, j) => <div key={j}>{renderUnit(pu.u, pu.cont)}</div>)}</div>
+            <div className="paper-pageno absolute left-0 right-0 text-center text-[11px] text-slate-400" style={{ bottom: 18 }}>{pi + 1} / {pages.length}</div>
           </div>
         ))}
       </div>
 
-      {/* 측정용 숨김 컨테이너 (화면/인쇄 모두 비표시) */}
+      {/* 측정용 숨김 컨테이너 */}
       <div ref={measureRef} aria-hidden className="no-print"
         style={{ position: 'absolute', left: -99999, top: 0, width: PAGE_W - PAD * 2, visibility: 'hidden', fontFamily: "'Pretendard', sans-serif" }}>
-        {blocks.map((b, i) => <div key={i}>{b}</div>)}
+        {units.map((u, i) => <div key={i}>{renderUnit(u)}</div>)}
       </div>
     </div>
   );

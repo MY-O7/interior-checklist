@@ -18,20 +18,20 @@
   --brand-accent-hover: #d97706;
   --brand-accent-light: #fef3c7;
   
-  /* Background */
-  --background: #f8fafc;
+  /* Background — 카드(흰색)가 떠 보이도록 한 톤 낮춤 */
+  --background: #e7ecf2;
   --background-secondary: #ffffff;
-  
+
   /* Foreground */
   --foreground: #0f172a;
-  --foreground-secondary: #475569;
-  --foreground-muted: #94a3b8;
-  --muted-foreground: #94a3b8;
-  
+  --foreground-secondary: #3f4b5b;
+  --foreground-muted: #5b6675;
+  --muted-foreground: #5b6675;
+
   /* Card */
   --card: #ffffff;
   --card-hover: #f1f5f9;
-  --card-border: #e2e8f0;
+  --card-border: #cbd5e1;
   
   /* Sidebar */
   --sidebar-bg: #ffffff;
@@ -64,7 +64,7 @@
   --muted: #f1f5f9;
   
   /* Border & Shadow */
-  --border: #e2e8f0;
+  --border: #cbd5e1;
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -81,13 +81,13 @@
   --brand-accent-hover: #fcd34d;
   --brand-accent-light: #422006;
   
-  --background: #0f172a;
+  --background: #0a0f1c;
   --background-secondary: #1e293b;
-  
+
   --foreground: #f1f5f9;
   --foreground-secondary: #cbd5e1;
-  --foreground-muted: #64748b;
-  --muted-foreground: #64748b;
+  --foreground-muted: #8a98ac;
+  --muted-foreground: #8a98ac;
   
   --card: #1e293b;
   --card-hover: #334155;

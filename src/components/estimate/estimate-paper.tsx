@@ -309,7 +309,7 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
 
       {/* 측정용 숨김 컨테이너 */}
       <div ref={measureRef} aria-hidden className="no-print"
-        style={{ position: 'absolute', left: -99999, top: 0, width: PAGE_W - PADH * 2, visibility: 'hidden', fontFamily: "'Pretendard', sans-serif" }}>
+        style={{ position: 'fixed', left: -99999, top: 0, width: PAGE_W - PADH * 2, visibility: 'hidden', pointerEvents: 'none', fontFamily: "'Pretendard', sans-serif" }}>
         {blocks.map((b, i) => <div key={i}>{b}</div>)}
       </div>
     </div>

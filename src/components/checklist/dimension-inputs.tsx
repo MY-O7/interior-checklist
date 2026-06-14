@@ -9,9 +9,10 @@ export function DimensionInputs({ value, onChange, showJwa }: {
   if (segments.length === 0) segments.push('×');
 
   const update = (idx: number, part: 'w' | 'h', val: string) => {
+    const clean = val.replace(/[^0-9]/g, ''); // 숫자만
     const segs = [...segments];
     const [w, h] = (segs[idx] || '×').split('×');
-    segs[idx] = part === 'w' ? `${val}×${h || ''}` : `${w || ''}×${val}`;
+    segs[idx] = part === 'w' ? `${clean}×${h || ''}` : `${w || ''}×${clean}`;
     onChange(segs.join('|'));
   };
   const addSegment = () => onChange([...segments, '×'].join('|'));
@@ -33,27 +34,57 @@ export function DimensionInputs({ value, onChange, showJwa }: {
     return total;
   })();
 
+  const multi = segments.length > 1;
+
   return (
-    <div className="mt-2 space-y-1">
+    <div className="mt-2 space-y-2.5">
       {segments.map((seg, idx) => {
         const [w, h] = seg.split('×');
         return (
-          <div key={idx} className="flex items-center gap-1">
-            <input type="text" inputMode="numeric" value={w || ''} onChange={e => update(idx, 'w', e.target.value)}
-              placeholder="가로" className="w-full h-8 px-2 text-xs border border-dashed border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-900 focus:outline-none focus:border-slate-500 text-center" />
-            <span className="text-[10px] text-slate-400">×</span>
-            <input type="text" inputMode="numeric" value={h || ''} onChange={e => update(idx, 'h', e.target.value)}
-              placeholder="세로" className="w-full h-8 px-2 text-xs border border-dashed border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-900 focus:outline-none focus:border-slate-500 text-center" />
-            <span className="text-[9px] text-slate-400 shrink-0">mm</span>
-            {segments.length > 1 && (
-              <button onClick={() => removeSegment(idx)} className="text-red-400 hover:text-red-600 shrink-0 p-0.5"><span className="text-xs">✕</span></button>
+          <div key={idx} className="flex items-end gap-2">
+            <div className="flex-1">
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                가로 {multi && <span className="text-slate-400">(구역 {idx + 1})</span>}
+              </label>
+              <div className="flex items-center gap-1.5 rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 focus-within:border-blue-500 transition-colors">
+                <input type="text" inputMode="numeric" value={w || ''} onChange={e => update(idx, 'w', e.target.value)}
+                  placeholder="예: 3500"
+                  className="w-full h-12 text-lg font-semibold text-slate-800 dark:text-slate-100 bg-transparent text-center focus:outline-none placeholder:text-slate-300 placeholder:font-normal placeholder:text-base" />
+                <span className="text-sm font-medium text-slate-400 shrink-0">mm</span>
+              </div>
+            </div>
+            <span className="pb-3 text-lg font-bold text-slate-400">×</span>
+            <div className="flex-1">
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">세로</label>
+              <div className="flex items-center gap-1.5 rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 focus-within:border-blue-500 transition-colors">
+                <input type="text" inputMode="numeric" value={h || ''} onChange={e => update(idx, 'h', e.target.value)}
+                  placeholder="예: 2400"
+                  className="w-full h-12 text-lg font-semibold text-slate-800 dark:text-slate-100 bg-transparent text-center focus:outline-none placeholder:text-slate-300 placeholder:font-normal placeholder:text-base" />
+                <span className="text-sm font-medium text-slate-400 shrink-0">mm</span>
+              </div>
+            </div>
+            {multi && (
+              <button onClick={() => removeSegment(idx)} aria-label="구역 삭제"
+                className="pb-2 text-slate-400 hover:text-rose-500 transition-colors shrink-0">
+                <span className="text-base">✕</span>
+              </button>
             )}
           </div>
         );
       })}
-      <div className="flex items-center justify-between">
-        <button onClick={addSegment} className="text-[10px] text-blue-500 hover:text-blue-700 font-medium">+ 사이즈 추가</button>
-        {pyeong > 0 && <span className="text-[10px] text-slate-400 font-medium">{m2.toFixed(1)}㎡ / {pyeong.toFixed(1)}평{jwa > 0 ? ` / ${jwa.toFixed(1)}좌` : ''}</span>}
+
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <button onClick={addSegment}
+          className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 font-semibold px-2 py-1 rounded-md hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors">
+          + 구역 추가 <span className="text-xs font-normal text-slate-400">(ㄱ자방 등)</span>
+        </button>
+        {pyeong > 0 && (
+          <div className="flex items-center gap-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 px-3 py-1.5">
+            <span className="text-xs text-blue-500 dark:text-blue-400">≈</span>
+            <span className="text-base font-bold text-blue-700 dark:text-blue-300">{pyeong.toFixed(1)}평</span>
+            <span className="text-xs text-blue-500 dark:text-blue-400">/ {m2.toFixed(1)}㎡{jwa > 0 ? ` / ${jwa.toFixed(1)}좌` : ''}</span>
+          </div>
+        )}
       </div>
     </div>
   );

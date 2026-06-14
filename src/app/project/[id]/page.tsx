@@ -11,7 +11,7 @@ import { SidebarWrapper } from '@/components/mobile-menu';
 import { ArrowLeft, Download, Save, Printer, ChevronLeft, ChevronRight, Menu, FolderOpen, Calculator, Settings, Ruler, Home } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
 import { apiGet, apiPost } from '@/lib/api';
-import { OptionTag, DimensionInputs, RoomCheckGrid } from '@/components/checklist';
+import { OptionTag, DimensionInputs, RoomCheckGrid, RoomSizeSection } from '@/components/checklist';
 import { PageNav } from '@/components/shared';
 import { SECTIONS, DEFAULT_ROOMS, migrateChecklistKeys, migrateRoomChecklistKeys } from '@/config/sections';
 import { calcPyeong } from '@/lib/calc';
@@ -102,16 +102,26 @@ export default function ProjectPage() {
   });
   const [specialNotes, setSpecialNotes] = useState('');
   const [saving, setSaving] = useState(false);
-  const [currentSection, setCurrentSection] = useState(0);
+  const [currentSection, setCurrentSection] = useState(-2); // -2: 섹션 선택 메뉴, -1: 기본 정보, 0+: 체크리스트
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [printMode, setPrintMode] = useState(false);
 
   // 방 사이즈 섹션에서 체크된 방만 다른 공정에서 표시
   const activeRooms = (() => {
     const sectionData = checklist['roomSize'] || {};
-    const checked = DEFAULT_ROOMS.filter(name => sectionData[name]?.checked);
-    return checked.length > 0 ? checked : DEFAULT_ROOMS; // 아무것도 안 체크했으면 전체
+    // 방 사이즈에서 추가(체크)한 방만 다른 공정에 표시 — 추가 순서 유지
+    const added = Object.keys(sectionData).filter(name => sectionData[name]?.checked);
+    return added.length > 0 ? added : DEFAULT_ROOMS; // 아직 추가 전이면 기본 목록
   })();
+
+  // 방 사이즈 섹션에서 방 삭제
+  const removeRoomSize = (name: string) => {
+    setChecklist(prev => {
+      const rs = { ...(prev['roomSize'] || {}) };
+      delete rs[name];
+      return { ...prev, roomSize: rs };
+    });
+  };
 
   useEffect(() => {
     if (printMode) {
@@ -231,7 +241,10 @@ export default function ProjectPage() {
         <header className="h-14 border-b bg-[var(--card)] flex items-center justify-between px-4 print:hidden sticky top-0 z-10">
           <div className="flex items-center gap-2">
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="md:hidden p-2 -ml-2 rounded-lg hover:bg-[var(--muted)]" aria-label="메뉴"><Menu className="w-5 h-5 text-[var(--foreground-secondary)]" /></button>
-            <span className="text-sm font-medium text-[var(--foreground-secondary)]">{currentSection === -1 ? '현장 기본 정보' : `${String(currentSection + 1).padStart(2, '0')} ${SECTIONS[currentSection]?.title}`}</span>
+            {currentSection !== -2 && (
+              <button onClick={() => setCurrentSection(-2)} className="flex items-center gap-1 text-sm text-[var(--foreground-muted)] hover:text-[var(--brand-primary)]" aria-label="목차"><FolderOpen className="w-4 h-4" /> 목차</button>
+            )}
+            <span className="text-sm font-medium text-[var(--foreground-secondary)]">{currentSection === -2 ? '체크리스트 목차' : currentSection === -1 ? '현장 기본 정보' : `${String(currentSection + 1).padStart(2, '0')} ${SECTIONS[currentSection]?.title}`}</span>
           </div>
           <div className="flex items-center gap-1">
             <button onClick={saveChecklist} className="p-2 rounded-lg hover:bg-[var(--muted)] md:hidden" aria-label="저장"><Save className="w-4 h-4 text-[var(--foreground-muted)]" /></button>
@@ -241,6 +254,36 @@ export default function ProjectPage() {
 
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto p-4 sm:p-6">
+
+            {/* ─── 섹션 선택 메뉴 (진입 화면) ─── */}
+            {!printMode && currentSection === -2 && (
+              <div>
+                <div className="mb-5">
+                  <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">무엇을 작성할까요?</h2>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">아래에서 작성할 항목을 선택하세요.</p>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {/* 기본 정보 카드 */}
+                  <button onClick={() => setCurrentSection(-1)}
+                    className="text-left rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 hover:border-blue-500 hover:shadow-md transition-all">
+                    <div className="text-2xl mb-2">📋</div>
+                    <p className="text-base font-bold text-slate-800 dark:text-slate-100">기본 정보</p>
+                    <p className="text-xs text-slate-400 mt-0.5">현장·공사 범위</p>
+                  </button>
+                  {SECTIONS.map((section, i) => (
+                    <button key={section.id} onClick={() => setCurrentSection(i)}
+                      className={`text-left rounded-xl border-2 p-4 hover:border-blue-500 hover:shadow-md transition-all ${i === 0 ? 'border-blue-300 dark:border-blue-700 bg-blue-50/60 dark:bg-blue-950/30' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-mono font-bold text-slate-400">{String(i + 1).padStart(2, '0')}</span>
+                        {i === 0 && <span className="text-2xl">📐</span>}
+                      </div>
+                      <p className="text-base font-bold text-slate-800 dark:text-slate-100 leading-tight">{section.title}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">{section.subtitle}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* ─── 기본 정보 섹션 ─── */}
             {!printMode && currentSection === -1 && (
@@ -303,6 +346,14 @@ export default function ProjectPage() {
                     <div className="bg-white dark:bg-slate-800 p-4">
                       <textarea className="w-full min-h-[250px] px-4 py-3 text-lg border border-dashed border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 resize-y focus:outline-none focus:border-[#CD363A]" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="특이사항 및 추가 요청사항을 입력하세요..." />
                     </div>
+                  ) : SECTIONS[currentSection].id === 'roomSize' ? (
+                    <RoomSizeSection
+                      rooms={checklist['roomSize'] || {}}
+                      presets={DEFAULT_ROOMS}
+                      onAdd={(name) => updateItem('roomSize', name, 'checked', true)}
+                      onRemove={removeRoomSize}
+                      onUpdate={(name, field, value) => updateItem('roomSize', name, field, value)}
+                    />
                   ) : (
                     <div className="bg-white dark:bg-slate-800 divide-y divide-slate-100 dark:divide-slate-800">
                       {SECTIONS[currentSection].items.map((item) => {
@@ -346,11 +397,13 @@ export default function ProjectPage() {
             )}
 
             {/* ─── 네비게이션 ─── */}
+            {!printMode && currentSection !== -2 && (
             <div className="flex justify-between items-center mt-6 print:hidden">
-              <Button variant="outline" onClick={() => setCurrentSection(Math.max(-1, currentSection - 1))} disabled={currentSection === -1} className="h-11 gap-1 border-slate-300"><ChevronLeft className="w-4 h-4" /> 이전</Button>
+              <Button variant="outline" onClick={() => setCurrentSection(currentSection <= -1 ? -2 : currentSection - 1)} className="h-11 gap-1 border-slate-300"><ChevronLeft className="w-4 h-4" /> 이전</Button>
               <div className="flex items-center gap-2">{SECTIONS.map((_, i) => <button key={i} onClick={() => setCurrentSection(i)} className={`w-2 h-2 rounded-full transition-all ${currentSection === i ? 'bg-slate-800 dark:bg-slate-300 w-6' : 'bg-slate-300 dark:bg-slate-600'}`} />)}</div>
               <Button onClick={() => { setCurrentSection(Math.min(SECTIONS.length - 1, currentSection + 1)); saveChecklist(); }} disabled={currentSection === SECTIONS.length - 1} className="h-11 gap-1 bg-slate-800 hover:bg-slate-700">다음 <ChevronRight className="w-4 h-4" /></Button>
             </div>
+            )}
 
             {/* ─── 인쇄 전용: 전체 섹션 ─── */}
             {printMode && (

@@ -10,7 +10,12 @@ import { SidebarWrapper } from '@/components/mobile-menu';
 import { Plus, Trash2, Save, Printer, X, ChevronLeft, Download, Menu, Home, ArrowLeft, ArrowUp, ArrowDown, ListOrdered, Link2, FileSpreadsheet } from 'lucide-react';
 import ExcelImportDialog from '@/components/ExcelImportDialog';
 import { NumInput, PageNav } from '@/components/shared';
-import { PrintEstimate } from '@/components/estimate/print-estimate';
+import dynamic from 'next/dynamic';
+// PDF 미리보기는 클라이언트 전용(@react-pdf) — SSR 비활성화 동적 임포트
+const EstimatePdfPreview = dynamic(
+  () => import('@/components/estimate/estimate-pdf-preview').then(m => m.EstimatePdfPreview),
+  { ssr: false, loading: () => <div className="py-20 text-center text-slate-500 text-sm">PDF 미리보기 불러오는 중…</div> }
+);
 import { ESTIMATE_PRESETS, CHECKLIST_TO_ESTIMATE, CATEGORIES, PRESET_CATEGORIES } from '@/config/estimate';
 import { calcPyeong, calcEstimateTotals } from '@/lib/calc';
 import { apiGet, apiPost, ApiError } from '@/lib/api';
@@ -760,14 +765,12 @@ export default function EstimatePage() {
           );
         })()}
 
-        {/* 인쇄 미리보기 */}
+        {/* PDF 미리보기 (페이지별 + 기기 무관 동일 출력) */}
         {printMode && (
-          <PrintEstimate
+          <EstimatePdfPreview
             project={project}
             estimate={estimate}
             companyInfo={companyInfo}
-            materialTotal={materialTotal}
-            laborTotal={laborTotal}
             miscRate={miscRate}
             miscAmount={miscAmount}
             subtotal={subtotal}

@@ -478,7 +478,15 @@ input[type="checkbox"], input[type="radio"] {
     break-inside: avoid;
   }
   .a4-sheet:last-child { break-after: auto; page-break-after: auto; }
-  .paper-pageno { display: none !important; } /* 화면 페이지번호 숨김 (브라우저가 페이지 처리) */
+  /* 인쇄 시 각 페이지(시트) 끝에 페이지 번호 표기 */
+  .paper-pageno {
+    display: block !important;
+    position: static !important;
+    margin-top: 14px;
+    padding-top: 8px;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════

@@ -222,16 +222,24 @@ export default function ProjectPage() {
             <h1 className="font-bold text-[var(--brand-primary)] truncate">{project.name}</h1>
             <p className="text-sm text-[var(--foreground-muted)]">체크리스트</p>
           </div>
-          <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
+          <div className="relative flex-1 min-h-0">
+          <nav className="h-full p-2 space-y-0.5 overflow-y-auto">
             <div className="px-3 py-2 text-xs font-semibold text-[var(--brand-primary)] tracking-widest uppercase">현장 정보</div>
             <button onClick={() => { setCurrentSection(-1); setSidebarOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left text-sm transition-all ${currentSection === -1 ? 'bg-[var(--brand-primary)] text-white shadow-md' : 'hover:bg-[var(--muted)] text-[var(--foreground-secondary)]'}`}><span className="text-xs">📋</span><span>기본 정보</span></button>
-            <div className="px-3 py-2 text-xs font-semibold text-[var(--brand-primary)] tracking-widest uppercase mt-3">체크리스트</div>
-            {SECTIONS.map((section, i) => <button key={section.id} onClick={() => { setCurrentSection(i); setSidebarOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left text-sm transition-all ${currentSection === i ? 'bg-[var(--brand-primary)] text-white shadow-md' : 'hover:bg-[var(--muted)] text-[var(--foreground-secondary)]'}`}><span className="w-5 text-center text-xs font-mono text-[var(--foreground-muted)]">{String(i + 1).padStart(2, '0')}</span><span className="truncate">{section.title}</span></button>)}
+            <div className="px-3 py-2 mt-3 flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-[var(--brand-primary)] tracking-widest uppercase">체크리스트</span>
+              <span className="text-[11px] font-bold text-white bg-[var(--brand-primary)] rounded-full px-1.5 py-0.5 leading-none">{SECTIONS.length}</span>
+              <span className="text-[11px] text-[var(--foreground-muted)]">↓ 항목</span>
+            </div>
+            {SECTIONS.map((section, i) => <button key={section.id} onClick={() => { setCurrentSection(i); setSidebarOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-sm transition-all ${currentSection === i ? 'bg-[var(--brand-primary)] text-white shadow-md' : 'hover:bg-[var(--muted)] text-[var(--foreground-secondary)]'}`}><span className="w-5 text-center text-xs font-mono text-[var(--foreground-muted)]">{String(i + 1).padStart(2, '0')}</span><span className="truncate">{section.title}</span></button>)}
           </nav>
-          <div className="p-3 border-t space-y-1">
-            <button onClick={saveChecklist} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm"><Save className="w-4 h-4" /> 저장 {saving && <span className="text-emerald-500">✓</span>}</button>
-            <button onClick={exportData} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm"><Download className="w-4 h-4" /> 내보내기</button>
-            <button onClick={() => setPrintMode(true)} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm"><Printer className="w-4 h-4" /> 인쇄</button>
+          {/* 스크롤 더 있음을 알리는 하단 페이드 */}
+          <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[var(--sidebar-bg)] to-transparent" />
+          </div>
+          <div className="p-2 border-t flex items-center gap-1">
+            <button onClick={saveChecklist} className="flex-1 flex flex-col items-center gap-0.5 px-2 py-2 rounded-lg hover:bg-[var(--muted)] text-xs"><Save className="w-4 h-4" /> 저장{saving && <span className="text-emerald-500">✓</span>}</button>
+            <button onClick={exportData} className="flex-1 flex flex-col items-center gap-0.5 px-2 py-2 rounded-lg hover:bg-[var(--muted)] text-xs"><Download className="w-4 h-4" /> 내보내기</button>
+            <button onClick={() => setPrintMode(true)} className="flex-1 flex flex-col items-center gap-0.5 px-2 py-2 rounded-lg hover:bg-[var(--muted)] text-xs"><Printer className="w-4 h-4" /> 인쇄</button>
           </div>
           <PageNav projectId={projectId} current="checklist" />
         </div>

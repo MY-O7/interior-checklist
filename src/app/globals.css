@@ -472,6 +472,7 @@ input[type="checkbox"], input[type="radio"] {
     min-height: 0 !important;
     padding: 0 !important;
     margin: 0 !important;
+    zoom: 1 !important;
     break-after: page;
     page-break-after: always;
     break-inside: avoid;

@@ -192,6 +192,19 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
   const [pages, setPages] = useState<{ u: Unit; cont?: boolean }[][]>([units.map(u => ({ u }))]);
   const depKey = useMemo(() => JSON.stringify({ items: estimate.items, total, categoryOrder, notes: estimate.notes, miscRate }), [estimate.items, total, categoryOrder, estimate.notes, miscRate]);
 
+  // 화면 폭에 맞춰 A4 시트 축소 (모바일에서 잘리지 않게). 인쇄 시엔 원본 크기.
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  useLayoutEffect(() => {
+    const calc = () => {
+      const w = rootRef.current?.clientWidth ?? PAGE_W;
+      setScale(Math.min(1, w / PAGE_W));
+    };
+    calc();
+    window.addEventListener('resize', calc);
+    return () => window.removeEventListener('resize', calc);
+  }, []);
+
   useLayoutEffect(() => {
     let alive = true;
     const measure = () => {
@@ -248,17 +261,17 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
   }, [depKey]);
 
   return (
-    <div className="estimate-paper-root">
+    <div className="estimate-paper-root" ref={rootRef}>
       <div className="flex items-center justify-between bg-slate-800 text-white rounded-xl px-4 sm:px-6 py-4 mb-5 no-print">
         {onClose ? <button onClick={onClose} className="text-sm hover:text-slate-200 transition">← 돌아가기</button> : <span className="w-12" />}
         <span className="text-sm font-medium hidden sm:inline">견적서 미리보기 · {pages.length}p</span>
         <button onClick={() => window.print()} className="bg-white text-slate-800 px-5 py-2 rounded-lg text-sm font-bold hover:bg-slate-100 transition">🖨 인쇄</button>
       </div>
 
-      <div className="paper-stack flex flex-col items-center gap-6 overflow-x-auto">
+      <div className="paper-stack flex flex-col items-center gap-6">
         {pages.map((pageUnits, pi) => (
           <div key={pi} className="a4-sheet bg-white text-slate-800 shadow-lg relative"
-            style={{ width: PAGE_W, minHeight: PAGE_H, padding: PAD, fontFamily: "'Pretendard', sans-serif" }}>
+            style={{ width: PAGE_W, minHeight: PAGE_H, padding: PAD, fontFamily: "'Pretendard', sans-serif", zoom: scale }}>
             <div>{pageUnits.map((pu, j) => <div key={j}>{renderUnit(pu.u, pu.cont)}</div>)}</div>
             <div className="paper-pageno absolute left-0 right-0 text-center text-[11px] text-slate-400" style={{ bottom: 18 }}>{pi + 1} / {pages.length}</div>
           </div>

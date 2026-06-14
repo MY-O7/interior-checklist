@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SidebarWrapper } from '@/components/mobile-menu';
-import { Plus, Trash2, Save, Printer, X, ChevronLeft, Download, Menu, Home, ArrowLeft, ArrowUp, ArrowDown, ListOrdered, Link2, FileSpreadsheet } from 'lucide-react';
+import { Plus, Trash2, Save, Printer, X, ChevronLeft, Download, Menu, Home, ArrowLeft, ArrowUp, ArrowDown, ListOrdered, Link2, FileSpreadsheet, Undo2, Redo2 } from 'lucide-react';
 import ExcelImportDialog from '@/components/ExcelImportDialog';
 import { NumInput, PageNav } from '@/components/shared';
 import { EstimatePaper } from '@/components/estimate/estimate-paper';
@@ -179,6 +179,67 @@ export default function EstimatePage() {
     }
     load();
   }, [projectId]);
+
+  // ── Undo/Redo 히스토리 (estimate + categoryOrder 스냅샷) ──
+  const histPast = useRef<string[]>([]);
+  const histFuture = useRef<string[]>([]);
+  const histLast = useRef<string>('');
+  const [histVer, setHistVer] = useState(0);
+
+  // 변경 자동 기록 (350ms 코얼레싱으로 연속 타이핑은 한 단계로)
+  useEffect(() => {
+    if (!loaded) return;
+    const curStr = JSON.stringify({ estimate, categoryOrder });
+    if (curStr === histLast.current) return;
+    const prevStr = histLast.current;
+    const t = setTimeout(() => {
+      if (prevStr) {
+        histPast.current.push(prevStr);
+        if (histPast.current.length > 100) histPast.current.shift();
+        histFuture.current = [];
+      }
+      histLast.current = curStr;
+      setHistVer(v => v + 1);
+    }, 350);
+    return () => clearTimeout(t);
+  }, [estimate, categoryOrder, loaded]);
+
+  const applySnap = (str: string) => {
+    const snap = JSON.parse(str) as { estimate: EstimateData; categoryOrder: string[] | null };
+    histLast.current = str; // 복원분은 다시 기록되지 않게
+    setEstimate(snap.estimate);
+    setCategoryOrder(snap.categoryOrder);
+    setHistVer(v => v + 1);
+  };
+  const undo = useCallback(() => {
+    if (!histPast.current.length) return;
+    const cur = JSON.stringify({ estimate, categoryOrder });
+    const prev = histPast.current.pop()!;
+    histFuture.current.push(cur);
+    applySnap(prev);
+  }, [estimate, categoryOrder]);
+  const redo = useCallback(() => {
+    if (!histFuture.current.length) return;
+    const cur = JSON.stringify({ estimate, categoryOrder });
+    const next = histFuture.current.pop()!;
+    histPast.current.push(cur);
+    applySnap(next);
+  }, [estimate, categoryOrder]);
+
+  // 키보드 단축키 (Cmd/Ctrl+Z, Cmd+Shift+Z / Ctrl+Y)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const meta = e.metaKey || e.ctrlKey;
+      if (!meta) return;
+      const k = e.key.toLowerCase();
+      if (k === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
+      else if ((k === 'z' && e.shiftKey) || k === 'y') { e.preventDefault(); redo(); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [undo, redo]);
+
+  void histVer; // 버튼 disabled 상태 리렌더 트리거용
 
   // 자동 저장 (2초 디바운스) - 로드 완료 후에만
   useEffect(() => {
@@ -543,6 +604,14 @@ export default function EstimatePage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <h2 className="text-xl font-bold">견적서</h2>
           <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-1">
+              <Button onClick={undo} disabled={histPast.current.length === 0} variant="outline" className="text-xs px-2.5" title="실행 취소 (Ctrl/Cmd+Z)">
+                <Undo2 className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">되돌리기</span>
+              </Button>
+              <Button onClick={redo} disabled={histFuture.current.length === 0} variant="outline" className="text-xs px-2.5" title="다시 실행 (Ctrl/Cmd+Shift+Z)">
+                <Redo2 className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">다시</span>
+              </Button>
+            </div>
             <Button onClick={() => setShowCategoryOrderModal(true)} variant="outline" className="w-full sm:w-auto text-xs">
               <ListOrdered className="w-4 h-4 mr-1" /> 공종 순서
             </Button>

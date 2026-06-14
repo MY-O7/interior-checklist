@@ -217,31 +217,34 @@ button:focus-visible, .btn:focus-visible {
   outline-offset: 2px;
 }
 
-/* Primary Button */
-button[type="submit"],
-button[class*="bg-brand"]:not([class*="outline"]) {
-  background-color: var(--brand-primary) !important;
-  color: white !important;
-  border: none;
-}
-
-button[type="submit"]:hover,
-button[class*="bg-brand"]:not([class*="outline"]):hover {
-  background-color: var(--brand-primary-hover) !important;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-
-/* Outline Button */
+/* 일반/Outline 버튼 → 흰색 배경 (베이지 배경과 구분).
+   주의: 이 선택자는 거의 모든 버튼의 outline-none(포커스) 클래스에도 매칭되므로
+   transparent로 두면 모든 버튼이 배경에 묻힌다 → var(--card)(흰색)로 둔다.
+   브랜드/제출 버튼은 이 규칙보다 "아래"에 둬서 우선 적용되게 한다. */
 button[class*="outline"] {
-  background-color: transparent !important;
+  background-color: var(--card) !important;
   color: var(--foreground) !important;
-  border: 1px solid var(--border) !important;
+  border: 1px solid var(--card-border) !important;
 }
 
 button[class*="outline"]:hover {
   background-color: var(--card-hover) !important;
   border-color: var(--brand-primary) !important;
+}
+
+/* Primary Button (제출 / .bg-brand) — 위 규칙보다 뒤에 둬서 우선 적용 */
+button[type="submit"],
+button[class~="bg-brand"] {
+  background-color: var(--brand-primary) !important;
+  color: white !important;
+  border: none !important;
+}
+
+button[type="submit"]:hover,
+button[class~="bg-brand"]:hover {
+  background-color: var(--brand-primary-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 /* ═══════════════════════════════════════════════════════════

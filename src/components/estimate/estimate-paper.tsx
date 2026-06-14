@@ -77,15 +77,15 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
     const suffix = String((project?.name || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % 1000).padStart(3, '0');
     return `${ymd}-${suffix}`;
   })();
-  const cell = (label: string, value: string) => (
-    <div className="flex">
-      <span className="w-[72px] shrink-0 px-3 py-2 text-[11.5px] text-slate-500 border-r border-slate-200" style={{ backgroundColor: '#f8fafc' }}>{label}</span>
-      <span className="flex-1 px-3 py-2 text-[12.5px] text-slate-800 font-medium break-words">{value || '-'}</span>
+  const field = (label: string, value: string) => (
+    <div className="flex gap-3 py-[3px]">
+      <span className="w-[62px] shrink-0 text-[11px] text-slate-400">{label}</span>
+      <span className="flex-1 text-[13px] text-slate-800 font-medium break-words leading-snug">{value || '-'}</span>
     </div>
   );
   const headerInfoEl = (
     <div style={{ paddingBottom: 40 }}>
-      <div className="flex items-end justify-between mb-5 pb-4" style={{ borderBottom: '2.5px solid #1e293b' }}>
+      <div className="flex items-end justify-between mb-6 pb-4" style={{ borderBottom: '2.5px solid #1e293b' }}>
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="SOMSSI" className="w-12 h-12 object-contain" />
           <div>
@@ -98,22 +98,20 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
           <p>작성일자 <span className="font-semibold text-slate-700">{dateStr}</span></p>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-5">
-        <div className="rounded-lg overflow-hidden border border-slate-300">
-          <div className="px-3 py-1.5 text-[11px] font-bold tracking-wider text-white" style={{ backgroundColor: '#334155' }}>공급받는자 (현장)</div>
-          <div className="divide-y divide-slate-100">
-            {cell('현장명', project?.name || '')}
-            {cell('연락처', project?.clientPhone || '')}
-          </div>
+      {/* 모던 미니멀: 박스/헤더바 없이 가는 구분선 + 타이포 위계 */}
+      <div className="flex">
+        <div className="flex-1 pr-8">
+          <p className="text-[10px] font-semibold tracking-[0.2em] text-slate-400 mb-3">TO. 공급받는자</p>
+          {field('현장명', project?.name || '')}
+          {field('연락처', project?.clientPhone || '')}
         </div>
-        <div className="rounded-lg overflow-hidden border border-slate-300">
-          <div className="px-3 py-1.5 text-[11px] font-bold tracking-wider text-white" style={{ backgroundColor: '#334155' }}>공급자</div>
-          <div className="divide-y divide-slate-100">
-            {cell('상호', '솜씨인테리어')}
-            {cell('대표자', companyInfo.ceoName)}
-            {cell('사업자번호', companyInfo.bizNumber)}
-            {cell('주소', companyInfo.address)}
-          </div>
+        <div className="w-px bg-slate-200 self-stretch" />
+        <div className="flex-1 pl-8">
+          <p className="text-[10px] font-semibold tracking-[0.2em] text-slate-400 mb-3">FROM. 공급자</p>
+          {field('상호', '솜씨인테리어')}
+          {field('대표자', companyInfo.ceoName)}
+          {field('사업자번호', companyInfo.bizNumber)}
+          {field('주소', companyInfo.address)}
         </div>
       </div>
     </div>

@@ -237,7 +237,7 @@ function DashboardContent() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
-        <div className="text-slate-400">로딩 중...</div>
+        <div className="text-slate-500">로딩 중...</div>
       </div>
     );
   }
@@ -252,7 +252,7 @@ function DashboardContent() {
             <div className="flex items-center gap-4">
               <img src="/logo.png" alt="SOMSSI" className="w-12 h-12 object-contain" />
               <div>
-                <div className="text-[10px] font-bold tracking-[3px] text-slate-400 uppercase">SOMSSI INTERIOR</div>
+                <div className="text-[10px] font-bold tracking-[3px] text-slate-500 uppercase">SOMSSI INTERIOR</div>
                 <h1 className="text-lg font-bold text-slate-800 dark:text-white">시공 관리</h1>
               </div>
             </div>
@@ -267,7 +267,7 @@ function DashboardContent() {
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                   activeTab === item.id 
                     ? 'bg-[var(--brand-primary)] text-white shadow-md'
-                    : 'hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400'
+                    : 'hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-500'
                 }`}
               >
                 <item.icon className="w-5 h-5" />
@@ -279,13 +279,13 @@ function DashboardContent() {
           {/* 외부 링크 */}
           <div className="px-4 pb-2 space-y-1">
             <a href="https://blog.naver.com/nm4710" target="_blank" rel="noopener noreferrer"
-              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 transition-all">
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-500 transition-all">
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M16.273 12.845 7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845Z"/></svg>
               네이버 블로그
               <ExternalLink className="w-3.5 h-3.5 ml-auto opacity-40" />
             </a>
             <a href="https://www.instagram.com/somssi.interior/" target="_blank" rel="noopener noreferrer"
-              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 transition-all">
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-500 transition-all">
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
               인스타그램
               <ExternalLink className="w-3.5 h-3.5 ml-auto opacity-40" />
@@ -300,7 +300,7 @@ function DashboardContent() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{user?.name}</p>
-                <p className="text-xs text-slate-400">{user?.role === 'ADMIN' ? '관리자' : '사용자'}</p>
+                <p className="text-xs text-slate-500">{user?.role === 'ADMIN' ? '관리자' : '사용자'}</p>
               </div>
             </div>
             
@@ -360,7 +360,7 @@ function DashboardContent() {
                             <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 text-amber-700 shrink-0">{project.ownerName}</span>
                           )}
                         </div>
-                        <p className="text-sm text-slate-400 mt-1 truncate">{project.clientName} · {project.address}</p>
+                        <p className="text-sm text-slate-500 mt-1 truncate">{project.clientName} · {project.address}</p>
                       </div>
                       <ChevronRight className="w-5 h-5 text-slate-300 shrink-0 ml-2" />
                     </div>
@@ -381,7 +381,7 @@ function DashboardContent() {
         {activeTab === 'notice' && (
           <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
             <h2 className="text-xl sm:text-2xl font-bold">공사 안내문</h2>
-            <p className="text-slate-400 text-sm">프로젝트를 선택하여 공사 안내문을 작성하고 인쇄하세요.</p>
+            <p className="text-slate-500 text-sm">프로젝트를 선택하여 공사 안내문을 작성하고 인쇄하세요.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {projects.map((project) => (
                 <Card key={project.id} className="hover:shadow-md transition-all cursor-pointer" onClick={() => router.push(`/notice/${project.id}`)}>
@@ -397,7 +397,7 @@ function DashboardContent() {
                             <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 text-amber-700 shrink-0">{project.ownerName}</span>
                           )}
                         </div>
-                        <p className="text-sm text-slate-400 mt-1 truncate">{project.clientName} · {project.address}</p>
+                        <p className="text-sm text-slate-500 mt-1 truncate">{project.clientName} · {project.address}</p>
                       </div>
                       <ChevronRight className="w-5 h-5 text-slate-300 shrink-0 ml-2" />
                     </div>
@@ -411,7 +411,7 @@ function DashboardContent() {
         {activeTab === 'samples' && (
           <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
             <h2 className="text-xl sm:text-2xl font-bold">자재 샘플</h2>
-            <p className="text-slate-400 text-sm">카테고리별 인테리어 자재 브랜드와 공식 카탈로그 링크를 관리합니다.</p>
+            <p className="text-slate-500 text-sm">카테고리별 인테리어 자재 브랜드와 공식 카탈로그 링크를 관리합니다.</p>
             <Button onClick={() => router.push('/samples')}>
               <Palette className="w-4 h-4 mr-2" /> 자재 샘플 바로가기
             </Button>
@@ -447,7 +447,7 @@ function DashboardContent() {
             <CardContent className="p-5 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold">프로젝트 수정</h3>
-                <button onClick={() => setEditingProject(null)} className="text-slate-400 hover:text-slate-600">✕</button>
+                <button onClick={() => setEditingProject(null)} className="text-slate-500 hover:text-slate-600">✕</button>
               </div>
               <div className="space-y-3">
                 <div className="space-y-1">
@@ -493,7 +493,7 @@ function DashboardContent() {
             <CardContent className="p-5 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold">프로젝트 공유</h3>
-                <button onClick={() => setSharingProject(null)} className="text-slate-400 hover:text-slate-600">
+                <button onClick={() => setSharingProject(null)} className="text-slate-500 hover:text-slate-600">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -516,9 +516,9 @@ function DashboardContent() {
 
               {/* 공유 목록 */}
               <div className="space-y-2">
-                <p className="text-sm font-medium text-slate-400">공유된 사용자 ({shares.length}명)</p>
+                <p className="text-sm font-medium text-slate-500">공유된 사용자 ({shares.length}명)</p>
                 {shares.length === 0 ? (
-                  <p className="text-sm text-slate-400 py-3 text-center">공유된 사용자가 없습니다</p>
+                  <p className="text-sm text-slate-500 py-3 text-center">공유된 사용자가 없습니다</p>
                 ) : (
                   shares.map(share => (
                     <div key={share.id} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800">
@@ -528,10 +528,10 @@ function DashboardContent() {
                         </div>
                         <div className="min-w-0">
                           <p className="text-sm font-medium truncate">{share.user.name}</p>
-                          <p className="text-xs text-slate-400 truncate">{share.user.email}</p>
+                          <p className="text-xs text-slate-500 truncate">{share.user.email}</p>
                         </div>
                       </div>
-                      <button onClick={() => removeShare(share.id)} className="text-slate-400 hover:text-red-500 shrink-0 ml-2">
+                      <button onClick={() => removeShare(share.id)} className="text-slate-500 hover:text-red-500 shrink-0 ml-2">
                         <X className="w-4 h-4" />
                       </button>
                     </div>
@@ -550,7 +550,7 @@ export default function DashboardPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
-        <div className="text-slate-400">로딩 중...</div>
+        <div className="text-slate-500">로딩 중...</div>
       </div>
     }>
       <DashboardContent />

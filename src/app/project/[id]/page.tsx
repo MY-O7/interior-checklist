@@ -65,7 +65,7 @@ function ChecklistRow({ item, sectionId, data, roomData, onUpdate, onRoomUpdate,
         ) : (
           <div className="ml-9 flex items-center gap-2">
             <Input className="h-11 text-base bg-slate-50 dark:bg-slate-900 border-dashed flex-1" value={data.value} onChange={(e) => onUpdate('value', e.target.value)} placeholder={`수치 입력 (${item.measurementLabel || ''})`} />
-            {item.measurementLabel && <span className="text-sm text-slate-400">{item.measurementLabel}</span>}
+            {item.measurementLabel && <span className="text-sm text-slate-500">{item.measurementLabel}</span>}
           </div>
         )
       )}
@@ -269,7 +269,7 @@ export default function ProjectPage() {
               <div>
                 <div className="mb-5">
                   <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">무엇을 작성할까요?</h2>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">아래에서 작성할 항목을 선택하세요.</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-500 mt-1">아래에서 작성할 항목을 선택하세요.</p>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {/* 기본 정보 카드 */}
@@ -277,7 +277,7 @@ export default function ProjectPage() {
                     className="text-left rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 hover:border-emerald-500 hover:shadow-md transition-all">
                     <div className="text-2xl mb-2">📋</div>
                     <p className="text-base font-bold text-slate-800 dark:text-slate-100">기본 정보</p>
-                    <p className="text-xs text-slate-400 mt-0.5">현장·공사 범위</p>
+                    <p className="text-xs text-slate-500 mt-0.5">현장·공사 범위</p>
                   </button>
                   {SECTIONS.map((section, i) => {
                     const c = sectionColor(section.id);
@@ -291,7 +291,7 @@ export default function ProjectPage() {
                         </div>
                       </div>
                       <p className="text-base font-bold text-slate-800 dark:text-slate-100 leading-tight">{section.title}</p>
-                      <p className="text-xs text-slate-400 mt-0.5">{section.subtitle}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{section.subtitle}</p>
                     </button>
                   );})}
                 </div>
@@ -313,7 +313,7 @@ export default function ProjectPage() {
                         <label key={v} className={`flex-1 cursor-pointer rounded-xl border-2 p-4 transition-all ${siteInfo.workScope === v ? 'border-emerald-600 dark:border-emerald-500 bg-emerald-50 dark:bg-slate-700' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'}`}>
                           <div className="flex items-center gap-3">
                             <RadioGroupItem value={v} id={`scope-${v}`} />
-                            <div><p className="text-sm font-bold">{l}</p><p className="text-xs text-slate-400">{d}</p></div>
+                            <div><p className="text-sm font-bold">{l}</p><p className="text-xs text-slate-500">{d}</p></div>
                           </div>
                         </label>
                       ))}
@@ -332,12 +332,12 @@ export default function ProjectPage() {
                     { label: '고객 연락처', key: 'clientPhone', placeholder: '010-1234-5678' },
                   ].map(({ label, key, placeholder }) => (
                     <div key={key} className="flex flex-col sm:flex-row">
-                      <div className="px-4 py-3 sm:w-48 bg-slate-50 dark:bg-slate-900/50 flex items-center"><Label className="text-sm font-semibold text-slate-600 dark:text-slate-400">{label}</Label></div>
+                      <div className="px-4 py-3 sm:w-48 bg-slate-50 dark:bg-slate-900/50 flex items-center"><Label className="text-sm font-semibold text-slate-600 dark:text-slate-500">{label}</Label></div>
                       <div className="flex-1 px-4 py-2"><Input value={(siteInfo as any)[key]} onChange={(e) => setSiteInfo({ ...siteInfo, [key]: e.target.value })} placeholder={placeholder} className="h-12 text-lg border-0 border-b border-dashed border-slate-200 dark:border-slate-700 rounded-none bg-transparent focus:ring-0 focus:border-[var(--brand-primary)]" /></div>
                     </div>
                   ))}
-                  <div className="flex flex-col sm:flex-row"><div className="px-4 py-3 sm:w-48 bg-slate-50 dark:bg-slate-900/50"><Label className="text-sm font-semibold text-slate-600 dark:text-slate-400">거주 여부</Label></div><div className="flex-1 px-4 py-3"><RadioGroup value={siteInfo.isOccupied} onValueChange={(v) => setSiteInfo({ ...siteInfo, isOccupied: v })} className="flex gap-6">{['공실', '거주중'].map(v => <div key={v} className="flex items-center space-x-2"><RadioGroupItem value={v} id={`occ-${v}`} /><Label htmlFor={`occ-${v}`}>{v}</Label></div>)}</RadioGroup></div></div>
-                  <div className="flex flex-col sm:flex-row"><div className="px-4 py-3 sm:w-48 bg-slate-50 dark:bg-slate-900/50"><Label className="text-sm font-semibold text-slate-600 dark:text-slate-400">엘리베이터</Label></div><div className="flex-1 px-4 py-3"><RadioGroup value={siteInfo.hasElevator} onValueChange={(v) => setSiteInfo({ ...siteInfo, hasElevator: v })} className="flex gap-6">{['있음', '없음'].map(v => <div key={v} className="flex items-center space-x-2"><RadioGroupItem value={v} id={`elev-${v}`} /><Label htmlFor={`elev-${v}`}>{v}</Label></div>)}</RadioGroup></div></div>
+                  <div className="flex flex-col sm:flex-row"><div className="px-4 py-3 sm:w-48 bg-slate-50 dark:bg-slate-900/50"><Label className="text-sm font-semibold text-slate-600 dark:text-slate-500">거주 여부</Label></div><div className="flex-1 px-4 py-3"><RadioGroup value={siteInfo.isOccupied} onValueChange={(v) => setSiteInfo({ ...siteInfo, isOccupied: v })} className="flex gap-6">{['공실', '거주중'].map(v => <div key={v} className="flex items-center space-x-2"><RadioGroupItem value={v} id={`occ-${v}`} /><Label htmlFor={`occ-${v}`}>{v}</Label></div>)}</RadioGroup></div></div>
+                  <div className="flex flex-col sm:flex-row"><div className="px-4 py-3 sm:w-48 bg-slate-50 dark:bg-slate-900/50"><Label className="text-sm font-semibold text-slate-600 dark:text-slate-500">엘리베이터</Label></div><div className="flex-1 px-4 py-3"><RadioGroup value={siteInfo.hasElevator} onValueChange={(v) => setSiteInfo({ ...siteInfo, hasElevator: v })} className="flex gap-6">{['있음', '없음'].map(v => <div key={v} className="flex items-center space-x-2"><RadioGroupItem value={v} id={`elev-${v}`} /><Label htmlFor={`elev-${v}`}>{v}</Label></div>)}</RadioGroup></div></div>
                 </div>
               </div>
             )}
@@ -351,7 +351,7 @@ export default function ProjectPage() {
                     <h2 className="text-lg sm:text-xl font-bold text-white">{SECTIONS[currentSection].title}</h2>
                     <span className="text-sm text-white/70 hidden sm:inline ml-auto">{SECTIONS[currentSection].subtitle}</span>
                   </div>
-                  <div className="hidden md:grid grid-cols-[64px_180px_1fr_220px] bg-slate-100 dark:bg-slate-700 text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase border-b border-slate-200 dark:border-slate-600">
+                  <div className="hidden md:grid grid-cols-[64px_180px_1fr_220px] bg-slate-100 dark:bg-slate-700 text-sm font-semibold text-slate-500 dark:text-slate-500 uppercase border-b border-slate-200 dark:border-slate-600">
                     <div className="px-3 py-2.5 text-center whitespace-nowrap">확인</div><div className="px-3 py-2.5">항목</div><div className="px-3 py-2.5">선택 옵션</div><div className="px-3 py-2.5">비고</div>
                   </div>
                   {SECTIONS[currentSection].id === 'notes' ? (
@@ -377,9 +377,9 @@ export default function ProjectPage() {
                             <div className="px-5 py-3 bg-slate-50 dark:bg-slate-900/50 flex items-center gap-2">
                               <label className="flex items-center gap-2 cursor-pointer">
                                 <input type="checkbox" checked={isEnabled} onChange={(e) => updateItem(SECTIONS[currentSection].id, item.name, 'checked', e.target.checked)} className="w-5 h-5 rounded accent-slate-800" />
-                                <span className={`text-base font-bold ${isEnabled ? 'text-slate-800 dark:text-slate-200' : 'text-slate-400 line-through'}`}>{item.name}</span>
+                                <span className={`text-base font-bold ${isEnabled ? 'text-slate-800 dark:text-slate-200' : 'text-slate-500 line-through'}`}>{item.name}</span>
                               </label>
-                              {!isEnabled && <span className="text-xs text-slate-400 ml-1">비활성</span>}
+                              {!isEnabled && <span className="text-xs text-slate-500 ml-1">비활성</span>}
                             </div>
                             {isEnabled && item.subItems.map((sub) => {
                               const subKey = `${item.name}_${sub.name}`;
@@ -411,11 +411,11 @@ export default function ProjectPage() {
             {/* ─── 네비게이션 ─── */}
             {!printMode && currentSection !== -2 && (
             <div className="flex justify-between items-center gap-2 mt-6 print:hidden">
-              <Button variant="outline" onClick={() => setCurrentSection(currentSection <= -1 ? -2 : currentSection - 1)} className="h-11 gap-1 border-slate-300 shrink-0"><ChevronLeft className="w-4 h-4" /> 이전</Button>
+              <Button variant="outline" onClick={() => setCurrentSection(currentSection <= -1 ? -2 : currentSection - 1)} className="h-11 gap-1 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-semibold hover:bg-slate-50 hover:border-slate-400 shrink-0"><ChevronLeft className="w-4 h-4" /> 이전</Button>
               {/* 넓은 화면: 점 인디케이터 / 모바일: 카운터 (겹침 방지) */}
-              <div className="hidden md:flex items-center gap-1.5 flex-wrap justify-center px-1">{SECTIONS.map((_, i) => <button key={i} onClick={() => setCurrentSection(i)} className={`h-2 rounded-full transition-all ${currentSection === i ? 'bg-slate-800 dark:bg-slate-300 w-5' : 'bg-slate-300 dark:bg-slate-600 w-2'}`} />)}</div>
-              <span className="md:hidden text-sm font-medium text-slate-500 dark:text-slate-400 tabular-nums">{currentSection < 0 ? '·' : String(currentSection + 1).padStart(2, '0')} <span className="text-slate-300 dark:text-slate-600">/ {SECTIONS.length}</span></span>
-              <Button onClick={() => { setCurrentSection(Math.min(SECTIONS.length - 1, currentSection + 1)); saveChecklist(); }} disabled={currentSection === SECTIONS.length - 1} className="h-11 gap-1 bg-slate-800 hover:bg-slate-700 shrink-0">다음 <ChevronRight className="w-4 h-4" /></Button>
+              <div className="hidden md:flex items-center gap-1.5 flex-wrap justify-center px-1">{SECTIONS.map((_, i) => <button key={i} onClick={() => setCurrentSection(i)} className={`h-2 rounded-full transition-all ${currentSection === i ? 'bg-[var(--brand-primary)] w-5' : 'bg-slate-400/70 dark:bg-slate-600 w-2 hover:bg-slate-500'}`} />)}</div>
+              <span className="md:hidden text-sm font-semibold text-slate-600 dark:text-slate-300 tabular-nums">{currentSection < 0 ? '·' : String(currentSection + 1).padStart(2, '0')} <span className="text-slate-500 dark:text-slate-600">/ {SECTIONS.length}</span></span>
+              <Button onClick={() => { setCurrentSection(Math.min(SECTIONS.length - 1, currentSection + 1)); saveChecklist(); }} disabled={currentSection === SECTIONS.length - 1} className="h-11 gap-1 bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] text-white font-semibold shadow-sm shrink-0">다음 <ChevronRight className="w-4 h-4" /></Button>
             </div>
             )}
 
@@ -440,10 +440,10 @@ export default function ProjectPage() {
                       <img src="/logo.png" alt="SOMSSI" className="w-14 h-14 object-contain" />
                       <div>
                         <h1 className="text-2xl font-black tracking-tight text-slate-800">SOMSSI INTERIOR</h1>
-                        <p className="text-sm text-slate-400 font-medium tracking-widest">솜씨인테리어 시공 체크리스트</p>
+                        <p className="text-sm text-slate-500 font-medium tracking-widest">솜씨인테리어 시공 체크리스트</p>
                       </div>
                     </div>
-                    <div className="text-right text-xs text-slate-400">
+                    <div className="text-right text-xs text-slate-500">
                       <p>작성일: {new Date().toLocaleDateString('ko-KR')}</p>
                       {siteInfo.manager && <p>담당: {siteInfo.manager}</p>}
                     </div>
@@ -478,7 +478,7 @@ export default function ProjectPage() {
                     return specialNotes ? (
                       <div key={section.id} className="border border-slate-200 rounded-lg overflow-hidden break-inside-avoid">
                         <div style={{ backgroundColor: "#1e293b", color: "#ffffff", WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" } as React.CSSProperties} className="px-5 py-3">
-                          <span className="font-mono text-slate-400 mr-3 text-sm">{String(sIdx + 1).padStart(2, '0')}</span>
+                          <span className="font-mono text-slate-500 mr-3 text-sm">{String(sIdx + 1).padStart(2, '0')}</span>
                           <span className="font-bold text-base">{section.title}</span>
                         </div>
                         <div className="p-4"><p className="whitespace-pre-wrap text-sm leading-relaxed">{specialNotes}</p></div>
@@ -493,9 +493,9 @@ export default function ProjectPage() {
                   return (
                     <div key={section.id} className="border border-slate-200 rounded-lg overflow-hidden break-inside-avoid">
                       <div style={{ backgroundColor: "#1e293b", color: "#ffffff", WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" } as React.CSSProperties} className="px-5 py-3 flex items-center">
-                        <span className="font-mono text-slate-400 mr-3 text-sm">{String(sIdx + 1).padStart(2, '0')}</span>
+                        <span className="font-mono text-slate-500 mr-3 text-sm">{String(sIdx + 1).padStart(2, '0')}</span>
                         <span className="font-bold text-base">{section.title}</span>
-                        <span className="ml-auto text-xs text-slate-400">{section.subtitle}</span>
+                        <span className="ml-auto text-xs text-slate-500">{section.subtitle}</span>
                       </div>
                       <table className="w-full text-sm border-collapse">
                         <thead>
@@ -521,9 +521,9 @@ export default function ProjectPage() {
                                 return (
                                   <tr key={subKey} className="border-b border-slate-100">
                                     <td className="px-3 py-2.5 text-center text-emerald-600 font-bold">✓</td>
-                                    <td className="px-3 py-2.5"><span className="text-[10px] text-slate-400 block">{item.name}</span><span className="font-semibold">{sub.name}</span></td>
+                                    <td className="px-3 py-2.5"><span className="text-[10px] text-slate-500 block">{item.name}</span><span className="font-semibold">{sub.name}</span></td>
                                     <td className="px-3 py-2.5">{d.detail && <span className="inline-block bg-slate-100 px-2 py-0.5 rounded text-xs mr-1 mb-0.5">{d.detail}</span>}{checkedRooms.length > 0 && <div className="mt-1 text-xs text-emerald-700 font-medium">📍 {checkedRooms.join(' · ')}</div>}</td>
-                                    <td className="px-3 py-2.5 text-slate-500 text-xs">{d.value}{d.note && <div className="text-slate-400 mt-0.5">{d.note}</div>}</td>
+                                    <td className="px-3 py-2.5 text-slate-500 text-xs">{d.value}{d.note && <div className="text-slate-500 mt-0.5">{d.note}</div>}</td>
                                   </tr>
                                 );
                               });
@@ -538,7 +538,7 @@ export default function ProjectPage() {
                                 <td className="px-3 py-2.5 text-center text-emerald-600 font-bold">✓</td>
                                 <td className="px-3 py-2.5 font-semibold">{item.name}</td>
                                 <td className="px-3 py-2.5">{d.detail && <span className="inline-block bg-slate-100 px-2 py-0.5 rounded text-xs mr-1 mb-0.5">{d.detail}</span>}{checkedRooms.length > 0 && <div className="mt-1 text-xs text-emerald-700 font-medium">📍 {checkedRooms.join(' · ')}</div>}</td>
-                                <td className="px-3 py-2.5 text-slate-500 text-xs">{d.value}{d.note && <div className="text-slate-400 mt-0.5">{d.note}</div>}</td>
+                                <td className="px-3 py-2.5 text-slate-500 text-xs">{d.value}{d.note && <div className="text-slate-500 mt-0.5">{d.note}</div>}</td>
                               </tr>
                             );
                           })}
@@ -549,7 +549,7 @@ export default function ProjectPage() {
                 })}
 
                 {/* 푸터 */}
-                <div className="border-t-2 border-slate-800 pt-4 mt-6 flex items-center justify-between text-xs text-slate-400">
+                <div className="border-t-2 border-slate-800 pt-4 mt-6 flex items-center justify-between text-xs text-slate-500">
                   <div className="flex items-center gap-2">
                     <img src="/logo.png" alt="" className="w-5 h-5 object-contain opacity-50" />
                     <span>SOMSSI INTERIOR</span>

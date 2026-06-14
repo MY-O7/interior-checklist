@@ -49,7 +49,7 @@ export function ProjectsTab({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold">프로젝트 목록</h2>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-slate-500 mt-1">
             총 {projects.length}개의 프로젝트
             {user?.role === 'ADMIN' && <span className="ml-2 text-[var(--brand-primary)]">(전체 조회)</span>}
             {user?.role !== 'ADMIN' && projects.some(p => p.ownership === 'shared') && (
@@ -77,7 +77,7 @@ export function ProjectsTab({
 
       {/* 검색 */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
         <Input
           placeholder="프로젝트명, 고객명, 주소 검색..."
           value={searchQuery}
@@ -123,7 +123,7 @@ export function ProjectsTab({
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-base sm:text-lg">{project.name}</h3>
-                  <div className="flex items-center gap-2 mt-1 text-sm text-slate-400">
+                  <div className="flex items-center gap-2 mt-1 text-sm text-slate-500">
                     <User className="w-3.5 h-3.5 shrink-0" />
                     <span>{project.clientName || '-'}</span>
                   </div>
@@ -194,7 +194,7 @@ export function ProjectsTab({
           <CardContent className="text-center">
             <FolderOpen className="w-12 h-12 mx-auto mb-4 text-slate-300" />
             <p className="text-lg font-medium mb-1">프로젝트가 없습니다</p>
-            <p className="text-sm text-slate-400 mb-4">새 프로젝트를 생성하여 시작하세요</p>
+            <p className="text-sm text-slate-500 mb-4">새 프로젝트를 생성하여 시작하세요</p>
             <Button onClick={() => setShowNewProject(true)}>
               <Plus className="w-4 h-4 mr-2" /> 프로젝트 생성
             </Button>

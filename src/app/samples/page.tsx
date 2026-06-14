@@ -255,8 +255,8 @@ export default function SamplesPage() {
             <h1 className="text-lg font-bold">자재 샘플</h1>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={expandAll} className="text-xs text-slate-400 hover:text-slate-600 px-2 py-1">전체 열기</button>
-            <button onClick={collapseAll} className="text-xs text-slate-400 hover:text-slate-600 px-2 py-1">전체 접기</button>
+            <button onClick={expandAll} className="text-xs text-slate-500 hover:text-slate-600 px-2 py-1">전체 열기</button>
+            <button onClick={collapseAll} className="text-xs text-slate-500 hover:text-slate-600 px-2 py-1">전체 접기</button>
           </div>
         </div>
       </div>
@@ -264,7 +264,7 @@ export default function SamplesPage() {
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-4">
         {/* 검색 */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
           <Input
             placeholder="브랜드명 또는 키워드 검색..."
             value={searchQuery}
@@ -286,10 +286,10 @@ export default function SamplesPage() {
                   <span className="text-2xl">{cat.icon}</span>
                   <div>
                     <span className="font-bold text-base">{cat.name}</span>
-                    <span className="text-xs text-slate-400 ml-2">{cat.brands.length}개 브랜드</span>
+                    <span className="text-xs text-slate-500 ml-2">{cat.brands.length}개 브랜드</span>
                   </div>
                 </div>
-                {isExpanded ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
+                {isExpanded ? <ChevronUp className="w-5 h-5 text-slate-500" /> : <ChevronDown className="w-5 h-5 text-slate-500" />}
               </button>
 
               {isExpanded && (
@@ -316,13 +316,13 @@ export default function SamplesPage() {
                             <ExternalLink className="w-3 h-3 text-slate-300" />
                           </a>
                           {brand.description && (
-                            <p className="text-xs text-slate-400 mt-0.5 truncate">{brand.description}</p>
+                            <p className="text-xs text-slate-500 mt-0.5 truncate">{brand.description}</p>
                           )}
                         </div>
                         {/* 편집/삭제 */}
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
                           <button onClick={() => startEditBrand(cat.id, brand)} className="p-1 hover:bg-slate-200 rounded">
-                            <Edit2 className="w-3.5 h-3.5 text-slate-400" />
+                            <Edit2 className="w-3.5 h-3.5 text-slate-500" />
                           </button>
                           <button onClick={() => deleteBrand(cat.id, brand.id)} className="p-1 hover:bg-red-100 rounded">
                             <Trash2 className="w-3.5 h-3.5 text-red-400" />
@@ -347,7 +347,7 @@ export default function SamplesPage() {
                   ) : (
                     <button
                       onClick={() => setAddingTo(cat.id)}
-                      className="w-full p-3 border-t text-sm text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition flex items-center justify-center gap-1"
+                      className="w-full p-3 border-t text-sm text-slate-500 hover:text-slate-600 hover:bg-slate-50 transition flex items-center justify-center gap-1"
                     >
                       <Plus className="w-4 h-4" /> 브랜드 추가
                     </button>
@@ -359,7 +359,7 @@ export default function SamplesPage() {
         })}
 
         {filtered.length === 0 && (
-          <div className="text-center py-12 text-slate-400">
+          <div className="text-center py-12 text-slate-500">
             검색 결과가 없습니다
           </div>
         )}
@@ -372,7 +372,7 @@ export default function SamplesPage() {
             <CardContent className="p-5 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold">브랜드 편집</h3>
-                <button onClick={() => setEditingBrand(null)}><X className="w-5 h-5 text-slate-400" /></button>
+                <button onClick={() => setEditingBrand(null)}><X className="w-5 h-5 text-slate-500" /></button>
               </div>
               <div className="space-y-3">
                 <div>

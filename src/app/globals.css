@@ -18,20 +18,20 @@
   --brand-accent-hover: #d97706;
   --brand-accent-light: #fef3c7;
   
-  /* Background — 따뜻한 그레이지 (흰 카드가 떠 보이게) */
-  --background: #efece4;
+  /* Background — 연한 웜 뉴트럴 (아이보리 톤 다운) */
+  --background: #f1f0ea;
   --background-secondary: #ffffff;
 
   /* Foreground — 웜 차콜 */
   --foreground: #1f2a24;
-  --foreground-secondary: #47524c;
-  --foreground-muted: #6c7670;
-  --muted-foreground: #6c7670;
+  --foreground-secondary: #41504a;
+  --foreground-muted: #5d665f;
+  --muted-foreground: #5d665f;
 
   /* Card */
   --card: #ffffff;
-  --card-hover: #f4f1ea;
-  --card-border: #d8d2c6;
+  --card-hover: #f5f3ed;
+  --card-border: #d6cfc1;
 
   /* Sidebar */
   --sidebar-bg: #ffffff;
@@ -61,10 +61,10 @@
   --info-bg: #dbeafe;
   
   /* Muted */
-  --muted: #ece8e0;
+  --muted: #eceae2;
 
   /* Border & Shadow */
-  --border: #d8d2c6;
+  --border: #d6cfc1;
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);

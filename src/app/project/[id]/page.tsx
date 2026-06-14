@@ -124,15 +124,17 @@ export default function ProjectPage() {
     });
   };
 
-  // 섹션 이동을 브라우저 히스토리에 연동 — 브라우저 뒤로가기로 섹션 단위 이동
+  // 섹션 이동을 브라우저 히스토리에 연동 — 브라우저 뒤로가기로 섹션 단위 이동.
+  // 주의: Next.js App Router가 history.state에 내부 라우팅 정보를 저장하므로
+  // 반드시 기존 state를 보존(...window.history.state)해야 라우팅이 깨지지 않는다.
   const goToSection = (n: number) => {
-    if (n !== currentSection) window.history.pushState({ section: n }, '');
+    if (n !== currentSection) window.history.pushState({ ...window.history.state, section: n }, '');
     setCurrentSection(n);
   };
 
   useEffect(() => {
-    // 진입 시점의 현재 섹션을 히스토리 엔트리에 표시
-    window.history.replaceState({ section: currentSection }, '');
+    // 진입 시점의 현재 섹션을 히스토리 엔트리에 표시 (Next 라우팅 state 보존)
+    window.history.replaceState({ ...window.history.state, section: currentSection }, '');
     const onPop = (e: PopStateEvent) => {
       const s = e.state && typeof e.state.section === 'number' ? e.state.section : -2;
       setCurrentSection(s);

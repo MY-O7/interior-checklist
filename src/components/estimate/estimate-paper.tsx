@@ -55,6 +55,8 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
   });
 
   const dateStr = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+  const matTotal = estimate.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
+  const labTotal = estimate.items.reduce((s, i) => s + (i.labor || []).reduce((x, l) => x + l.days * l.dayRate, 0), 0);
 
   // ── 렌더 조각들 ──
   const headerInfoEl = (
@@ -142,7 +144,7 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
     <div style={{ marginTop: 30 }}>
       <div className="flex justify-end mb-9">
         <div className="w-80 text-[14px]">
-          <div className="flex justify-between py-2.5 border-b border-slate-100"><span className="text-slate-500">자재·인건비 합계</span><span className="font-medium text-slate-800">{won(materialTotal + laborTotal)}원</span></div>
+          <div className="flex justify-between py-2.5 border-b border-slate-100"><span className="text-slate-500">자재·인건비 합계</span><span className="font-medium text-slate-800">{won(matTotal + labTotal)}원</span></div>
           <div className="flex justify-between py-2.5 border-b border-slate-100"><span className="text-slate-500">공과잡비{miscRate > 0 ? ` (${miscRate}%)` : ''}</span><span className="font-medium text-slate-800">{won(miscAmount)}원</span></div>
           <div className="flex justify-between py-2.5 border-b border-slate-100"><span className="text-slate-500">공급가액 (부가세 전)</span><span className="font-medium text-slate-800">{won(subtotal)}원</span></div>
           <div className="flex justify-between py-2.5 border-b border-slate-100"><span className="text-slate-500">부가세 ({estimate.vatRate ?? 10}%)</span><span className="font-medium text-slate-800">{won(estimate.includeVat !== false ? vatAmount : 0)}원</span></div>

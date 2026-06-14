@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -81,6 +81,18 @@ export default function NoticePage() {
 
   const [project, setProject] = useState<Project | null>(null);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
+  // 모바일에서 A4 미리보기를 화면 폭에 맞춰 축소 (인쇄 시엔 1)
+  const noticeWrapRef = useRef<HTMLDivElement>(null);
+  const [noticeScale, setNoticeScale] = useState(1);
+  useEffect(() => {
+    const calc = () => {
+      const w = noticeWrapRef.current?.clientWidth ?? 794;
+      setNoticeScale(Math.min(1, w / 793.7)); // 210mm ≈ 793.7px
+    };
+    calc();
+    window.addEventListener('resize', calc);
+    return () => window.removeEventListener('resize', calc);
+  }, []);
   const [loading, setLoading] = useState(true);
 
   // 편집 필드
@@ -303,8 +315,8 @@ export default function NoticePage() {
       )}
 
       {/* 안내문 본문 */}
-      <div className="max-w-4xl mx-auto px-4 py-6 print:p-0 print:max-w-none" id="notice-content">
-        <div className="bg-white shadow-lg print:shadow-none mx-auto relative overflow-hidden" style={{ width: '210mm', minHeight: '297mm', padding: '0', fontFamily: "'Pretendard', -apple-system, sans-serif" }}>
+      <div ref={noticeWrapRef} className="max-w-4xl mx-auto px-4 py-6 print:p-0 print:max-w-none" id="notice-content">
+        <div className="notice-sheet bg-white shadow-lg print:shadow-none mx-auto relative overflow-hidden" style={{ width: '210mm', minHeight: '297mm', padding: '0', fontFamily: "'Pretendard', -apple-system, sans-serif", zoom: noticeScale }}>
 
           {/* 상단 바 */}
           <div style={{ height: '6px', background: BRAND_GRADIENT }} />
@@ -508,6 +520,7 @@ export default function NoticePage() {
           body * { visibility: hidden; }
           #notice-content, #notice-content * { visibility: visible; }
           #notice-content { position: absolute; left: 0; top: 0; width: 100%; }
+          .notice-sheet { zoom: 1 !important; }
           .print\\:hidden { display: none !important; }
         }
       `}</style>

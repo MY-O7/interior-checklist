@@ -30,14 +30,6 @@ const COL = 'grid items-center whitespace-nowrap';
 
 const won = (n: number) => n.toLocaleString('ko-KR');
 
-// 단위들: 측정 가능한 최소 조각으로 분해 (행 단위로 페이지를 꽉 채워 낭비 최소화)
-type Unit =
-  | { kind: 'headerInfo'; el: ReactNode }
-  | { kind: 'chead'; cat: string; first: boolean }
-  | { kind: 'row'; cat: string; el: ReactNode }
-  | { kind: 'sub'; cat: string; el: ReactNode }
-  | { kind: 'tail'; el: ReactNode };
-
 export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAmount, subtotal, vatAmount, total, categoryOrder, onClose }: Props) {
   const grouped = estimate.items.reduce((acc, item) => {
     const cat = CATEGORY_DISPLAY[item.category] || item.category;
@@ -60,7 +52,7 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
 
   // ── 렌더 조각들 ──
   const headerInfoEl = (
-    <div style={{ paddingBottom: 26 }}>
+    <div style={{ paddingBottom: 44 }}>
       <div className="flex items-end justify-between mb-6 pb-4" style={{ borderBottom: '2px solid #334155' }}>
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="SOMSSI" className="w-12 h-12 object-contain" />
@@ -141,8 +133,8 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
   };
 
   const tailEl = (
-    <div style={{ marginTop: 30 }}>
-      <div className="flex justify-end mb-9">
+    <div style={{ marginTop: 24 }}>
+      <div className="flex justify-end mb-6">
         <div className="w-80 text-[14px]">
           <div className="flex justify-between py-2.5 border-b border-slate-100"><span className="text-slate-500">자재·인건비 합계</span><span className="font-medium text-slate-800">{won(matTotal + labTotal)}원</span></div>
           <div className="flex justify-between py-2.5 border-b border-slate-100"><span className="text-slate-500">공과잡비{miscRate > 0 ? ` (${miscRate}%)` : ''}</span><span className="font-medium text-slate-800">{won(miscAmount)}원</span></div>
@@ -155,41 +147,44 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
           </div>
         </div>
       </div>
-      <div className="mb-8">
-        <p className="text-[12px] font-bold text-slate-500 uppercase tracking-widest mb-2.5">특이사항</p>
-        <div className="rounded-lg px-5 py-4 text-[13px] text-slate-600 leading-[2] whitespace-pre-wrap border-l-4 border-slate-300" style={{ backgroundColor: '#f8fafc' }}>
-          {estimate.notes && <>{estimate.notes}{'\n\n'}</>}
-          <span className="text-slate-500">※ 견적 외 추가공사는 별도 협의 후 진행됩니다.{'\n'}※ 하자 발생 시 신의성실하게 보수합니다. (단, 정상적 노후 및 고객 부주의에 의한 것은 제외){'\n'}※ 부가세 {estimate.includeVat !== false ? '포함' : '별도'}{'\n'}※ 대금지불조건: 계약금 50% / 잔금 50%{'\n'}※ 본 견적서는 발행일로부터 30일간 유효합니다.{'\n'}※ 현장 확인 후 공사금액이 변동될 수 있습니다.</span>
+      {estimate.notes && (
+        <div className="mb-4">
+          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">특이사항</p>
+          <div className="rounded-md px-4 py-2.5 text-[12px] text-slate-700 leading-[1.6] whitespace-pre-wrap border-l-4 border-slate-300" style={{ backgroundColor: '#f8fafc' }}>{estimate.notes}</div>
         </div>
-      </div>
-      <div className="pt-5 border-t border-slate-200 flex justify-between items-end">
-        <p className="text-[13px] text-slate-400">위 금액으로 견적합니다.</p>
-        <div className="text-center">
-          <div className="w-20 h-20 border border-dashed border-slate-300 rounded-lg flex items-center justify-center mb-1.5">
-            <img src="/stamp.png" alt="직인" className="w-16 h-16 object-contain" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+      )}
+      <div className="flex items-end justify-between pt-4 border-t border-slate-200">
+        <p className="text-[10.5px] text-slate-400 leading-[1.7] whitespace-pre-line">
+          ※ 견적 외 추가공사는 별도 협의 · 부가세 {estimate.includeVat !== false ? '포함' : '별도'} · 대금: 계약금 50% / 잔금 50%{'\n'}※ 발행일로부터 30일간 유효 · 현장 확인 후 금액 변동 가능 · 하자는 신의성실 보수(정상 노후·고객 부주의 제외)
+        </p>
+        <div className="text-center shrink-0 ml-4">
+          <div className="w-16 h-16 border border-dashed border-slate-300 rounded-lg flex items-center justify-center mb-1">
+            <img src="/stamp.png" alt="직인" className="w-12 h-12 object-contain" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
           </div>
-          <p className="text-[13px] text-slate-400">솜씨인테리어</p>
+          <p className="text-[11px] text-slate-400">솜씨인테리어</p>
         </div>
       </div>
     </div>
   );
 
-  // ── 측정용 단위 목록 ──
+  // ── 측정용 블록 목록 (공정은 통째로 한 블록 — "(이어서)" 없음) ──
   let no = 0;
-  const units: Unit[] = [{ kind: 'headerInfo', el: headerInfoEl }];
+  const blocks: ReactNode[] = [headerInfoEl];
   cats.forEach((cat, ci) => {
-    units.push({ kind: 'chead', cat, first: ci === 0 });
-    grouped[cat].forEach((item) => { no++; units.push({ kind: 'row', cat, el: rowEl(item, no) }); });
-    units.push({ kind: 'sub', cat, el: subEl(cat) });
+    const rows = grouped[cat].map((item) => { no++; return <div key={item.id}>{rowEl(item, no)}</div>; });
+    blocks.push(
+      <div style={{ breakInside: 'avoid' }}>
+        {cheadEl(cat, ci === 0)}
+        {rows}
+        {subEl(cat)}
+      </div>
+    );
   });
-  units.push({ kind: 'tail', el: tailEl });
+  blocks.push(tailEl);
 
-  const renderUnit = (u: Unit, cont = false): ReactNode =>
-    u.kind === 'chead' ? cheadEl(u.cat, u.first, cont) : (u as any).el;
-
-  // ── 측정 → 페이지 분할 (행 단위, 연속 시 헤더 재표기, tail은 한 덩어리) ──
+  // ── 측정 → 페이지 분할 (블록 통째로 채움) ──
   const measureRef = useRef<HTMLDivElement>(null);
-  const [pages, setPages] = useState<{ u: Unit; cont?: boolean }[][]>([units.map(u => ({ u }))]);
+  const [pages, setPages] = useState<number[][]>([blocks.map((_, i) => i)]);
   const depKey = useMemo(() => JSON.stringify({ items: estimate.items, total, categoryOrder, notes: estimate.notes, miscRate }), [estimate.items, total, categoryOrder, estimate.notes, miscRate]);
 
   // 화면 폭에 맞춰 A4 시트 축소 (모바일에서 잘리지 않게). 인쇄 시엔 원본 크기.
@@ -211,45 +206,16 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
       const root = measureRef.current;
       if (!root) return;
       const h = Array.from(root.children).map(c => (c as HTMLElement).offsetHeight);
-      const cheadH = (cat: string) => { const i = units.findIndex(u => u.kind === 'chead' && u.cat === cat); return i >= 0 ? h[i] : 0; };
-
-      const result: { u: Unit; cont?: boolean }[][] = [];
-      let cur: { u: Unit; cont?: boolean }[] = [];
+      const result: number[][] = [];
+      let cur: number[] = [];
       let used = 0;
-      let pageCat: string | null = null;
-      const flush = () => { if (cur.length) { result.push(cur); cur = []; used = 0; pageCat = null; } };
-
-      units.forEach((u, i) => {
-        const uh = h[i] || 0;
-        if (u.kind === 'row' || u.kind === 'sub') {
-          // 같은 페이지에 해당 공정 헤더가 없으면 연속 헤더 필요
-          const needCont = pageCat !== u.cat;
-          const contH = needCont ? cheadH(u.cat) : 0;
-          if (used > 0 && used + uh + contH > USABLE_H) flush();
-          if (pageCat !== u.cat) {
-            const ci = units.findIndex(x => x.kind === 'chead' && x.cat === u.cat);
-            cur.push({ u: units[ci], cont: true });
-            used += cheadH(u.cat);
-            pageCat = u.cat;
-          }
-          cur.push({ u });
-          used += uh;
-        } else if (u.kind === 'chead') {
-          // 헤더 단독 고아 방지: 헤더 + 첫 행이 안 들어가면 다음 페이지로
-          const firstRowH = h[i + 1] || 0;
-          if (used > 0 && used + uh + firstRowH > USABLE_H) flush();
-          cur.push({ u });
-          used += uh;
-          pageCat = u.cat;
-        } else {
-          // headerInfo / tail — 통째 유지
-          if (used > 0 && used + uh > USABLE_H) flush();
-          cur.push({ u });
-          used += uh;
-          pageCat = null;
-        }
+      blocks.forEach((_, i) => {
+        const bh = (h[i] || 0) + (i > 0 ? 18 : 0); // 블록 간 여백 보정
+        if (used > 0 && used + bh > USABLE_H) { result.push(cur); cur = []; used = 0; }
+        cur.push(i);
+        used += bh;
       });
-      flush();
+      if (cur.length) result.push(cur);
       if (alive && result.length) setPages(result);
     };
     if (typeof document !== 'undefined' && (document as any).fonts?.ready) {
@@ -272,7 +238,7 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
         {pages.map((pageUnits, pi) => (
           <div key={pi} className="a4-sheet bg-white text-slate-800 shadow-lg relative"
             style={{ width: PAGE_W, minHeight: PAGE_H, padding: PAD, fontFamily: "'Pretendard', sans-serif", zoom: scale }}>
-            <div>{pageUnits.map((pu, j) => <div key={j}>{renderUnit(pu.u, pu.cont)}</div>)}</div>
+            <div>{pageUnits.map((bi) => <div key={bi}>{blocks[bi]}</div>)}</div>
             <div className="paper-pageno absolute left-0 right-0 text-center text-[11px] text-slate-400" style={{ bottom: 18 }}>{pi + 1} / {pages.length}</div>
           </div>
         ))}
@@ -281,7 +247,7 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
       {/* 측정용 숨김 컨테이너 */}
       <div ref={measureRef} aria-hidden className="no-print"
         style={{ position: 'absolute', left: -99999, top: 0, width: PAGE_W - PAD * 2, visibility: 'hidden', fontFamily: "'Pretendard', sans-serif" }}>
-        {units.map((u, i) => <div key={i}>{renderUnit(u)}</div>)}
+        {blocks.map((b, i) => <div key={i}>{b}</div>)}
       </div>
     </div>
   );

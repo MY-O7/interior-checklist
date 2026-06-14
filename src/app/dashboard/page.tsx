@@ -236,14 +236,14 @@ function DashboardContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <div className="text-slate-400">로딩 중...</div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex bg-slate-50 dark:bg-slate-900 overflow-x-hidden">
+    <div className="h-screen flex bg-[var(--background)] overflow-x-hidden">
       
       <SidebarWrapper isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)}>
         <div className="w-72 flex flex-col h-full bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 shrink-0">
@@ -468,7 +468,7 @@ function DashboardContent() {
                     {['대기', '진행중', '완료'].map(s => (
                       <button key={s} onClick={() => setEditForm({ ...editForm, status: s })}
                         className={`px-3 py-2 rounded-lg border-2 text-sm font-medium transition ${editForm.status === s
-                          ? s === '진행중' ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          ? s === '진행중' ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
                           : s === '완료' ? 'border-green-500 bg-green-50 text-green-700'
                           : 'border-slate-800 bg-slate-50'
                           : 'border-slate-200 hover:border-slate-300'}`}>
@@ -523,7 +523,7 @@ function DashboardContent() {
                   shares.map(share => (
                     <div key={share.id} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm font-medium shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-sm font-medium shrink-0">
                           {share.user.name?.[0] || '?'}
                         </div>
                         <div className="min-w-0">
@@ -549,7 +549,7 @@ function DashboardContent() {
 export default function DashboardPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <div className="text-slate-400">로딩 중...</div>
       </div>
     }>

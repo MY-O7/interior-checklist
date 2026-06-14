@@ -43,7 +43,7 @@ function ChecklistRow({ item, sectionId, data, roomData, onUpdate, onRoomUpdate,
           <p className="font-semibold text-base sm:text-lg text-slate-800 dark:text-slate-200">
             {item.name}
             {item.badge && <span className={`ml-2 px-2 py-0.5 rounded text-xs font-bold ${item.badge === 'high' ? 'bg-rose-100 text-rose-700 border border-rose-300' : item.badge === 'req' ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-100 text-indigo-700'}`}>{item.badge === 'high' ? 'HIGH-END' : item.badge === 'req' ? '필수' : '선택'}</span>}
-            {item.perRoom && <span className="ml-2 px-1.5 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800">방별</span>}
+            {item.perRoom && <span className="ml-2 px-1.5 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-600 border border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800">방별</span>}
           </p>
         </div>
       </div>
@@ -274,7 +274,7 @@ export default function ProjectPage() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {/* 기본 정보 카드 */}
                   <button onClick={() => setCurrentSection(-1)}
-                    className="text-left rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 hover:border-blue-500 hover:shadow-md transition-all">
+                    className="text-left rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 hover:border-emerald-500 hover:shadow-md transition-all">
                     <div className="text-2xl mb-2">📋</div>
                     <p className="text-base font-bold text-slate-800 dark:text-slate-100">기본 정보</p>
                     <p className="text-xs text-slate-400 mt-0.5">현장·공사 범위</p>
@@ -301,10 +301,9 @@ export default function ProjectPage() {
             {/* ─── 기본 정보 섹션 ─── */}
             {!printMode && currentSection === -1 && (
               <div className="space-y-4">
-                <div className="flex items-center gap-3 bg-gradient-to-r from-slate-800 to-slate-700 rounded-t-xl px-5 py-3.5"><span className="text-white text-lg">📋</span><h2 className="text-lg font-bold text-white">현장 기본 정보</h2></div>
-
-                {/* 공사 범위 */}
+                {/* 헤더 + 공사 범위를 한 덩어리로 (분리감 제거) */}
                 <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                  <div className="flex items-center gap-3 bg-gradient-to-r from-slate-800 to-slate-700 px-5 py-3.5"><span className="text-white text-lg">📋</span><h2 className="text-lg font-bold text-white">현장 기본 정보</h2></div>
                   <div className="px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
                     <Label className="text-sm font-bold text-slate-700 dark:text-slate-300">🏗️ 공사 범위</Label>
                   </div>
@@ -523,7 +522,7 @@ export default function ProjectPage() {
                                   <tr key={subKey} className="border-b border-slate-100">
                                     <td className="px-3 py-2.5 text-center text-emerald-600 font-bold">✓</td>
                                     <td className="px-3 py-2.5"><span className="text-[10px] text-slate-400 block">{item.name}</span><span className="font-semibold">{sub.name}</span></td>
-                                    <td className="px-3 py-2.5">{d.detail && <span className="inline-block bg-slate-100 px-2 py-0.5 rounded text-xs mr-1 mb-0.5">{d.detail}</span>}{checkedRooms.length > 0 && <div className="mt-1 text-xs text-blue-700 font-medium">📍 {checkedRooms.join(' · ')}</div>}</td>
+                                    <td className="px-3 py-2.5">{d.detail && <span className="inline-block bg-slate-100 px-2 py-0.5 rounded text-xs mr-1 mb-0.5">{d.detail}</span>}{checkedRooms.length > 0 && <div className="mt-1 text-xs text-emerald-700 font-medium">📍 {checkedRooms.join(' · ')}</div>}</td>
                                     <td className="px-3 py-2.5 text-slate-500 text-xs">{d.value}{d.note && <div className="text-slate-400 mt-0.5">{d.note}</div>}</td>
                                   </tr>
                                 );
@@ -538,7 +537,7 @@ export default function ProjectPage() {
                               <tr key={item.name} className="border-b border-slate-100">
                                 <td className="px-3 py-2.5 text-center text-emerald-600 font-bold">✓</td>
                                 <td className="px-3 py-2.5 font-semibold">{item.name}</td>
-                                <td className="px-3 py-2.5">{d.detail && <span className="inline-block bg-slate-100 px-2 py-0.5 rounded text-xs mr-1 mb-0.5">{d.detail}</span>}{checkedRooms.length > 0 && <div className="mt-1 text-xs text-blue-700 font-medium">📍 {checkedRooms.join(' · ')}</div>}</td>
+                                <td className="px-3 py-2.5">{d.detail && <span className="inline-block bg-slate-100 px-2 py-0.5 rounded text-xs mr-1 mb-0.5">{d.detail}</span>}{checkedRooms.length > 0 && <div className="mt-1 text-xs text-emerald-700 font-medium">📍 {checkedRooms.join(' · ')}</div>}</td>
                                 <td className="px-3 py-2.5 text-slate-500 text-xs">{d.value}{d.note && <div className="text-slate-400 mt-0.5">{d.note}</div>}</td>
                               </tr>
                             );

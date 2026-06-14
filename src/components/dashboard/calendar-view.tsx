@@ -587,7 +587,7 @@ export function CalendarView() {
         <CardContent className={compact ? 'p-1' : 'p-2'}>
           <div className="grid grid-cols-7 gap-px mb-1">
             {dayNames.map((day, i) => (
-              <div key={day} className={`text-center font-medium py-0.5 ${compact ? 'text-[10px]' : 'text-xs'} ${i === 0 ? 'text-red-400 print:text-red-600' : i === 6 ? 'text-blue-400 print:text-blue-600' : 'text-slate-400 print:text-slate-600'}`}>{day}</div>
+              <div key={day} className={`text-center font-medium py-0.5 ${compact ? 'text-[10px]' : 'text-xs'} ${i === 0 ? 'text-red-400 print:text-red-600' : i === 6 ? 'text-emerald-400 print:text-emerald-600' : 'text-slate-400 print:text-slate-600'}`}>{day}</div>
             ))}
           </div>
           <div className={`grid grid-cols-7 ${compact ? 'gap-px' : 'gap-1'}`}>
@@ -608,7 +608,7 @@ export function CalendarView() {
                       day.isCurrentMonth ? 'hover:bg-slate-100 dark:hover:bg-slate-700' : 'opacity-30 cursor-default'
                     } ${isToday ? 'ring-2 ring-slate-800 dark:ring-slate-300' : ''}`}
                   >
-                    <div className={`text-[11px] leading-tight ${!day.isCurrentMonth ? 'text-slate-300' : isSunday ? 'text-red-500' : isSaturday ? 'text-blue-500' : 'text-slate-600 dark:text-slate-400'}`}>
+                    <div className={`text-[11px] leading-tight ${!day.isCurrentMonth ? 'text-slate-300' : isSunday ? 'text-red-500' : isSaturday ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-400'}`}>
                       {day.date.getDate()}
                     </div>
                     {hasSchedules && (
@@ -638,7 +638,7 @@ export function CalendarView() {
                       : 'bg-slate-100 dark:bg-slate-900 text-slate-300 cursor-default'
                   } ${isToday ? 'border-slate-800 dark:border-slate-300 border-2' : 'border-slate-200 dark:border-slate-700'}`}
                 >
-                  <div className={`text-sm font-medium mb-1 print:text-xs ${!day.isCurrentMonth ? 'text-slate-300' : isSunday ? 'text-red-500' : isSaturday ? 'text-blue-500' : 'text-slate-600 dark:text-slate-400'}`}>
+                  <div className={`text-sm font-medium mb-1 print:text-xs ${!day.isCurrentMonth ? 'text-slate-300' : isSunday ? 'text-red-500' : isSaturday ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-400'}`}>
                     {day.date.getDate()}
                   </div>
                   <div className="space-y-0.5">

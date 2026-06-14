@@ -130,7 +130,7 @@ export function ProjectsTab({
                 </div>
                 <div className="flex flex-col items-end gap-1 shrink-0">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                    project.status === '진행중' ? 'bg-blue-100 text-blue-700' :
+                    project.status === '진행중' ? 'bg-emerald-100 text-emerald-700' :
                     project.status === '완료' ? 'bg-green-100 text-green-700' :
                     'bg-slate-100 text-slate-600'
                   }`}>

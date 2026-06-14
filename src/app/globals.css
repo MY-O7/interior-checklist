@@ -463,6 +463,21 @@ input[type="checkbox"], input[type="radio"] {
   .print-area table { break-inside: auto; }
   .print-area tr { break-inside: avoid; page-break-inside: avoid; }
   .print-area thead { display: table-header-group; } /* 표가 나뉘면 헤더 반복 */
+
+  /* A4 페이지별 견적서: 미리보기 시트 = 실제 인쇄 페이지 */
+  .paper-stack { display: block !important; gap: 0 !important; }
+  .a4-sheet {
+    box-shadow: none !important;
+    width: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    break-after: page;
+    page-break-after: always;
+    break-inside: avoid;
+  }
+  .a4-sheet:last-child { break-after: auto; page-break-after: auto; }
+  .paper-pageno { display: none !important; } /* 화면 페이지번호 숨김 (브라우저가 페이지 처리) */
 }
 
 /* ═══════════════════════════════════════════════════════════

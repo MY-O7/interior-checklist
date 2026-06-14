@@ -10,7 +10,7 @@ import { SidebarWrapper } from '@/components/mobile-menu';
 import { Plus, Trash2, Save, Printer, X, ChevronLeft, Download, Menu, Home, ArrowLeft, ArrowUp, ArrowDown, ListOrdered, Link2, FileSpreadsheet } from 'lucide-react';
 import ExcelImportDialog from '@/components/ExcelImportDialog';
 import { NumInput, PageNav } from '@/components/shared';
-import { PrintEstimate } from '@/components/estimate/print-estimate';
+import { EstimatePaper } from '@/components/estimate/estimate-paper';
 import { ESTIMATE_PRESETS, CHECKLIST_TO_ESTIMATE, CATEGORIES, PRESET_CATEGORIES } from '@/config/estimate';
 import { calcPyeong, calcEstimateTotals } from '@/lib/calc';
 import { apiGet, apiPost, ApiError } from '@/lib/api';
@@ -762,12 +762,10 @@ export default function EstimatePage() {
 
         {/* 인쇄 미리보기 */}
         {printMode && (
-          <PrintEstimate
+          <EstimatePaper
             project={project}
             estimate={estimate}
             companyInfo={companyInfo}
-            materialTotal={materialTotal}
-            laborTotal={laborTotal}
             miscRate={miscRate}
             miscAmount={miscAmount}
             subtotal={subtotal}

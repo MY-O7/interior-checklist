@@ -390,7 +390,7 @@ input[type="checkbox"], input[type="radio"] {
 
 @media print {
   @page {
-    margin: 10mm;
+    margin: 0;
     size: A4;
   }
 
@@ -466,11 +466,9 @@ input[type="checkbox"], input[type="radio"] {
 
   /* A4 페이지별 견적서: 미리보기 시트 = 실제 인쇄 페이지 */
   .paper-stack { display: block !important; gap: 0 !important; }
+  /* 시트(794x1123=A4)가 @page(margin:0)에 정확히 1장씩 매핑 — 화면=인쇄 동일 */
   .a4-sheet {
     box-shadow: none !important;
-    width: auto !important;
-    min-height: 0 !important;
-    padding: 0 !important;
     margin: 0 !important;
     zoom: 1 !important;
     break-after: page;
@@ -478,15 +476,11 @@ input[type="checkbox"], input[type="radio"] {
     break-inside: avoid;
   }
   .a4-sheet:last-child { break-after: auto; page-break-after: auto; }
-  /* 인쇄 시 각 페이지(시트) 끝에 페이지 번호 표기 */
-  .paper-pageno {
-    display: block !important;
-    position: static !important;
-    margin-top: 14px;
-    padding-top: 8px;
-    border-top: 1px solid #e2e8f0;
-    text-align: center;
-  }
+  /* 페이지 번호: 각 페이지 하단 중앙 고정 */
+  .paper-pageno { display: block !important; }
+
+  /* @page margin:0 이라 견적서 外 인쇄(.print-area)는 자체 여백 부여 */
+  .print-area { padding: 10mm !important; }
 }
 
 /* ═══════════════════════════════════════════════════════════

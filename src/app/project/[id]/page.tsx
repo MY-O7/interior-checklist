@@ -124,6 +124,24 @@ export default function ProjectPage() {
     });
   };
 
+  // 섹션 이동을 브라우저 히스토리에 연동 — 브라우저 뒤로가기로 섹션 단위 이동
+  const goToSection = (n: number) => {
+    if (n !== currentSection) window.history.pushState({ section: n }, '');
+    setCurrentSection(n);
+  };
+
+  useEffect(() => {
+    // 진입 시점의 현재 섹션을 히스토리 엔트리에 표시
+    window.history.replaceState({ section: currentSection }, '');
+    const onPop = (e: PopStateEvent) => {
+      const s = e.state && typeof e.state.section === 'number' ? e.state.section : -2;
+      setCurrentSection(s);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (printMode) {
       window.scrollTo(0, 0);
@@ -226,13 +244,13 @@ export default function ProjectPage() {
           <div className="relative flex-1 min-h-0">
           <nav className="h-full p-2 space-y-0.5 overflow-y-auto">
             <div className="px-3 py-2 text-xs font-semibold text-[var(--brand-primary)] tracking-widest uppercase">현장 정보</div>
-            <button onClick={() => { setCurrentSection(-1); setSidebarOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left text-sm transition-all ${currentSection === -1 ? 'bg-[var(--brand-primary)] text-white shadow-md' : 'hover:bg-[var(--muted)] text-[var(--foreground-secondary)]'}`}><span className="text-xs">📋</span><span>기본 정보</span></button>
+            <button onClick={() => { goToSection(-1); setSidebarOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left text-sm transition-all ${currentSection === -1 ? 'bg-[var(--brand-primary)] text-white shadow-md' : 'hover:bg-[var(--muted)] text-[var(--foreground-secondary)]'}`}><span className="text-xs">📋</span><span>기본 정보</span></button>
             <div className="px-3 py-2 mt-3 flex items-center gap-1.5">
               <span className="text-xs font-semibold text-[var(--brand-primary)] tracking-widest uppercase">체크리스트</span>
               <span className="text-[11px] font-bold text-white bg-[var(--brand-primary)] rounded-full px-1.5 py-0.5 leading-none">{SECTIONS.length}</span>
               <span className="text-[11px] text-[var(--foreground-muted)]">↓ 항목</span>
             </div>
-            {SECTIONS.map((section, i) => { const c = sectionColor(section.id); return <button key={section.id} onClick={() => { setCurrentSection(i); setSidebarOpen(false); }} className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm transition-all ${currentSection === i ? 'bg-[var(--brand-primary)] text-white shadow-md' : 'hover:bg-[var(--muted)] text-[var(--foreground-secondary)]'}`}><span className={`w-2 h-2 rounded-full shrink-0 ${currentSection === i ? 'bg-white' : c.dot}`} /><span className={`w-5 text-center text-xs font-mono ${currentSection === i ? 'text-white/80' : c.num}`}>{String(i + 1).padStart(2, '0')}</span><span className="truncate">{section.title}</span></button>; })}
+            {SECTIONS.map((section, i) => { const c = sectionColor(section.id); return <button key={section.id} onClick={() => { goToSection(i); setSidebarOpen(false); }} className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm transition-all ${currentSection === i ? 'bg-[var(--brand-primary)] text-white shadow-md' : 'hover:bg-[var(--muted)] text-[var(--foreground-secondary)]'}`}><span className={`w-2 h-2 rounded-full shrink-0 ${currentSection === i ? 'bg-white' : c.dot}`} /><span className={`w-5 text-center text-xs font-mono ${currentSection === i ? 'text-white/80' : c.num}`}>{String(i + 1).padStart(2, '0')}</span><span className="truncate">{section.title}</span></button>; })}
           </nav>
           {/* 스크롤 더 있음을 알리는 하단 페이드 */}
           <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[var(--sidebar-bg)] to-transparent" />
@@ -251,7 +269,7 @@ export default function ProjectPage() {
           <div className="flex items-center gap-2">
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="md:hidden p-2 -ml-2 rounded-lg hover:bg-[var(--muted)]" aria-label="메뉴"><Menu className="w-5 h-5 text-[var(--foreground-secondary)]" /></button>
             {currentSection !== -2 && (
-              <button onClick={() => setCurrentSection(-2)} className="flex items-center gap-1 text-sm text-[var(--foreground-muted)] hover:text-[var(--brand-primary)]" aria-label="목차"><FolderOpen className="w-4 h-4" /> 목차</button>
+              <button onClick={() => goToSection(-2)} className="flex items-center gap-1 text-sm text-[var(--foreground-muted)] hover:text-[var(--brand-primary)]" aria-label="목차"><FolderOpen className="w-4 h-4" /> 목차</button>
             )}
             <span className="text-sm font-medium text-[var(--foreground-secondary)]">{currentSection === -2 ? '체크리스트 목차' : currentSection === -1 ? '현장 기본 정보' : `${String(currentSection + 1).padStart(2, '0')} ${SECTIONS[currentSection]?.title}`}</span>
           </div>
@@ -273,7 +291,7 @@ export default function ProjectPage() {
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {/* 기본 정보 카드 */}
-                  <button onClick={() => setCurrentSection(-1)}
+                  <button onClick={() => goToSection(-1)}
                     className="text-left rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 hover:border-emerald-500 hover:shadow-md transition-all">
                     <div className="text-2xl mb-2">📋</div>
                     <p className="text-base font-bold text-slate-800 dark:text-slate-100">기본 정보</p>
@@ -282,7 +300,7 @@ export default function ProjectPage() {
                   {SECTIONS.map((section, i) => {
                     const c = sectionColor(section.id);
                     return (
-                    <button key={section.id} onClick={() => setCurrentSection(i)}
+                    <button key={section.id} onClick={() => goToSection(i)}
                       className={`text-left rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 ${c.ring} hover:shadow-md transition-all`}>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
@@ -411,11 +429,11 @@ export default function ProjectPage() {
             {/* ─── 네비게이션 ─── */}
             {!printMode && currentSection !== -2 && (
             <div className="flex justify-between items-center gap-2 mt-6 print:hidden">
-              <button onClick={() => setCurrentSection(currentSection <= -1 ? -2 : currentSection - 1)} className="h-11 px-4 inline-flex items-center gap-1 rounded-lg bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold hover:bg-slate-100 hover:border-slate-400 shadow-sm shrink-0"><ChevronLeft className="w-4 h-4" /> 이전</button>
+              <button onClick={() => goToSection(currentSection <= -1 ? -2 : currentSection - 1)} className="h-11 px-4 inline-flex items-center gap-1 rounded-lg bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold hover:bg-slate-100 hover:border-slate-400 shadow-sm shrink-0"><ChevronLeft className="w-4 h-4" /> 이전</button>
               {/* 넓은 화면: 점 인디케이터 / 모바일: 카운터 (겹침 방지) */}
-              <div className="hidden md:flex items-center gap-1.5 flex-wrap justify-center px-1">{SECTIONS.map((_, i) => <button key={i} onClick={() => setCurrentSection(i)} className={`h-2 rounded-full transition-all ${currentSection === i ? 'bg-[var(--brand-primary)] w-5' : 'bg-slate-400/70 dark:bg-slate-600 w-2 hover:bg-slate-500'}`} />)}</div>
+              <div className="hidden md:flex items-center gap-1.5 flex-wrap justify-center px-1">{SECTIONS.map((_, i) => <button key={i} onClick={() => goToSection(i)} className={`h-2 rounded-full transition-all ${currentSection === i ? 'bg-[var(--brand-primary)] w-5' : 'bg-slate-400/70 dark:bg-slate-600 w-2 hover:bg-slate-500'}`} />)}</div>
               <span className="md:hidden text-sm font-semibold text-slate-600 dark:text-slate-300 tabular-nums">{currentSection < 0 ? '·' : String(currentSection + 1).padStart(2, '0')} <span className="text-slate-500 dark:text-slate-600">/ {SECTIONS.length}</span></span>
-              <button onClick={() => { setCurrentSection(Math.min(SECTIONS.length - 1, currentSection + 1)); saveChecklist(); }} disabled={currentSection === SECTIONS.length - 1} className="bg-brand h-11 px-4 inline-flex items-center gap-1 rounded-lg text-white text-sm font-semibold shadow-sm shrink-0 disabled:opacity-40">다음 <ChevronRight className="w-4 h-4" /></button>
+              <button onClick={() => { goToSection(Math.min(SECTIONS.length - 1, currentSection + 1)); saveChecklist(); }} disabled={currentSection === SECTIONS.length - 1} className="bg-brand h-11 px-4 inline-flex items-center gap-1 rounded-lg text-white text-sm font-semibold shadow-sm shrink-0 disabled:opacity-40">다음 <ChevronRight className="w-4 h-4" /></button>
             </div>
             )}
 

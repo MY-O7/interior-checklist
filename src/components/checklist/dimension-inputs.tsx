@@ -41,34 +41,25 @@ export function DimensionInputs({ value, onChange, showJwa }: {
       {segments.map((seg, idx) => {
         const [w, h] = seg.split('×');
         return (
-          <div key={idx} className="flex items-end gap-2">
-            <div className="flex-1">
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
-                가로 {multi && <span className="text-slate-400">(구역 {idx + 1})</span>}
-              </label>
-              <div className="flex items-center gap-1.5 rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 focus-within:border-blue-500 transition-colors">
-                <input type="text" inputMode="numeric" value={w || ''} onChange={e => update(idx, 'w', e.target.value)}
-                  placeholder="예: 3500"
-                  className="w-full h-12 text-lg font-semibold text-slate-800 dark:text-slate-100 bg-transparent text-center focus:outline-none placeholder:text-slate-300 placeholder:font-normal placeholder:text-base" />
-                <span className="text-sm font-medium text-slate-400 shrink-0">mm</span>
-              </div>
-            </div>
-            <span className="pb-3 text-lg font-bold text-slate-400">×</span>
-            <div className="flex-1">
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">세로</label>
-              <div className="flex items-center gap-1.5 rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 focus-within:border-blue-500 transition-colors">
-                <input type="text" inputMode="numeric" value={h || ''} onChange={e => update(idx, 'h', e.target.value)}
-                  placeholder="예: 2400"
-                  className="w-full h-12 text-lg font-semibold text-slate-800 dark:text-slate-100 bg-transparent text-center focus:outline-none placeholder:text-slate-300 placeholder:font-normal placeholder:text-base" />
-                <span className="text-sm font-medium text-slate-400 shrink-0">mm</span>
-              </div>
-            </div>
+          <div key={idx} className="space-y-1">
             {multi && (
-              <button onClick={() => removeSegment(idx)} aria-label="구역 삭제"
-                className="pb-2 text-slate-400 hover:text-rose-500 transition-colors shrink-0">
-                <span className="text-base">✕</span>
-              </button>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">구역 {idx + 1}</span>
+                <button onClick={() => removeSegment(idx)} aria-label="구역 삭제"
+                  className="text-xs text-slate-400 hover:text-rose-500 transition-colors">✕ 삭제</button>
+              </div>
             )}
+            {/* 가로 × 세로를 하나의 박스로 */}
+            <div className="flex items-center rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 overflow-hidden focus-within:border-blue-500 transition-colors">
+              <input type="text" inputMode="numeric" value={w || ''} onChange={e => update(idx, 'w', e.target.value)}
+                placeholder="가로"
+                className="w-full h-14 text-xl font-bold text-slate-800 dark:text-slate-100 bg-transparent text-center focus:outline-none placeholder:text-slate-300 placeholder:text-base placeholder:font-medium" />
+              <span className="px-1 text-xl font-bold text-slate-300 dark:text-slate-500 shrink-0">×</span>
+              <input type="text" inputMode="numeric" value={h || ''} onChange={e => update(idx, 'h', e.target.value)}
+                placeholder="세로"
+                className="w-full h-14 text-xl font-bold text-slate-800 dark:text-slate-100 bg-transparent text-center focus:outline-none placeholder:text-slate-300 placeholder:text-base placeholder:font-medium" />
+              <span className="px-3 text-sm font-medium text-slate-400 shrink-0 border-l border-slate-200 dark:border-slate-700 self-stretch flex items-center">mm</span>
+            </div>
           </div>
         );
       })}

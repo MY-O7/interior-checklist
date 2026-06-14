@@ -398,10 +398,12 @@ export default function ProjectPage() {
 
             {/* ─── 네비게이션 ─── */}
             {!printMode && currentSection !== -2 && (
-            <div className="flex justify-between items-center mt-6 print:hidden">
-              <Button variant="outline" onClick={() => setCurrentSection(currentSection <= -1 ? -2 : currentSection - 1)} className="h-11 gap-1 border-slate-300"><ChevronLeft className="w-4 h-4" /> 이전</Button>
-              <div className="flex items-center gap-2">{SECTIONS.map((_, i) => <button key={i} onClick={() => setCurrentSection(i)} className={`w-2 h-2 rounded-full transition-all ${currentSection === i ? 'bg-slate-800 dark:bg-slate-300 w-6' : 'bg-slate-300 dark:bg-slate-600'}`} />)}</div>
-              <Button onClick={() => { setCurrentSection(Math.min(SECTIONS.length - 1, currentSection + 1)); saveChecklist(); }} disabled={currentSection === SECTIONS.length - 1} className="h-11 gap-1 bg-slate-800 hover:bg-slate-700">다음 <ChevronRight className="w-4 h-4" /></Button>
+            <div className="flex justify-between items-center gap-2 mt-6 print:hidden">
+              <Button variant="outline" onClick={() => setCurrentSection(currentSection <= -1 ? -2 : currentSection - 1)} className="h-11 gap-1 border-slate-300 shrink-0"><ChevronLeft className="w-4 h-4" /> 이전</Button>
+              {/* 넓은 화면: 점 인디케이터 / 모바일: 카운터 (겹침 방지) */}
+              <div className="hidden md:flex items-center gap-1.5 flex-wrap justify-center px-1">{SECTIONS.map((_, i) => <button key={i} onClick={() => setCurrentSection(i)} className={`h-2 rounded-full transition-all ${currentSection === i ? 'bg-slate-800 dark:bg-slate-300 w-5' : 'bg-slate-300 dark:bg-slate-600 w-2'}`} />)}</div>
+              <span className="md:hidden text-sm font-medium text-slate-500 dark:text-slate-400 tabular-nums">{currentSection < 0 ? '·' : String(currentSection + 1).padStart(2, '0')} <span className="text-slate-300 dark:text-slate-600">/ {SECTIONS.length}</span></span>
+              <Button onClick={() => { setCurrentSection(Math.min(SECTIONS.length - 1, currentSection + 1)); saveChecklist(); }} disabled={currentSection === SECTIONS.length - 1} className="h-11 gap-1 bg-slate-800 hover:bg-slate-700 shrink-0">다음 <ChevronRight className="w-4 h-4" /></Button>
             </div>
             )}
 

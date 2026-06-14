@@ -471,6 +471,9 @@ input[type="checkbox"], input[type="radio"] {
     box-shadow: none !important;
     margin: 0 !important;
     zoom: 1 !important;
+    min-height: 0 !important;
+    height: 1115px !important;   /* A4(≈1122.5px)보다 살짝 작게 → 한 장에 딱 맞고 빈 페이지 방지 */
+    overflow: hidden !important;
     break-after: page;
     page-break-after: always;
     break-inside: avoid;

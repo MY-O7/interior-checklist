@@ -26,7 +26,7 @@ const PAGE_W = 794;
 const PAGE_H = 1123;
 const PADV = 80; // 상하 여백 (넉넉히)
 const PADH = 46; // 좌우 여백 (적당히)
-const USABLE_H = PAGE_H - PADV * 2;
+const USABLE_H = PAGE_H - PADV * 2 - 44; // 인쇄 한 장에 확실히 들어가도록 여유
 const GRID = '28px 1fr 46px 46px 92px 100px 92px';
 const COL = 'grid items-center whitespace-nowrap';
 

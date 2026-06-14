@@ -8,6 +8,7 @@ interface Props {
   estimate: { items: EstimateItem[]; discount: number; vatRate: number; includeVat: boolean; notes: string };
   companyInfo: CompanyInfo;
   miscRate: number; miscAmount: number; subtotal: number; vatAmount: number; total: number;
+  roundAdjust?: number;
   categoryOrder?: string[] | null;
   onClose?: () => void;
 }
@@ -50,11 +51,10 @@ const wonKorean = (n: number): string => {
   return res;
 };
 
-export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAmount, subtotal, vatAmount, total, categoryOrder, onClose }: Props) {
-  // 엑셀 반올림 조정 항목은 공정 목록에서 빼고 합계 요약에 별도 줄로 표기
-  const isRoundAdjust = (i: EstimateItem) => i.category === '기타' && (/반올림/.test(i.name) || /반올림/.test(i.note || ''));
-  const realItems = estimate.items.filter(i => !isRoundAdjust(i));
-  const roundAdjust = estimate.items.filter(isRoundAdjust).reduce((s, i) => s + i.quantity * i.unitPrice, 0);
+export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAmount, subtotal, vatAmount, total, roundAdjust = 0, categoryOrder, onClose }: Props) {
+  // 구버전 데이터의 '총액 조정(반올림)' 항목은 공정 목록에서 제외 (이제 항목으로 안 들어옴, 반올림은 prop으로 전달)
+  const isRoundAdjustItem = (i: EstimateItem) => i.category === '기타' && (/반올림|총액 조정/.test(i.name) || /반올림/.test(i.note || ''));
+  const realItems = estimate.items.filter(i => !isRoundAdjustItem(i));
 
   const grouped = realItems.reduce((acc, item) => {
     const cat = CATEGORY_DISPLAY[item.category] || item.category;
@@ -198,10 +198,10 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
           <div className="rounded-lg overflow-hidden border border-slate-200 text-[13.5px]">
             <div className="flex justify-between px-4 py-2.5 border-b border-slate-100"><span className="text-slate-500">자재·인건비 합계</span><span className="font-medium text-slate-800">{won(matTotal + labTotal)}원</span></div>
             <div className="flex justify-between px-4 py-2.5 border-b border-slate-100"><span className="text-slate-500">공과잡비{miscRate > 0 ? ` (${miscRate}%)` : ''}</span><span className="font-medium text-slate-800">{won(miscAmount)}원</span></div>
-            {roundAdjust !== 0 && <div className="flex justify-between px-4 py-2.5 border-b border-slate-100"><span className="text-slate-500">반올림 조정</span><span className="font-medium text-slate-800">{roundAdjust > 0 ? '+' : ''}{won(roundAdjust)}원</span></div>}
             <div className="flex justify-between px-4 py-2.5 border-b border-slate-100"><span className="text-slate-500">공급가액 (부가세 전)</span><span className="font-medium text-slate-800">{won(subtotal)}원</span></div>
             <div className="flex justify-between px-4 py-2.5 border-b border-slate-100"><span className="text-slate-500">부가세 ({estimate.vatRate ?? 10}%)</span><span className="font-medium text-slate-800">{won(estimate.includeVat !== false ? vatAmount : 0)}원</span></div>
             <div className="flex justify-between px-4 py-2.5 border-b border-slate-100"><span className="text-slate-500">할인</span><span className={`font-medium ${estimate.discount > 0 ? 'text-red-500' : 'text-slate-800'}`}>{estimate.discount > 0 ? `-${won(estimate.discount)}` : '0'}원</span></div>
+            {roundAdjust !== 0 && <div className="flex justify-between px-4 py-2.5 border-b border-slate-100"><span className="text-slate-500">반올림</span><span className="font-medium text-slate-800">{roundAdjust > 0 ? '+' : ''}{won(roundAdjust)}원</span></div>}
             <div className="flex justify-between items-center px-4 py-3.5" style={{ backgroundColor: '#1e293b' }}>
               <span className="text-[15px] font-black text-white">총 견적금액</span>
               <span className="text-xl font-black text-white">{won(total)}원</span>

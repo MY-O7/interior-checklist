@@ -160,14 +160,8 @@ export function parseEstimateXls(buf: Buffer): ParsedEstimate {
     }
   }
 
-  // ── 총액 반올림 보정: 엑셀이 총공사금액을 ROUND 처리하는 양식 대응 ──
-  if (grandTotalExcel !== null) {
-    const expected = items.reduce((s, i) => s + i.excelAmount, 0) + vatAmount;
-    const diff = grandTotalExcel - expected;
-    if (diff !== 0 && Math.abs(diff) <= 10000) {
-      items.push({ category: '기타', name: '총액 조정(견적서 반올림)', unit: '식', quantity: 1, unitPrice: diff, note: '엑셀 총공사금액 반올림 차액', excelAmount: diff });
-    }
-  }
+  // 총액 반올림 차액은 더 이상 항목으로 추가하지 않는다.
+  // (엑셀이 총공사금액을 만원 단위로 반올림하는 경우 → 견적서 페이지가 합계에서 자체 반올림 처리)
 
   const categories: CategoryCheck[] = blocks.map(b => ({
     category: blockCategory.get(b)!,
@@ -191,7 +185,8 @@ export function verifyParsed(p: ParsedEstimate): void {
   if (p.checks.pageTotalExcel !== null && blockSum !== p.checks.pageTotalExcel)
     throw new ImportError(`공종 소계 합(${won(blockSum)})이 엑셀 페이지합계(${won(p.checks.pageTotalExcel)})와 다릅니다.`);
   const allSum = p.items.reduce((s, i) => s + i.excelAmount, 0);
-  if (p.checks.grandTotalExcel !== null && allSum + p.vatAmount !== p.checks.grandTotalExcel)
+  // 총공사금액은 엑셀이 만원 단위 반올림하는 양식이 있어 ±10,000원 오차까지 허용 (반올림은 견적서가 자체 처리)
+  if (p.checks.grandTotalExcel !== null && Math.abs(allSum + p.vatAmount - p.checks.grandTotalExcel) > 10000)
     throw new ImportError(`계산된 총액(${won(allSum + p.vatAmount)})이 엑셀 총공사금액(${won(p.checks.grandTotalExcel)})과 다릅니다.`);
   for (const i of p.items) {
     if (i.quantity * i.unitPrice !== i.excelAmount)

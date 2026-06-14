@@ -516,17 +516,19 @@ export default function EstimatePage() {
 
   // 합계 공식은 lib/calc.ts 단일 소스 — 고객 공유 페이지(share)와 항상 동일해야 함
   const miscRate = (estimate as any).miscRate ?? 0;
-  const { materialTotal, laborTotal, miscAmount, subtotal, vatAmount, total } = calcEstimateTotals(estimate.items, {
+  // 구버전 데이터의 '총액 조정(반올림)' 항목은 무시하고 계산 (이제 항목으로 안 들어옴)
+  const isRoundAdjustItem = (i: EstimateItem) => i.category === '기타' && (/반올림|총액 조정/.test(i.name) || /반올림/.test(i.note || ''));
+  const visibleItems = estimate.items.filter(i => !isRoundAdjustItem(i));
+  const { materialTotal, laborTotal, miscAmount, subtotal, vatAmount, total: rawTotal } = calcEstimateTotals(visibleItems, {
     discount: estimate.discount,
     vatRate: estimate.vatRate,
     includeVat: estimate.includeVat,
     miscRate,
   });
-  // 엑셀 반올림 조정 항목: 편집 목록엔 숨기고 합계 요약에 별도 줄로 표기
-  const isRoundAdjust = (i: EstimateItem) => i.category === '기타' && (/반올림/.test(i.name) || /반올림/.test(i.note || ''));
-  const visibleItems = estimate.items.filter(i => !isRoundAdjust(i));
-  const roundAdjust = estimate.items.filter(isRoundAdjust).reduce((s, i) => s + i.quantity * i.unitPrice, 0);
-  const realMaterialTotal = materialTotal - roundAdjust;
+  // 총액 만원 단위 반올림 → 차액을 합계에 "반올림" 줄로 표기
+  const total = Math.round(rawTotal / 10000) * 10000;
+  const roundAdjust = total - rawTotal;
+  const realMaterialTotal = materialTotal;
 
   if (!project) return null;
 
@@ -760,15 +762,15 @@ export default function EstimatePage() {
                   {miscRate > 0 && (
                     <div className="flex justify-between"><span>공과잡비 ({miscRate}%)</span><span>{miscAmount.toLocaleString()}원</span></div>
                   )}
-                  {roundAdjust !== 0 && (
-                    <div className="flex justify-between text-[var(--foreground-muted)]"><span>반올림 조정</span><span>{roundAdjust > 0 ? '+' : ''}{roundAdjust.toLocaleString()}원</span></div>
-                  )}
                   <div className="flex justify-between border-t pt-1"><span>공급가액</span><span>{subtotal.toLocaleString()}원</span></div>
                   {estimate.includeVat !== false && (
                     <div className="flex justify-between"><span>부가세 ({estimate.vatRate ?? 10}%)</span><span>{vatAmount.toLocaleString()}원</span></div>
                   )}
                   {estimate.discount > 0 && (
                     <div className="flex justify-between text-red-600"><span>할인</span><span>-{estimate.discount.toLocaleString()}원</span></div>
+                  )}
+                  {roundAdjust !== 0 && (
+                    <div className="flex justify-between text-[var(--foreground-muted)]"><span>반올림</span><span>{roundAdjust > 0 ? '+' : ''}{roundAdjust.toLocaleString()}원</span></div>
                   )}
                   <div className="border-t pt-2 flex justify-between font-bold text-lg">
                     <span>총 견적금액</span>
@@ -854,6 +856,7 @@ export default function EstimatePage() {
             subtotal={subtotal}
             vatAmount={vatAmount}
             total={total}
+            roundAdjust={roundAdjust}
             categoryOrder={categoryOrder}
             onClose={() => setPrintMode(false)}
           />

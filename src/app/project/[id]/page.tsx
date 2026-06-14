@@ -352,7 +352,7 @@ export default function ProjectPage() {
                       presets={DEFAULT_ROOMS}
                       onAdd={(name) => updateItem('roomSize', name, 'checked', true)}
                       onRemove={removeRoomSize}
-                      onUpdate={(name, field, value) => updateItem('roomSize', name, field, value)}
+                      onUpdate={(name, field, value) => updateItem('roomSize', name, field as keyof ChecklistItemData, value)}
                     />
                   ) : (
                     <div className="bg-white dark:bg-slate-800 divide-y divide-slate-100 dark:divide-slate-800">

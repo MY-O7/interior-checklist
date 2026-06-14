@@ -266,7 +266,7 @@ function DashboardContent() {
                 onClick={() => { switchTab(item.id as Tab); setSidebarOpen(false); }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                   activeTab === item.id 
-                    ? 'bg-slate-800 text-white dark:bg-slate-700' 
+                    ? 'bg-[var(--brand-primary)] text-white shadow-md'
                     : 'hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400'
                 }`}
               >
@@ -470,7 +470,7 @@ function DashboardContent() {
                         className={`px-3 py-2 rounded-lg border-2 text-sm font-medium transition ${editForm.status === s
                           ? s === '진행중' ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
                           : s === '완료' ? 'border-green-500 bg-green-50 text-green-700'
-                          : 'border-slate-800 bg-slate-50'
+                          : 'border-slate-400 bg-slate-100 text-slate-700'
                           : 'border-slate-200 hover:border-slate-300'}`}>
                         {s}
                       </button>

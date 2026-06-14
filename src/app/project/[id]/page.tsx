@@ -303,14 +303,14 @@ export default function ProjectPage() {
               <div className="space-y-4">
                 {/* 헤더 + 공사 범위를 한 덩어리로 (분리감 제거) */}
                 <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                  <div className="flex items-center gap-3 bg-gradient-to-r from-slate-800 to-slate-700 px-5 py-3.5"><span className="text-white text-lg">📋</span><h2 className="text-lg font-bold text-white">현장 기본 정보</h2></div>
+                  <div className="flex items-center gap-3 bg-gradient-to-r from-emerald-700 to-emerald-800 px-5 py-3.5"><span className="text-white text-lg">📋</span><h2 className="text-lg font-bold text-white">현장 기본 정보</h2></div>
                   <div className="px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
                     <Label className="text-sm font-bold text-slate-700 dark:text-slate-300">🏗️ 공사 범위</Label>
                   </div>
                   <div className="p-4">
                     <RadioGroup value={siteInfo.workScope} onValueChange={(v) => setSiteInfo({ ...siteInfo, workScope: v as any })} className="flex gap-4">
                       {[{ v: 'full', l: '전체 공사', d: '모든 공간 시공' }, { v: 'partial', l: '부분 공사', d: '선택 공간만 시공' }].map(({ v, l, d }) => (
-                        <label key={v} className={`flex-1 cursor-pointer rounded-xl border-2 p-4 transition-all ${siteInfo.workScope === v ? 'border-slate-800 dark:border-slate-300 bg-slate-50 dark:bg-slate-700' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'}`}>
+                        <label key={v} className={`flex-1 cursor-pointer rounded-xl border-2 p-4 transition-all ${siteInfo.workScope === v ? 'border-emerald-600 dark:border-emerald-500 bg-emerald-50 dark:bg-slate-700' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'}`}>
                           <div className="flex items-center gap-3">
                             <RadioGroupItem value={v} id={`scope-${v}`} />
                             <div><p className="text-sm font-bold">{l}</p><p className="text-xs text-slate-400">{d}</p></div>
@@ -423,7 +423,7 @@ export default function ProjectPage() {
             {printMode && (
               <div className="space-y-5 print-area">
                 {/* 인쇄 액션 바 */}
-                <div className="flex items-center justify-between bg-slate-800 text-white rounded-xl px-6 py-4 print:hidden">
+                <div className="flex items-center justify-between bg-emerald-700 text-white rounded-xl px-6 py-4 print:hidden">
                   <button onClick={() => setPrintMode(false)} className="flex items-center gap-2 text-sm hover:text-slate-300 transition">
                     <ChevronLeft className="w-4 h-4" /> 돌아가기
                   </button>
@@ -562,7 +562,7 @@ export default function ProjectPage() {
                   <button onClick={() => setPrintMode(false)} className="px-6 py-3 rounded-lg border border-slate-300 text-sm font-medium hover:bg-slate-50 transition">
                     ← 돌아가기
                   </button>
-                  <button onClick={() => window.print()} className="px-6 py-3 rounded-lg bg-slate-800 text-white text-sm font-bold hover:bg-slate-700 transition flex items-center gap-2">
+                  <button onClick={() => window.print()} className="px-6 py-3 rounded-lg bg-emerald-700 text-white text-sm font-bold hover:bg-emerald-800 transition flex items-center gap-2">
                     <Printer className="w-4 h-4" /> 인쇄하기
                   </button>
                 </div>

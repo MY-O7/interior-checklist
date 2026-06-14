@@ -751,7 +751,7 @@ export default function EstimatePage() {
                   <button onClick={() => { setCategoryOrder(null); setShowCategoryOrderModal(false); }} className="flex-1 px-4 py-2.5 rounded-lg border text-sm hover:bg-[var(--muted)]">
                     기본값 초기화
                   </button>
-                  <button onClick={() => { if (!categoryOrder) setCategoryOrder(currentOrder); setShowCategoryOrderModal(false); }} className="flex-1 px-4 py-2.5 rounded-lg bg-slate-800 text-white text-sm font-bold hover:bg-slate-700">
+                  <button onClick={() => { if (!categoryOrder) setCategoryOrder(currentOrder); setShowCategoryOrderModal(false); }} className="flex-1 px-4 py-2.5 rounded-lg bg-emerald-700 text-white text-sm font-bold hover:bg-emerald-800">
                     확인
                   </button>
                 </div>

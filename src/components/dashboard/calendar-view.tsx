@@ -560,7 +560,7 @@ export function CalendarView() {
     <div className="flex flex-wrap gap-1 mt-1 mb-2">
       {taskPresets.map(preset => (
         <button key={preset} onClick={() => onSelect(preset)}
-          className={`px-2 py-1 text-xs rounded-full border transition ${currentValue === preset ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-300 hover:border-slate-400'}`}>
+          className={`px-2 py-1 text-xs rounded-full border transition ${currentValue === preset ? 'bg-emerald-700 text-white border-emerald-700' : 'border-slate-300 hover:border-slate-400'}`}>
           {preset}
         </button>
       ))}
@@ -571,7 +571,7 @@ export function CalendarView() {
     <div className="grid grid-cols-2 gap-2 mt-1">
       {projects.map(p => (
         <button key={p.id} onClick={() => onSelect(p.id)}
-          className={`flex items-center gap-2 p-2 rounded-lg border-2 transition ${currentId === p.id ? 'border-slate-800 bg-slate-50 dark:bg-slate-700' : 'border-slate-200 hover:border-slate-300'}`}>
+          className={`flex items-center gap-2 p-2 rounded-lg border-2 transition ${currentId === p.id ? 'border-emerald-600 bg-emerald-50 dark:bg-slate-700' : 'border-slate-200 hover:border-slate-300'}`}>
           <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ backgroundColor: p.color }} />
           <span className="text-sm truncate">{p.name}</span>
         </button>
@@ -583,7 +583,7 @@ export function CalendarView() {
     const days = generateMonthDays(currentYear, month, compact);
     return (
       <Card className="overflow-hidden print:shadow-none print:border">
-        <div className="bg-slate-800 text-white text-center py-1.5 font-bold text-sm print:bg-slate-200 print:text-black">{monthNames[month]}</div>
+        <div className="bg-emerald-700 text-white text-center py-1.5 font-bold text-sm print:bg-slate-200 print:text-black">{monthNames[month]}</div>
         <CardContent className={compact ? 'p-1' : 'p-2'}>
           <div className="grid grid-cols-7 gap-px mb-1">
             {dayNames.map((day, i) => (
@@ -606,7 +606,7 @@ export function CalendarView() {
                     onClick={() => day.isCurrentMonth && handleDateClick(day.date)}
                     className={`p-0.5 rounded cursor-pointer transition text-center ${
                       day.isCurrentMonth ? 'hover:bg-slate-100 dark:hover:bg-slate-700' : 'opacity-30 cursor-default'
-                    } ${isToday ? 'ring-2 ring-slate-800 dark:ring-slate-300' : ''}`}
+                    } ${isToday ? 'ring-2 ring-emerald-600 dark:ring-emerald-400' : ''}`}
                   >
                     <div className={`text-[11px] leading-tight ${!day.isCurrentMonth ? 'text-slate-300' : isSunday ? 'text-red-500' : isSaturday ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-400'}`}>
                       {day.date.getDate()}
@@ -636,7 +636,7 @@ export function CalendarView() {
                     day.isCurrentMonth
                       ? hasSchedules ? 'bg-slate-50 dark:bg-slate-750 hover:bg-slate-100' : 'bg-white dark:bg-slate-800 hover:bg-slate-50'
                       : 'bg-slate-100 dark:bg-slate-900 text-slate-300 cursor-default'
-                  } ${isToday ? 'border-slate-800 dark:border-slate-300 border-2' : 'border-slate-200 dark:border-slate-700'}`}
+                  } ${isToday ? 'border-emerald-600 dark:border-emerald-400 border-2' : 'border-slate-200 dark:border-slate-700'}`}
                 >
                   <div className={`text-sm font-medium mb-1 print:text-xs ${!day.isCurrentMonth ? 'text-slate-300' : isSunday ? 'text-red-500' : isSaturday ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-400'}`}>
                     {day.date.getDate()}
@@ -693,11 +693,11 @@ export function CalendarView() {
           <div className="flex items-center gap-1">
             <button
               onClick={() => setFilterProjectId(null)}
-              className={`px-2 py-1 text-xs rounded-full border transition ${!filterProjectId ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-300 hover:border-slate-400'}`}
+              className={`px-2 py-1 text-xs rounded-full border transition ${!filterProjectId ? 'bg-emerald-700 text-white border-emerald-700' : 'border-slate-300 hover:border-slate-400'}`}
             >전체</button>
             {projects.map(p => (
               <button key={p.id} onClick={() => setFilterProjectId(filterProjectId === p.id ? null : p.id)}
-                className={`flex items-center gap-1 px-2 py-1 text-xs rounded-full border transition ${filterProjectId === p.id ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-300 hover:border-slate-400'}`}>
+                className={`flex items-center gap-1 px-2 py-1 text-xs rounded-full border transition ${filterProjectId === p.id ? 'bg-emerald-700 text-white border-emerald-700' : 'border-slate-300 hover:border-slate-400'}`}>
                 <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: p.color }} />
                 {p.name}
               </button>

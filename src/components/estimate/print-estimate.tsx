@@ -85,7 +85,7 @@ export function PrintEstimate({ project, estimate, companyInfo, materialTotal, l
   return (
     <div className="space-y-0 print-area max-w-[800px] mx-auto">
       {/* 액션 바 */}
-      <div className="flex items-center justify-between bg-slate-800 text-white rounded-xl px-6 py-4 mb-6 print:hidden">
+      <div className="flex items-center justify-between bg-emerald-700 text-white rounded-xl px-6 py-4 mb-6 print:hidden">
         {onClose
           ? <button onClick={onClose} className="flex items-center gap-2 text-sm hover:text-slate-300 transition">← 돌아가기</button>
           : <span className="w-16" />}
@@ -251,7 +251,7 @@ export function PrintEstimate({ project, estimate, companyInfo, materialTotal, l
       {/* 하단 액션 */}
       <div className="flex items-center justify-center gap-4 mt-6 print:hidden">
         {onClose && <button onClick={onClose} className="px-6 py-3 rounded-lg border border-slate-300 text-sm font-medium hover:bg-slate-50 transition">← 돌아가기</button>}
-        <button onClick={() => window.print()} className="px-6 py-3 rounded-lg bg-slate-800 text-white text-sm font-bold hover:bg-slate-700 transition">🖨 인쇄하기</button>
+        <button onClick={() => window.print()} className="px-6 py-3 rounded-lg bg-emerald-700 text-white text-sm font-bold hover:bg-emerald-800 transition">🖨 인쇄하기</button>
       </div>
     </div>
   );

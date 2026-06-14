@@ -369,7 +369,7 @@ export default function MeasurementPage() {
 
         {printMode && (
           <div className="space-y-0 print-area max-w-[800px] mx-auto">
-            <div className="flex items-center justify-between bg-slate-800 text-white rounded-xl px-6 py-4 mb-6 print:hidden">
+            <div className="flex items-center justify-between bg-emerald-700 text-white rounded-xl px-6 py-4 mb-6 print:hidden">
               <button onClick={() => setPrintMode(false)} className="flex items-center gap-2 text-sm hover:text-slate-300 transition">
                 <ChevronLeft className="w-4 h-4" /> 돌아가기
               </button>
@@ -478,7 +478,7 @@ export default function MeasurementPage() {
 
             <div className="flex items-center justify-center gap-4 mt-8 print:hidden">
               <button onClick={() => setPrintMode(false)} className="px-6 py-3 rounded-lg border border-slate-300 text-sm font-medium hover:bg-slate-50 transition">← 돌아가기</button>
-              <button onClick={() => window.print()} className="px-6 py-3 rounded-lg bg-slate-800 text-white text-sm font-bold hover:bg-slate-700 transition flex items-center gap-2">
+              <button onClick={() => window.print()} className="px-6 py-3 rounded-lg bg-emerald-700 text-white text-sm font-bold hover:bg-emerald-800 transition flex items-center gap-2">
                 <Printer className="w-4 h-4" /> 인쇄하기
               </button>
             </div>

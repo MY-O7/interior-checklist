@@ -92,7 +92,7 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
     <div style={{ paddingBottom: 40 }}>
       <div className="flex items-end justify-between mb-6 pb-4" style={{ borderBottom: '2.5px solid #1e293b' }}>
         <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="SOMSSI" className="w-12 h-12 object-contain" />
+          <img src="/logo.png" alt="SOMSSI" className="w-[60px] h-[60px] object-contain" />
           <div>
             <h1 className="text-3xl font-black tracking-[0.2em] text-slate-900">견 적 서</h1>
             <p className="text-[11px] text-slate-400 tracking-[0.25em] mt-1">SOMSSI INTERIOR ESTIMATE</p>
@@ -181,8 +181,17 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
               <div className="rounded-md px-4 py-2.5 text-[12px] text-slate-700 leading-[1.6] whitespace-pre-wrap border-l-4 border-slate-300" style={{ backgroundColor: '#f8fafc' }}>{estimate.notes}</div>
             </div>
           )}
-          <p className="text-[10.5px] text-slate-400 leading-[1.8] whitespace-pre-line">
-            ※ 견적 외 추가공사는 별도 협의 후 진행{'\n'}※ 부가세 {estimate.includeVat !== false ? '포함' : '별도'} · 대금: 계약금 50% / 잔금 50%{'\n'}※ 발행일로부터 30일간 유효, 현장 확인 후 금액 변동 가능{'\n'}※ 하자는 신의성실 보수 (정상 노후·고객 부주의 제외)</p>
+          <div className="flex items-end justify-between gap-4 mt-3">
+            <p className="text-[10.5px] text-slate-400 leading-[1.8] whitespace-pre-line flex-1">
+              ※ 견적 외 추가공사는 별도 협의 후 진행{'\n'}※ 부가세 {estimate.includeVat !== false ? '포함' : '별도'} · 대금: 계약금 50% / 잔금 50%{'\n'}※ 발행일로부터 30일간 유효, 현장 확인 후 금액 변동 가능{'\n'}※ 하자는 신의성실 보수 (정상 노후·고객 부주의 제외)</p>
+            <div className="text-center shrink-0">
+              <p className="text-[10px] text-slate-400 mb-1.5">위 금액으로 견적합니다</p>
+              <div className="w-16 h-16 border border-dashed border-slate-300 rounded-lg flex items-center justify-center mb-1 mx-auto">
+                <img src="/stamp.png" alt="직인" className="w-12 h-12 object-contain" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+              </div>
+              <p className="text-[11px] text-slate-400">솜씨인테리어</p>
+            </div>
+          </div>
         </div>
 
         <div className="w-80 shrink-0">
@@ -198,13 +207,6 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
               <span className="text-xl font-black text-white">{won(total)}원</span>
             </div>
             <div className="px-4 py-2 text-right text-[11.5px] text-slate-500" style={{ backgroundColor: '#f8fafc' }}>金 {wonKorean(total)}원整</div>
-          </div>
-          <div className="flex flex-col items-center mt-5">
-            <p className="text-[11px] text-slate-400 mb-2">위 금액으로 견적합니다</p>
-            <div className="w-16 h-16 border border-dashed border-slate-300 rounded-lg flex items-center justify-center mb-1">
-              <img src="/stamp.png" alt="직인" className="w-12 h-12 object-contain" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-            </div>
-            <p className="text-[11px] text-slate-400">솜씨인테리어</p>
           </div>
         </div>
       </div>

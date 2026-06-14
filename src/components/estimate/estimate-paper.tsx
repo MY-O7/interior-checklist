@@ -30,6 +30,26 @@ const COL = 'grid items-center whitespace-nowrap';
 
 const won = (n: number) => n.toLocaleString('ko-KR');
 
+// 금액 한글 표기 (정식 견적서용): 65380000 → "육천오백삼십팔만"
+const wonKorean = (n: number): string => {
+  n = Math.floor(Math.abs(n));
+  if (n === 0) return '영';
+  const d = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'];
+  const small = ['', '십', '백', '천'];
+  const big = ['', '만', '억', '조', '경'];
+  const groups: number[] = [];
+  while (n > 0) { groups.push(n % 10000); n = Math.floor(n / 10000); }
+  let res = '';
+  for (let g = groups.length - 1; g >= 0; g--) {
+    if (groups[g] === 0) continue;
+    const s = String(groups[g]).padStart(4, '0');
+    let part = '';
+    for (let i = 0; i < 4; i++) { const dig = +s[i]; if (dig) part += d[dig] + small[3 - i]; }
+    res += part + big[g];
+  }
+  return res;
+};
+
 export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAmount, subtotal, vatAmount, total, categoryOrder, onClose }: Props) {
   const grouped = estimate.items.reduce((acc, item) => {
     const cat = CATEGORY_DISPLAY[item.category] || item.category;
@@ -51,33 +71,48 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
   const labTotal = estimate.items.reduce((s, i) => s + (i.labor || []).reduce((x, l) => x + l.days * l.dayRate, 0), 0);
 
   // ── 렌더 조각들 ──
+  const estNo = (() => {
+    const t = new Date();
+    const ymd = `${t.getFullYear()}${String(t.getMonth() + 1).padStart(2, '0')}${String(t.getDate()).padStart(2, '0')}`;
+    const suffix = String((project?.name || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % 1000).padStart(3, '0');
+    return `${ymd}-${suffix}`;
+  })();
+  const cell = (label: string, value: string) => (
+    <div className="flex">
+      <span className="w-[72px] shrink-0 px-3 py-2 text-[11.5px] text-slate-500 border-r border-slate-200" style={{ backgroundColor: '#f8fafc' }}>{label}</span>
+      <span className="flex-1 px-3 py-2 text-[12.5px] text-slate-800 font-medium break-words">{value || '-'}</span>
+    </div>
+  );
   const headerInfoEl = (
-    <div style={{ paddingBottom: 44 }}>
-      <div className="flex items-end justify-between mb-6 pb-4" style={{ borderBottom: '2px solid #334155' }}>
+    <div style={{ paddingBottom: 40 }}>
+      <div className="flex items-end justify-between mb-5 pb-4" style={{ borderBottom: '2.5px solid #1e293b' }}>
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="SOMSSI" className="w-12 h-12 object-contain" />
           <div>
-            <h1 className="text-3xl font-black tracking-wider text-slate-900">견 적 서</h1>
-            <p className="text-[12px] text-slate-400 tracking-widest mt-0.5">SOMSSI INTERIOR ESTIMATE</p>
+            <h1 className="text-3xl font-black tracking-[0.2em] text-slate-900">견 적 서</h1>
+            <p className="text-[11px] text-slate-400 tracking-[0.25em] mt-1">SOMSSI INTERIOR ESTIMATE</p>
           </div>
         </div>
-        <p className="text-[13px] text-slate-500">{dateStr}</p>
+        <div className="text-right text-[11.5px] text-slate-500 leading-relaxed">
+          <p>견적번호 <span className="font-semibold text-slate-700">No. {estNo}</span></p>
+          <p>작성일자 <span className="font-semibold text-slate-700">{dateStr}</span></p>
+        </div>
       </div>
-      <div className="grid grid-cols-2 gap-6 text-[13px]">
-        <div>
-          <p className="text-[12px] font-bold text-slate-500 uppercase tracking-widest mb-2">현장 정보</p>
-          <div className="space-y-2">
-            <div className="flex"><span className="w-16 text-slate-400 shrink-0">현장명</span><span className="font-semibold text-slate-800">{project?.name || '-'}</span></div>
-            <div className="flex"><span className="w-16 text-slate-400 shrink-0">연락처</span><span className="text-slate-700">{project?.clientPhone || '-'}</span></div>
+      <div className="grid grid-cols-2 gap-5">
+        <div className="rounded-lg overflow-hidden border border-slate-300">
+          <div className="px-3 py-1.5 text-[11px] font-bold tracking-wider text-white" style={{ backgroundColor: '#334155' }}>공급받는자 (현장)</div>
+          <div className="divide-y divide-slate-100">
+            {cell('현장명', project?.name || '')}
+            {cell('연락처', project?.clientPhone || '')}
           </div>
         </div>
-        <div>
-          <p className="text-[12px] font-bold text-slate-500 uppercase tracking-widest mb-2">공급자</p>
-          <div className="space-y-2">
-            <div className="flex"><span className="w-20 text-slate-400 shrink-0">업체명</span><span className="font-semibold text-slate-800">솜씨인테리어</span></div>
-            {companyInfo.ceoName && <div className="flex"><span className="w-20 text-slate-400 shrink-0">대표자</span><span className="text-slate-700">{companyInfo.ceoName}</span></div>}
-            {companyInfo.bizNumber && <div className="flex"><span className="w-20 text-slate-400 shrink-0">사업자번호</span><span className="text-slate-700">{companyInfo.bizNumber}</span></div>}
-            {companyInfo.address && <div className="flex"><span className="w-20 text-slate-400 shrink-0">주소</span><span className="text-slate-700">{companyInfo.address}</span></div>}
+        <div className="rounded-lg overflow-hidden border border-slate-300">
+          <div className="px-3 py-1.5 text-[11px] font-bold tracking-wider text-white" style={{ backgroundColor: '#334155' }}>공급자</div>
+          <div className="divide-y divide-slate-100">
+            {cell('상호', '솜씨인테리어')}
+            {cell('대표자', companyInfo.ceoName)}
+            {cell('사업자번호', companyInfo.bizNumber)}
+            {cell('주소', companyInfo.address)}
           </div>
         </div>
       </div>
@@ -134,34 +169,39 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
 
   const tailEl = (
     <div style={{ marginTop: 24 }}>
-      <div className="flex justify-end mb-6">
-        <div className="w-80 text-[14px]">
-          <div className="flex justify-between py-2.5 border-b border-slate-100"><span className="text-slate-500">자재·인건비 합계</span><span className="font-medium text-slate-800">{won(matTotal + labTotal)}원</span></div>
-          <div className="flex justify-between py-2.5 border-b border-slate-100"><span className="text-slate-500">공과잡비{miscRate > 0 ? ` (${miscRate}%)` : ''}</span><span className="font-medium text-slate-800">{won(miscAmount)}원</span></div>
-          <div className="flex justify-between py-2.5 border-b border-slate-100"><span className="text-slate-500">공급가액 (부가세 전)</span><span className="font-medium text-slate-800">{won(subtotal)}원</span></div>
-          <div className="flex justify-between py-2.5 border-b border-slate-100"><span className="text-slate-500">부가세 ({estimate.vatRate ?? 10}%)</span><span className="font-medium text-slate-800">{won(estimate.includeVat !== false ? vatAmount : 0)}원</span></div>
-          <div className="flex justify-between py-2.5 border-b border-slate-100"><span className="text-slate-500">할인</span><span className={`font-medium ${estimate.discount > 0 ? 'text-red-500' : 'text-slate-800'}`}>{estimate.discount > 0 ? `-${won(estimate.discount)}` : '0'}원</span></div>
-          <div className="flex justify-between items-center py-3.5 mt-3 px-4 rounded-lg" style={{ backgroundColor: '#1e293b' }}>
-            <span className="text-[15px] font-black text-white">총 견적금액</span>
-            <span className="text-xl font-black text-white">{won(total)}원</span>
-          </div>
+      {/* 좌: 특이사항/안내 · 우: 금액 요약 카드 — 좌우 균형으로 붕뜨지 않게 */}
+      <div className="flex gap-8 items-start pt-5" style={{ borderTop: '1px solid #e2e8f0' }}>
+        <div className="flex-1 min-w-0">
+          {estimate.notes && (
+            <div className="mb-4">
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">특이사항</p>
+              <div className="rounded-md px-4 py-2.5 text-[12px] text-slate-700 leading-[1.6] whitespace-pre-wrap border-l-4 border-slate-300" style={{ backgroundColor: '#f8fafc' }}>{estimate.notes}</div>
+            </div>
+          )}
+          <p className="text-[10.5px] text-slate-400 leading-[1.8] whitespace-pre-line">
+            ※ 견적 외 추가공사는 별도 협의 후 진행{'\n'}※ 부가세 {estimate.includeVat !== false ? '포함' : '별도'} · 대금: 계약금 50% / 잔금 50%{'\n'}※ 발행일로부터 30일간 유효, 현장 확인 후 금액 변동 가능{'\n'}※ 하자는 신의성실 보수 (정상 노후·고객 부주의 제외)</p>
         </div>
-      </div>
-      {estimate.notes && (
-        <div className="mb-4">
-          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">특이사항</p>
-          <div className="rounded-md px-4 py-2.5 text-[12px] text-slate-700 leading-[1.6] whitespace-pre-wrap border-l-4 border-slate-300" style={{ backgroundColor: '#f8fafc' }}>{estimate.notes}</div>
-        </div>
-      )}
-      <div className="flex items-end justify-between pt-4 border-t border-slate-200">
-        <p className="text-[10.5px] text-slate-400 leading-[1.7] whitespace-pre-line">
-          ※ 견적 외 추가공사는 별도 협의 · 부가세 {estimate.includeVat !== false ? '포함' : '별도'} · 대금: 계약금 50% / 잔금 50%{'\n'}※ 발행일로부터 30일간 유효 · 현장 확인 후 금액 변동 가능 · 하자는 신의성실 보수(정상 노후·고객 부주의 제외)
-        </p>
-        <div className="text-center shrink-0 ml-4">
-          <div className="w-16 h-16 border border-dashed border-slate-300 rounded-lg flex items-center justify-center mb-1">
-            <img src="/stamp.png" alt="직인" className="w-12 h-12 object-contain" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+
+        <div className="w-80 shrink-0">
+          <div className="rounded-lg overflow-hidden border border-slate-200 text-[13.5px]">
+            <div className="flex justify-between px-4 py-2.5 border-b border-slate-100"><span className="text-slate-500">자재·인건비 합계</span><span className="font-medium text-slate-800">{won(matTotal + labTotal)}원</span></div>
+            <div className="flex justify-between px-4 py-2.5 border-b border-slate-100"><span className="text-slate-500">공과잡비{miscRate > 0 ? ` (${miscRate}%)` : ''}</span><span className="font-medium text-slate-800">{won(miscAmount)}원</span></div>
+            <div className="flex justify-between px-4 py-2.5 border-b border-slate-100"><span className="text-slate-500">공급가액 (부가세 전)</span><span className="font-medium text-slate-800">{won(subtotal)}원</span></div>
+            <div className="flex justify-between px-4 py-2.5 border-b border-slate-100"><span className="text-slate-500">부가세 ({estimate.vatRate ?? 10}%)</span><span className="font-medium text-slate-800">{won(estimate.includeVat !== false ? vatAmount : 0)}원</span></div>
+            <div className="flex justify-between px-4 py-2.5 border-b border-slate-100"><span className="text-slate-500">할인</span><span className={`font-medium ${estimate.discount > 0 ? 'text-red-500' : 'text-slate-800'}`}>{estimate.discount > 0 ? `-${won(estimate.discount)}` : '0'}원</span></div>
+            <div className="flex justify-between items-center px-4 py-3.5" style={{ backgroundColor: '#1e293b' }}>
+              <span className="text-[15px] font-black text-white">총 견적금액</span>
+              <span className="text-xl font-black text-white">{won(total)}원</span>
+            </div>
+            <div className="px-4 py-2 text-right text-[11.5px] text-slate-500" style={{ backgroundColor: '#f8fafc' }}>金 {wonKorean(total)}원整</div>
           </div>
-          <p className="text-[11px] text-slate-400">솜씨인테리어</p>
+          <div className="flex flex-col items-center mt-5">
+            <p className="text-[11px] text-slate-400 mb-2">위 금액으로 견적합니다</p>
+            <div className="w-16 h-16 border border-dashed border-slate-300 rounded-lg flex items-center justify-center mb-1">
+              <img src="/stamp.png" alt="직인" className="w-12 h-12 object-contain" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+            </div>
+            <p className="text-[11px] text-slate-400">솜씨인테리어</p>
+          </div>
         </div>
       </div>
     </div>

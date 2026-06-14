@@ -130,10 +130,11 @@ export default function EstimatePage() {
   }, [printMode]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showImport, setShowImport] = useState(false);
+  // 솜씨인테리어 사업자등록증 기본값 (수정 가능, localStorage에 저장된 값이 있으면 그걸 우선)
   const [companyInfo, setCompanyInfo] = useState({
-    ceoName: '',
-    bizNumber: '',
-    address: '',
+    ceoName: '오영식',
+    bizNumber: '349-40-00032',
+    address: '경기도 용인시 기흥구 동백죽전대로11번길 12, 123호 (중동, 브릭스타워)',
   });
 
   useEffect(() => {
@@ -165,9 +166,14 @@ export default function EstimatePage() {
         setDebugInfo(e instanceof ApiError ? `API 실패: ${e.status}` : `에러: ${e.message}`);
       }
 
-      // Load company info (저장소가 깨져 있어도 페이지가 죽지 않게 safeParse)
+      // Load company info — 저장된 값 중 비어있지 않은 필드만 기본값 위에 덮어써서
+      // 사업자등록증 기본값(대표자/사업자번호/주소)이 항상 채워지게 한다.
       const ci = localStorage.getItem(`companyInfo-${projectId}`) || localStorage.getItem('companyInfo-default');
-      setCompanyInfo(prev => safeParse(ci, prev));
+      setCompanyInfo(prev => {
+        const saved = safeParse<Partial<typeof prev>>(ci, {});
+        const nonEmpty = Object.fromEntries(Object.entries(saved).filter(([, v]) => v));
+        return { ...prev, ...nonEmpty };
+      });
 
       setLoaded(true); // 로드 완료
     }

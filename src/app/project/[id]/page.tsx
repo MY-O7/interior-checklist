@@ -14,6 +14,7 @@ import { apiGet, apiPost } from '@/lib/api';
 import { OptionTag, DimensionInputs, RoomCheckGrid, RoomSizeSection } from '@/components/checklist';
 import { PageNav } from '@/components/shared';
 import { SECTIONS, DEFAULT_ROOMS, migrateChecklistKeys, migrateRoomChecklistKeys } from '@/config/sections';
+import { sectionColor } from '@/config/section-colors';
 import { calcPyeong } from '@/lib/calc';
 import type { ChecklistItemData, RoomMeasurement, SectionItem, Section, TagColor } from '@/types/checklist';
 import { TAG_COLORS } from '@/types/checklist';
@@ -231,7 +232,7 @@ export default function ProjectPage() {
               <span className="text-[11px] font-bold text-white bg-[var(--brand-primary)] rounded-full px-1.5 py-0.5 leading-none">{SECTIONS.length}</span>
               <span className="text-[11px] text-[var(--foreground-muted)]">↓ 항목</span>
             </div>
-            {SECTIONS.map((section, i) => <button key={section.id} onClick={() => { setCurrentSection(i); setSidebarOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-sm transition-all ${currentSection === i ? 'bg-[var(--brand-primary)] text-white shadow-md' : 'hover:bg-[var(--muted)] text-[var(--foreground-secondary)]'}`}><span className="w-5 text-center text-xs font-mono text-[var(--foreground-muted)]">{String(i + 1).padStart(2, '0')}</span><span className="truncate">{section.title}</span></button>)}
+            {SECTIONS.map((section, i) => { const c = sectionColor(section.id); return <button key={section.id} onClick={() => { setCurrentSection(i); setSidebarOpen(false); }} className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm transition-all ${currentSection === i ? 'bg-[var(--brand-primary)] text-white shadow-md' : 'hover:bg-[var(--muted)] text-[var(--foreground-secondary)]'}`}><span className={`w-2 h-2 rounded-full shrink-0 ${currentSection === i ? 'bg-white' : c.dot}`} /><span className={`w-5 text-center text-xs font-mono ${currentSection === i ? 'text-white/80' : c.num}`}>{String(i + 1).padStart(2, '0')}</span><span className="truncate">{section.title}</span></button>; })}
           </nav>
           {/* 스크롤 더 있음을 알리는 하단 페이드 */}
           <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[var(--sidebar-bg)] to-transparent" />
@@ -278,17 +279,21 @@ export default function ProjectPage() {
                     <p className="text-base font-bold text-slate-800 dark:text-slate-100">기본 정보</p>
                     <p className="text-xs text-slate-400 mt-0.5">현장·공사 범위</p>
                   </button>
-                  {SECTIONS.map((section, i) => (
+                  {SECTIONS.map((section, i) => {
+                    const c = sectionColor(section.id);
+                    return (
                     <button key={section.id} onClick={() => setCurrentSection(i)}
-                      className={`text-left rounded-xl border-2 p-4 hover:border-blue-500 hover:shadow-md transition-all ${i === 0 ? 'border-blue-300 dark:border-blue-700 bg-blue-50/60 dark:bg-blue-950/30' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'}`}>
+                      className={`text-left rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 ${c.ring} hover:shadow-md transition-all`}>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-mono font-bold text-slate-400">{String(i + 1).padStart(2, '0')}</span>
-                        {i === 0 && <span className="text-2xl">📐</span>}
+                        <div className="flex items-center gap-2">
+                          <span className={`w-2.5 h-2.5 rounded-full ${c.dot}`} />
+                          <span className={`text-xs font-mono font-bold ${c.num}`}>{String(i + 1).padStart(2, '0')}</span>
+                        </div>
                       </div>
                       <p className="text-base font-bold text-slate-800 dark:text-slate-100 leading-tight">{section.title}</p>
                       <p className="text-xs text-slate-400 mt-0.5">{section.subtitle}</p>
                     </button>
-                  ))}
+                  );})}
                 </div>
               </div>
             )}
@@ -342,10 +347,10 @@ export default function ProjectPage() {
             {!printMode && currentSection >= 0 && SECTIONS[currentSection] && (
               <div>
                 <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
-                  <div className="bg-gradient-to-r from-slate-800 to-slate-700 px-5 py-4 flex items-center gap-3">
-                    <span className="text-slate-400 font-mono text-base">{String(currentSection + 1).padStart(2, '0')}</span>
+                  <div className={`bg-gradient-to-r ${sectionColor(SECTIONS[currentSection].id).grad} px-5 py-4 flex items-center gap-3`}>
+                    <span className="text-white/70 font-mono text-base font-bold">{String(currentSection + 1).padStart(2, '0')}</span>
                     <h2 className="text-lg sm:text-xl font-bold text-white">{SECTIONS[currentSection].title}</h2>
-                    <span className="text-sm text-slate-400 hidden sm:inline ml-auto">{SECTIONS[currentSection].subtitle}</span>
+                    <span className="text-sm text-white/70 hidden sm:inline ml-auto">{SECTIONS[currentSection].subtitle}</span>
                   </div>
                   <div className="hidden md:grid grid-cols-[64px_180px_1fr_220px] bg-slate-100 dark:bg-slate-700 text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase border-b border-slate-200 dark:border-slate-600">
                     <div className="px-3 py-2.5 text-center whitespace-nowrap">확인</div><div className="px-3 py-2.5">항목</div><div className="px-3 py-2.5">선택 옵션</div><div className="px-3 py-2.5">비고</div>

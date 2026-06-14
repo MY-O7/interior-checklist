@@ -448,8 +448,21 @@ input[type="checkbox"], input[type="radio"] {
   table { border-collapse: collapse; }
   table th { background: #f1f5f9 !important; }
   table td, table th { border-color: #e2e8f0 !important; }
-  
-  .break-inside-avoid { break-inside: avoid; }
+
+  /* 인쇄 시 앱 크롬(베이지 배경/패딩/테두리) 제거 — print-area 본문만 남김 */
+  .h-screen { background: #ffffff !important; }
+  main, main > div {
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+  }
+
+  /* 공종 블록·표 행이 페이지 경계에서 어색하게 잘리지 않게 */
+  .break-inside-avoid { break-inside: avoid; page-break-inside: avoid; }
+  .print-area table { break-inside: auto; }
+  .print-area tr { break-inside: avoid; page-break-inside: avoid; }
+  .print-area thead { display: table-header-group; } /* 표가 나뉘면 헤더 반복 */
 }
 
 /* ═══════════════════════════════════════════════════════════

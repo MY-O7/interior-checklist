@@ -80,8 +80,13 @@ export async function DELETE(
 
     const { id } = params;
     const { user } = session;
-    if (!(await canAccessProject(user.id, user.role, id))) {
-      return NextResponse.json({ error: '접근 권한이 없습니다' }, { status: 403 });
+    // 삭제는 소유자 또는 관리자만 — 공유받은 사용자는 삭제 불가
+    const proj = await prisma.project.findUnique({ where: { id }, select: { userId: true } });
+    if (!proj) {
+      return NextResponse.json({ error: '프로젝트 없음' }, { status: 404 });
+    }
+    if (user.role !== 'ADMIN' && proj.userId !== user.id) {
+      return NextResponse.json({ error: '삭제 권한이 없습니다 (소유자만 가능)' }, { status: 403 });
     }
 
     await prisma.project.delete({ where: { id } });

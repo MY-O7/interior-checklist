@@ -31,12 +31,15 @@ function sign(payload: string): string {
   return crypto.createHmac('sha256', getSecret()).update(payload).digest('base64url');
 }
 
+const SESSION_TTL_MS = 60 * 60 * 24 * 7 * 1000; // 7일
+
 function createSessionToken(userId: string, role: string): string {
-  const payload = Buffer.from(JSON.stringify({ userId, role })).toString('base64url');
+  const exp = Date.now() + SESSION_TTL_MS;
+  const payload = Buffer.from(JSON.stringify({ userId, role, exp })).toString('base64url');
   return `${payload}.${sign(payload)}`;
 }
 
-// 서명을 검증하고 payload를 반환. 위조/변조 시 null.
+// 서명을 검증하고 payload를 반환. 위조/변조/만료 시 null.
 function verifySessionToken(token: string): { userId: string; role: string } | null {
   const dot = token.lastIndexOf('.');
   if (dot < 0) return null;
@@ -46,7 +49,10 @@ function verifySessionToken(token: string): { userId: string; role: string } | n
   if (sig.length !== expected.length) return null;
   if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
   try {
-    return JSON.parse(Buffer.from(payload, 'base64url').toString());
+    const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
+    // exp가 있는 토큰만 만료 검사 (exp 없는 구 토큰은 하위호환으로 통과)
+    if (typeof data.exp === 'number' && data.exp < Date.now()) return null;
+    return { userId: data.userId, role: data.role };
   } catch {
     return null;
   }

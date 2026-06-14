@@ -20,8 +20,10 @@ export async function GET(
       return NextResponse.json({ error: '접근 권한이 없습니다' }, { status: 403 });
     }
 
+    // 혹시 모를 중복 행에 대비해 가장 최근 것을 결정적으로 선택
     const checklist = await prisma.checklist.findFirst({
-      where: { projectId }
+      where: { projectId },
+      orderBy: { updatedAt: 'desc' },
     });
 
     const project = await prisma.project.findUnique({
@@ -71,11 +73,6 @@ export async function POST(
 
     const { checklist, roomChecklist, siteInfo, specialNotes } = await request.json();
 
-    // 기존 체크리스트 찾기
-    const existing = await prisma.checklist.findFirst({
-      where: { projectId }
-    });
-
     const dataToSave = {
       data: JSON.stringify(checklist),
       siteInfo: JSON.stringify(siteInfo),
@@ -83,16 +80,29 @@ export async function POST(
       roomData: JSON.stringify(roomChecklist || {}),
     };
 
-    if (existing) {
-      await prisma.checklist.update({
-        where: { id: existing.id },
-        data: dataToSave
-      });
-    } else {
-      await prisma.checklist.create({
-        data: { projectId, userId: session.user.id, ...dataToSave }
-      });
+    // 페이로드 크기 제한 (인증 사용자 DoS 방지) — 직렬화 합 4MB
+    const totalSize = dataToSave.data.length + dataToSave.roomData.length + dataToSave.siteInfo.length;
+    if (totalSize > 4 * 1024 * 1024) {
+      return NextResponse.json({ error: '저장 데이터가 너무 큽니다' }, { status: 413 });
     }
+
+    // 유니크 제약이 없어 동시 저장 시 중복 행이 생길 수 있으므로,
+    // 트랜잭션에서 최신 1건만 갱신하고 나머지 중복은 제거한다.
+    await prisma.$transaction(async (tx) => {
+      const rows = await tx.checklist.findMany({
+        where: { projectId },
+        orderBy: { updatedAt: 'desc' },
+        select: { id: true },
+      });
+      if (rows.length === 0) {
+        await tx.checklist.create({ data: { projectId, userId: session.user.id, ...dataToSave } });
+      } else {
+        await tx.checklist.update({ where: { id: rows[0].id }, data: dataToSave });
+        if (rows.length > 1) {
+          await tx.checklist.deleteMany({ where: { id: { in: rows.slice(1).map(r => r.id) } } });
+        }
+      }
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

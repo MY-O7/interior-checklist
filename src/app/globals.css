@@ -247,6 +247,21 @@ button[class~="bg-brand"]:hover {
   box-shadow: var(--shadow-md);
 }
 
+/* 위 흰색(outline) 규칙이 outline-none에 오매칭해 색상 버튼까지 흰색으로 덮으므로,
+   삭제/위험(빨강) 버튼은 명시적으로 빨강을 복구한다 (이 규칙들보다 뒤에 둠) */
+button[class*="destructive"],
+button[class~="bg-red-500"],
+button[class~="bg-red-600"] {
+  background-color: var(--error) !important;
+  color: white !important;
+  border: none !important;
+}
+button[class*="destructive"]:hover,
+button[class~="bg-red-500"]:hover,
+button[class~="bg-red-600"]:hover {
+  background-color: #dc2626 !important;
+}
+
 /* ═══════════════════════════════════════════════════════════
    Components - Inputs
    ═══════════════════════════════════════════════════════════ */

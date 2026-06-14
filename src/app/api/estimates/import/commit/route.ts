@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: '접근 권한이 없습니다' }, { status: 403 });
     }
 
-    const existing = await prisma.estimate.findFirst({ where: { projectId: targetProjectId! } });
+    const existing = await prisma.estimate.findFirst({ where: { projectId: targetProjectId! }, orderBy: { updatedAt: 'desc' } });
     if (existing) await prisma.estimate.update({ where: { id: existing.id }, data: estimateData });
     else await prisma.estimate.create({ data: { ...estimateData, projectId: targetProjectId!, userId: user.id } });
 

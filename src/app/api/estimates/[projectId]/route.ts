@@ -21,7 +21,8 @@ export async function GET(
     }
 
     const estimate = await prisma.estimate.findFirst({
-      where: { projectId }
+      where: { projectId },
+      orderBy: { updatedAt: 'desc' },
     });
 
     if (!estimate) {
@@ -73,10 +74,6 @@ export async function POST(
     const body = await request.json();
     const { items, laborCost, discount, vatRate, includeVat, notes, categoryOrder } = body;
 
-    const existing = await prisma.estimate.findFirst({
-      where: { projectId }
-    });
-
     const data = {
       items: JSON.stringify(items),
       laborCost: laborCost || 0,
@@ -87,20 +84,22 @@ export async function POST(
       categoryOrder: categoryOrder ? JSON.stringify(categoryOrder) : null,
     };
 
-    if (existing) {
-      await prisma.estimate.update({
-        where: { id: existing.id },
-        data,
+    // 동시 저장으로 인한 중복 행을 트랜잭션에서 정리 (shareToken 보존 위해 최신 행 갱신)
+    await prisma.$transaction(async (tx) => {
+      const rows = await tx.estimate.findMany({
+        where: { projectId },
+        orderBy: { updatedAt: 'desc' },
+        select: { id: true },
       });
-    } else {
-      await prisma.estimate.create({
-        data: {
-          projectId,
-          userId: session.user.id,
-          ...data,
+      if (rows.length === 0) {
+        await tx.estimate.create({ data: { projectId, userId: session.user.id, ...data } });
+      } else {
+        await tx.estimate.update({ where: { id: rows[0].id }, data });
+        if (rows.length > 1) {
+          await tx.estimate.deleteMany({ where: { id: { in: rows.slice(1).map(r => r.id) } } });
         }
-      });
-    }
+      }
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

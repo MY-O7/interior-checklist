@@ -36,7 +36,7 @@ model Project {
   clientName  String?
   address     String?
   status      String   @default("대기")
-  color       String   @default("#3b82f6") // 프로젝트 색상 (캘린더 표시용)
+  color       String   @default("#2f7d5f") // 프로젝트 색상 (캘린더 표시용)
   startDate   DateTime? // 시공 시작일
   endDate     DateTime? // 시공 종료일
   createdAt   DateTime @default(now())

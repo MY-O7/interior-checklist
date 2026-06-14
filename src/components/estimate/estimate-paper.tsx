@@ -24,7 +24,7 @@ const DEFAULT_ORDER = ['철거 시공', '창호 시공', '목공 시공', '전�
 // A4 @96dpi
 const PAGE_W = 794;
 const PAGE_H = 1123;
-const PAD = 48;
+const PAD = 54;
 const USABLE_H = PAGE_H - PAD * 2;
 const GRID = '28px 1fr 46px 46px 92px 100px 92px';
 const COL = 'grid items-center whitespace-nowrap';
@@ -122,22 +122,23 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
     </div>
   );
 
+  // 가운데 견적 목록만 작게 (위/아래는 그대로)
   const cheadEl = (cat: string, first: boolean, cont = false) => (
-    <div style={{ marginTop: first ? 0 : 22 }}>
-      <div className="flex items-center gap-2 mb-2">
-        <span className="inline-block w-1.5 h-5 rounded-sm bg-slate-700" />
-        <span className="font-bold text-lg text-slate-900">{cat}{cont && <span className="text-[12px] font-normal text-slate-400 ml-1">(이어서)</span>}</span>
+    <div style={{ marginTop: first ? 0 : 18 }}>
+      <div className="flex items-center gap-2 mb-1.5">
+        <span className="inline-block w-1 h-4 rounded-sm bg-slate-700" />
+        <span className="font-bold text-[13px] text-slate-900">{cat}{cont && <span className="text-[9px] font-normal text-slate-400 ml-1">(이어서)</span>}</span>
         <div className="flex-1 border-b border-slate-200" />
-        <span className="text-[13px] text-slate-400">{grouped[cat].length}건</span>
+        <span className="text-[9.5px] text-slate-400">{grouped[cat].length}건</span>
       </div>
-      <div className={`${COL} text-[12px] font-semibold text-slate-400`} style={{ gridTemplateColumns: GRID, backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-        <span className="px-2 py-2.5 text-center">NO</span>
-        <span className="px-2 py-2.5 text-left">항목명</span>
-        <span className="px-2 py-2.5 text-center">단위</span>
-        <span className="px-2 py-2.5 text-center">수량</span>
-        <span className="px-2 py-2.5 text-right">단가</span>
-        <span className="px-2 py-2.5 text-right">자재비</span>
-        <span className="px-2 py-2.5 text-right">인건비</span>
+      <div className={`${COL} text-[9px] font-semibold text-slate-400`} style={{ gridTemplateColumns: GRID, backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+        <span className="px-2 py-1.5 text-center">NO</span>
+        <span className="px-2 py-1.5 text-left">항목명</span>
+        <span className="px-2 py-1.5 text-center">단위</span>
+        <span className="px-2 py-1.5 text-center">수량</span>
+        <span className="px-2 py-1.5 text-right">단가</span>
+        <span className="px-2 py-1.5 text-right">자재비</span>
+        <span className="px-2 py-1.5 text-right">인건비</span>
       </div>
     </div>
   );
@@ -145,14 +146,14 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
   const rowEl = (item: EstimateItem, idx: number) => {
     const lab = (item.labor || []).reduce((s, l) => s + l.days * l.dayRate, 0);
     return (
-      <div className={`${COL} text-[14px] border-b border-slate-100`} style={{ gridTemplateColumns: GRID }}>
-        <span className="px-2 py-2.5 text-center text-[12px] text-slate-400">{idx}</span>
-        <span className="px-2 py-2.5 text-left font-medium text-slate-700 whitespace-normal break-words">{item.name || '-'}{item.note && <span className="text-[11.5px] text-slate-400 ml-1">({item.note})</span>}</span>
-        <span className="px-2 py-2.5 text-center text-slate-500">{item.unit}</span>
-        <span className="px-2 py-2.5 text-center font-medium text-slate-700">{item.quantity}</span>
-        <span className="px-2 py-2.5 text-right text-slate-500">{won(item.unitPrice)}</span>
-        <span className="px-2 py-2.5 text-right font-medium text-slate-800">{won(item.quantity * item.unitPrice)}</span>
-        <span className="px-2 py-2.5 text-right font-medium text-slate-800">{lab > 0 ? won(lab) : '-'}</span>
+      <div className={`${COL} text-[10.5px] border-b border-slate-100`} style={{ gridTemplateColumns: GRID }}>
+        <span className="px-2 py-1.5 text-center text-[9px] text-slate-400">{idx}</span>
+        <span className="px-2 py-1.5 text-left font-medium text-slate-700 whitespace-normal break-words">{item.name || '-'}{item.note && <span className="text-[8.5px] text-slate-400 ml-1">({item.note})</span>}</span>
+        <span className="px-2 py-1.5 text-center text-slate-500">{item.unit}</span>
+        <span className="px-2 py-1.5 text-center font-medium text-slate-700">{item.quantity}</span>
+        <span className="px-2 py-1.5 text-right text-slate-500">{won(item.unitPrice)}</span>
+        <span className="px-2 py-1.5 text-right font-medium text-slate-800">{won(item.quantity * item.unitPrice)}</span>
+        <span className="px-2 py-1.5 text-right font-medium text-slate-800">{lab > 0 ? won(lab) : '-'}</span>
       </div>
     );
   };
@@ -162,10 +163,10 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
     const m = items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
     const l = items.reduce((s, i) => s + (i.labor || []).reduce((x, ll) => x + ll.days * ll.dayRate, 0), 0);
     return (
-      <div className={`${COL} text-[13px] font-bold`} style={{ gridTemplateColumns: GRID, backgroundColor: '#f1f5f9', borderTop: '2px solid #e2e8f0' }}>
-        <span className="px-2 py-2.5 col-span-5 text-right text-slate-500" style={{ gridColumn: 'span 5' }}>{cat} 소계</span>
-        <span className="px-2 py-2.5 text-right text-slate-800">{won(m)}</span>
-        <span className="px-2 py-2.5 text-right text-slate-800">{won(l)}</span>
+      <div className={`${COL} text-[9.5px] font-bold`} style={{ gridTemplateColumns: GRID, backgroundColor: '#f1f5f9', borderTop: '2px solid #e2e8f0' }}>
+        <span className="px-2 py-1.5 col-span-5 text-right text-slate-500" style={{ gridColumn: 'span 5' }}>{cat} 소계</span>
+        <span className="px-2 py-1.5 text-right text-slate-800">{won(m)}</span>
+        <span className="px-2 py-1.5 text-right text-slate-800">{won(l)}</span>
       </div>
     );
   };

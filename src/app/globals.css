@@ -488,8 +488,6 @@ input[type="checkbox"], input[type="radio"] {
   /* 캘린더 인쇄 시 '오늘' 강조(초록 링/테두리) 제거 */
   .today-cell { box-shadow: none !important; border-color: #e2e8f0 !important; }
 
-  /* 캘린더(월별) 인쇄 시 한 페이지에 맞게 자동 축소 */
-  .cal-fit { zoom: var(--cal-zoom, 1); }
 }
 
 /* ═══════════════════════════════════════════════════════════

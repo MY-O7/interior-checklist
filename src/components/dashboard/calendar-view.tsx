@@ -582,15 +582,15 @@ export function CalendarView() {
   const renderMonthCalendar = (month: number, compact = false) => {
     const days = generateMonthDays(currentYear, month, compact);
     return (
-      <Card className="overflow-hidden print:shadow-none print:border">
+      <Card className={`overflow-hidden print:shadow-none print:border ${!compact ? 'print:flex print:flex-col print:flex-1 print:min-h-0' : ''}`}>
         <div className="bg-emerald-700 text-white text-center py-1.5 font-bold text-sm print:bg-slate-600 print:text-white">{monthNames[month]}</div>
-        <CardContent className={compact ? 'p-1' : 'p-2'}>
+        <CardContent className={`${compact ? 'p-1' : 'p-2'} ${!compact ? 'print:flex print:flex-col print:flex-1 print:min-h-0' : ''}`}>
           <div className="grid grid-cols-7 gap-px mb-1">
             {dayNames.map((day, i) => (
               <div key={day} className={`text-center font-medium py-0.5 ${compact ? 'text-[10px]' : 'text-xs'} ${i === 0 ? 'text-red-400 print:text-red-600' : i === 6 ? 'text-emerald-400 print:text-emerald-600' : 'text-slate-500 print:text-slate-600'}`}>{day}</div>
             ))}
           </div>
-          <div className={`grid grid-cols-7 ${compact ? 'gap-px' : 'gap-1'}`}>
+          <div className={`grid grid-cols-7 ${compact ? 'gap-px' : 'gap-1'} ${!compact ? 'print:flex-1 print:min-h-0 print:h-full print:[grid-auto-rows:minmax(0,1fr)]' : ''}`}>
             {days.map((day, dayIdx) => {
               const dateStr = toLocalDateStr(day.date);
               const isSunday = dayIdx % 7 === 0;
@@ -632,13 +632,13 @@ export function CalendarView() {
                 <div
                   key={dayIdx}
                   onClick={() => day.isCurrentMonth && handleDateClick(day.date)}
-                  className={`min-h-[100px] p-1.5 border rounded cursor-pointer transition print:min-h-[64px] print:p-1 ${
+                  className={`min-h-[100px] p-1.5 border rounded cursor-pointer transition print:min-h-0 print:p-1 print:overflow-hidden ${
                     day.isCurrentMonth
                       ? hasSchedules ? 'bg-slate-50 dark:bg-slate-750 hover:bg-slate-100' : 'bg-white dark:bg-slate-800 hover:bg-slate-50'
                       : 'bg-slate-100 dark:bg-slate-900 text-slate-500 cursor-default'
                   } ${isToday ? 'today-cell border-emerald-600 dark:border-emerald-400 border-2' : 'border-slate-200 dark:border-slate-700'}`}
                 >
-                  <div className={`text-lg font-bold mb-1 print:text-[13px] print:mb-0.5 ${!day.isCurrentMonth ? 'text-slate-500' : isSunday ? 'text-red-500' : isSaturday ? 'text-emerald-500' : 'text-slate-700 dark:text-slate-500'}`}>
+                  <div className={`text-lg font-bold mb-1 print:text-base print:mb-0.5 ${!day.isCurrentMonth ? 'text-slate-500' : isSunday ? 'text-red-500' : isSaturday ? 'text-emerald-500' : 'text-slate-700 dark:text-slate-500'}`}>
                     {day.date.getDate()}
                   </div>
                   <div className="space-y-0.5">
@@ -649,7 +649,7 @@ export function CalendarView() {
                         <div
                           key={schedule.id}
                           onClick={(e) => { e.stopPropagation(); handleScheduleClick(schedule, e); }}
-                          className="truncate px-1.5 py-[3px] rounded text-[14px] font-semibold text-slate-800 hover:opacity-80 transition cursor-pointer print:text-[10.5px] print:py-0 print:leading-tight"
+                          className="truncate px-1.5 py-[3px] rounded text-[14px] font-semibold text-slate-800 hover:opacity-80 transition cursor-pointer print:text-[12px] print:py-[1px] print:leading-tight"
                           style={{ backgroundColor: `${bgColor}22`, borderLeft: `3px solid ${bgColor}` }}
                           title={`${schedule.task}${schedule.note ? ' (' + schedule.note + ')' : ''}\n클릭하여 편집`}
                         >
@@ -803,7 +803,7 @@ export function CalendarView() {
       </div>
 
       {/* 인쇄 시 한 페이지에 맞게 자동 축소되는 영역 */}
-      <div className="cal-fit" style={{ maxWidth: 794, marginLeft: 'auto', marginRight: 'auto' }}>
+      <div className={`cal-fit ${viewMode === 'month' ? 'cal-fit-month' : ''}`} style={{ maxWidth: 794, marginLeft: 'auto', marginRight: 'auto' }}>
       {/* 인쇄용 헤더 */}
       <div className="hidden print:block text-center mb-2">
         <h2 className="text-lg font-bold">

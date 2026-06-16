@@ -488,8 +488,6 @@ input[type="checkbox"], input[type="radio"] {
   /* 캘린더 인쇄 시 '오늘' 강조(초록 링/테두리) 제거 */
   .today-cell { box-shadow: none !important; border-color: #e2e8f0 !important; }
 
-  /* 월별 캘린더: 한 페이지를 꽉 채우고(주 행 1fr 분배) 넘치면 클립 → 항상 1장 */
-  .cal-fit-month { height: 1010px; display: flex; flex-direction: column; }
 
 }
 

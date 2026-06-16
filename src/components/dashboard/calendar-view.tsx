@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -180,6 +180,26 @@ export function CalendarView() {
     if (!filterProjectId) return schedules;
     return schedules.filter(s => s.projectId === filterProjectId);
   }, [schedules, filterProjectId]);
+
+  // 인쇄 시 캘린더(월별)를 한 페이지에 맞게 자동 축소 (일정이 많아 길어지면 더 축소)
+  const calFitRef = useRef<HTMLDivElement>(null);
+  const [calZoom, setCalZoom] = useState(1);
+  useEffect(() => {
+    const fit = () => {
+      const el = calFitRef.current;
+      if (!el || viewMode !== 'month') { setCalZoom(1); return; }
+      const ws = el.offsetWidth || 1;
+      const hs = el.scrollHeight;
+      const PRINT_W = 770;   // A4(@page margin:0) 가용 폭 px
+      const PRINT_AVAIL_H = 1000; // 헤더/여백 제외한 가용 높이 px
+      const printedH = hs * (PRINT_W / ws);
+      setCalZoom(Math.min(1, PRINT_AVAIL_H / printedH));
+    };
+    const t = setTimeout(fit, 50);
+    window.addEventListener('resize', fit);
+    return () => { clearTimeout(t); window.removeEventListener('resize', fit); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewMode, currentMonth, currentYear, filteredSchedules]);
 
   const scheduleMap = useMemo(() => {
     const map = new Map<string, ProjectSchedule[]>();
@@ -632,13 +652,13 @@ export function CalendarView() {
                 <div
                   key={dayIdx}
                   onClick={() => day.isCurrentMonth && handleDateClick(day.date)}
-                  className={`min-h-[100px] p-1.5 border rounded cursor-pointer transition print:min-h-[92px] print:p-1 ${
+                  className={`min-h-[100px] p-1.5 border rounded cursor-pointer transition ${
                     day.isCurrentMonth
                       ? hasSchedules ? 'bg-slate-50 dark:bg-slate-750 hover:bg-slate-100' : 'bg-white dark:bg-slate-800 hover:bg-slate-50'
                       : 'bg-slate-100 dark:bg-slate-900 text-slate-500 cursor-default'
                   } ${isToday ? 'today-cell border-emerald-600 dark:border-emerald-400 border-2' : 'border-slate-200 dark:border-slate-700'}`}
                 >
-                  <div className={`text-lg font-bold mb-1 print:text-base ${!day.isCurrentMonth ? 'text-slate-500' : isSunday ? 'text-red-500' : isSaturday ? 'text-emerald-500' : 'text-slate-700 dark:text-slate-500'}`}>
+                  <div className={`text-lg font-bold mb-1 ${!day.isCurrentMonth ? 'text-slate-500' : isSunday ? 'text-red-500' : isSaturday ? 'text-emerald-500' : 'text-slate-700 dark:text-slate-500'}`}>
                     {day.date.getDate()}
                   </div>
                   <div className="space-y-0.5">
@@ -649,7 +669,7 @@ export function CalendarView() {
                         <div
                           key={schedule.id}
                           onClick={(e) => { e.stopPropagation(); handleScheduleClick(schedule, e); }}
-                          className="truncate px-1.5 py-[3px] rounded text-[14px] font-semibold text-slate-800 hover:opacity-80 transition cursor-pointer print:text-[13px]"
+                          className="truncate px-1.5 py-[3px] rounded text-[14px] font-semibold text-slate-800 hover:opacity-80 transition cursor-pointer"
                           style={{ backgroundColor: `${bgColor}22`, borderLeft: `3px solid ${bgColor}` }}
                           title={`${schedule.task}${schedule.note ? ' (' + schedule.note + ')' : ''}\n클릭하여 편집`}
                         >
@@ -802,6 +822,8 @@ export function CalendarView() {
         </div>
       </div>
 
+      {/* 인쇄 시 한 페이지에 맞게 자동 축소되는 영역 */}
+      <div ref={calFitRef} className="cal-fit" style={{ ['--cal-zoom' as any]: calZoom }}>
       {/* 인쇄용 헤더 */}
       <div className="hidden print:block text-center mb-4">
         <h2 className="text-2xl font-bold">
@@ -846,6 +868,7 @@ export function CalendarView() {
           })}
         </div>
       )}
+      </div>{/* /cal-fit */}
 
       {/* ===== 날짜 상세 모달 ===== */}
       {dayModal.open && (

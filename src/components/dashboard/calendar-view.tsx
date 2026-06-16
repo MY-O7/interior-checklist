@@ -632,13 +632,13 @@ export function CalendarView() {
                 <div
                   key={dayIdx}
                   onClick={() => day.isCurrentMonth && handleDateClick(day.date)}
-                  className={`min-h-[100px] p-1.5 border rounded cursor-pointer transition print:min-h-[80px] print:p-1 ${
+                  className={`min-h-[100px] p-1.5 border rounded cursor-pointer transition print:min-h-[130px] print:p-1.5 ${
                     day.isCurrentMonth
                       ? hasSchedules ? 'bg-slate-50 dark:bg-slate-750 hover:bg-slate-100' : 'bg-white dark:bg-slate-800 hover:bg-slate-50'
                       : 'bg-slate-100 dark:bg-slate-900 text-slate-500 cursor-default'
                   } ${isToday ? 'today-cell border-emerald-600 dark:border-emerald-400 border-2' : 'border-slate-200 dark:border-slate-700'}`}
                 >
-                  <div className={`text-base font-semibold mb-1 print:text-sm ${!day.isCurrentMonth ? 'text-slate-500' : isSunday ? 'text-red-500' : isSaturday ? 'text-emerald-500' : 'text-slate-700 dark:text-slate-500'}`}>
+                  <div className={`text-lg font-bold mb-1 print:text-base ${!day.isCurrentMonth ? 'text-slate-500' : isSunday ? 'text-red-500' : isSaturday ? 'text-emerald-500' : 'text-slate-700 dark:text-slate-500'}`}>
                     {day.date.getDate()}
                   </div>
                   <div className="space-y-0.5">
@@ -649,7 +649,7 @@ export function CalendarView() {
                         <div
                           key={schedule.id}
                           onClick={(e) => { e.stopPropagation(); handleScheduleClick(schedule, e); }}
-                          className="truncate px-1.5 py-[2px] rounded text-[12.5px] font-semibold text-slate-800 hover:opacity-80 transition cursor-pointer print:text-[11px]"
+                          className="truncate px-1.5 py-[3px] rounded text-[14px] font-semibold text-slate-800 hover:opacity-80 transition cursor-pointer print:text-[13px]"
                           style={{ backgroundColor: `${bgColor}22`, borderLeft: `3px solid ${bgColor}` }}
                           title={`${schedule.task}${schedule.note ? ' (' + schedule.note + ')' : ''}\n클릭하여 편집`}
                         >

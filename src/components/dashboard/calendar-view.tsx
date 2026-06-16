@@ -190,10 +190,10 @@ export function CalendarView() {
       if (!el || viewMode !== 'month') { setCalZoom(1); return; }
       const ws = el.offsetWidth || 1;
       const hs = el.scrollHeight;
-      const PRINT_W = 770;   // A4(@page margin:0) 가용 폭 px
-      const PRINT_AVAIL_H = 1000; // 헤더/여백 제외한 가용 높이 px
+      const PRINT_W = 794;        // A4(@page margin:0) 폭 px (cal-fit도 이 폭으로 캡)
+      const PRINT_AVAIL_H = 1000; // 인쇄 헤더/여백 제외한 가용 높이 px (보수적)
       const printedH = hs * (PRINT_W / ws);
-      setCalZoom(Math.min(1, PRINT_AVAIL_H / printedH));
+      setCalZoom(printedH > 0 ? Math.min(1, PRINT_AVAIL_H / printedH) : 1);
     };
     const t = setTimeout(fit, 50);
     window.addEventListener('resize', fit);
@@ -823,7 +823,7 @@ export function CalendarView() {
       </div>
 
       {/* 인쇄 시 한 페이지에 맞게 자동 축소되는 영역 */}
-      <div ref={calFitRef} className="cal-fit" style={{ ['--cal-zoom' as any]: calZoom }}>
+      <div ref={calFitRef} className="cal-fit" style={{ ['--cal-zoom' as any]: calZoom, maxWidth: 794, marginLeft: 'auto', marginRight: 'auto' }}>
       {/* 인쇄용 헤더 */}
       <div className="hidden print:block text-center mb-4">
         <h2 className="text-2xl font-bold">

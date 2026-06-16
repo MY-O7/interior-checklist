@@ -582,10 +582,10 @@ export function CalendarView() {
   const renderMonthCalendar = (month: number, compact = false) => {
     const days = generateMonthDays(currentYear, month, compact);
     return (
-      <Card className="overflow-hidden print:shadow-none print:border">
-        <div className="bg-emerald-700 text-white text-center py-1.5 font-bold text-sm print:bg-slate-200 print:text-black">{monthNames[month]}</div>
+      <Card className="overflow-hidden print:shadow-none print:border print:border-slate-400">
+        <div className="bg-emerald-700 text-white text-center py-1.5 font-bold text-sm print:bg-slate-800 print:text-white">{monthNames[month]}</div>
         <CardContent className={compact ? 'p-1' : 'p-2'}>
-          <div className="grid grid-cols-7 gap-px mb-1">
+          <div className="grid grid-cols-7 gap-px mb-1 print:border-b-2 print:border-slate-400">
             {dayNames.map((day, i) => (
               <div key={day} className={`text-center font-medium py-0.5 ${compact ? 'text-[10px]' : 'text-xs'} ${i === 0 ? 'text-red-400 print:text-red-600' : i === 6 ? 'text-emerald-400 print:text-emerald-600' : 'text-slate-500 print:text-slate-600'}`}>{day}</div>
             ))}
@@ -636,7 +636,7 @@ export function CalendarView() {
                     day.isCurrentMonth
                       ? hasSchedules ? 'bg-slate-50 dark:bg-slate-750 hover:bg-slate-100' : 'bg-white dark:bg-slate-800 hover:bg-slate-50'
                       : 'bg-slate-100 dark:bg-slate-900 text-slate-500 cursor-default'
-                  } ${isToday ? 'today-cell border-emerald-600 dark:border-emerald-400 border-2' : 'border-slate-200 dark:border-slate-700'}`}
+                  } ${isToday ? 'today-cell border-emerald-600 dark:border-emerald-400 border-2 print:border-slate-400' : 'border-slate-200 dark:border-slate-700 print:border-slate-400'}`}
                 >
                   <div className={`text-sm font-medium mb-1 print:text-xs ${!day.isCurrentMonth ? 'text-slate-500' : isSunday ? 'text-red-500' : isSaturday ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-500'}`}>
                     {day.date.getDate()}

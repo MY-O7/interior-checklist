@@ -606,7 +606,7 @@ export function CalendarView() {
                     onClick={() => day.isCurrentMonth && handleDateClick(day.date)}
                     className={`p-0.5 rounded cursor-pointer transition text-center ${
                       day.isCurrentMonth ? 'hover:bg-slate-100 dark:hover:bg-slate-700' : 'opacity-30 cursor-default'
-                    } ${isToday ? 'ring-2 ring-emerald-600 dark:ring-emerald-400' : ''}`}
+                    } ${isToday ? 'today-cell ring-2 ring-emerald-600 dark:ring-emerald-400' : ''}`}
                   >
                     <div className={`text-[11px] leading-tight ${!day.isCurrentMonth ? 'text-slate-300' : isSunday ? 'text-red-500' : isSaturday ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-500'}`}>
                       {day.date.getDate()}
@@ -636,7 +636,7 @@ export function CalendarView() {
                     day.isCurrentMonth
                       ? hasSchedules ? 'bg-slate-50 dark:bg-slate-750 hover:bg-slate-100' : 'bg-white dark:bg-slate-800 hover:bg-slate-50'
                       : 'bg-slate-100 dark:bg-slate-900 text-slate-300 cursor-default'
-                  } ${isToday ? 'border-emerald-600 dark:border-emerald-400 border-2' : 'border-slate-200 dark:border-slate-700'}`}
+                  } ${isToday ? 'today-cell border-emerald-600 dark:border-emerald-400 border-2' : 'border-slate-200 dark:border-slate-700'}`}
                 >
                   <div className={`text-sm font-medium mb-1 print:text-xs ${!day.isCurrentMonth ? 'text-slate-300' : isSunday ? 'text-red-500' : isSaturday ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-500'}`}>
                     {day.date.getDate()}

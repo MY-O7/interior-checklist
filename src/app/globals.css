@@ -484,6 +484,9 @@ input[type="checkbox"], input[type="radio"] {
 
   /* @page margin:0 이라 견적서 外 인쇄(.print-area)는 자체 여백 부여 */
   .print-area { padding: 10mm !important; }
+
+  /* 캘린더 인쇄 시 '오늘' 강조(초록 링/테두리) 제거 */
+  .today-cell { box-shadow: none !important; border-color: #e2e8f0 !important; }
 }
 
 /* ═══════════════════════════════════════════════════════════

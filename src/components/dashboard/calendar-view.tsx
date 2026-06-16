@@ -632,7 +632,7 @@ export function CalendarView() {
                 <div
                   key={dayIdx}
                   onClick={() => day.isCurrentMonth && handleDateClick(day.date)}
-                  className={`min-h-[100px] p-1.5 border rounded cursor-pointer transition print:min-h-[130px] print:p-1.5 ${
+                  className={`min-h-[100px] p-1.5 border rounded cursor-pointer transition print:min-h-[92px] print:p-1 ${
                     day.isCurrentMonth
                       ? hasSchedules ? 'bg-slate-50 dark:bg-slate-750 hover:bg-slate-100' : 'bg-white dark:bg-slate-800 hover:bg-slate-50'
                       : 'bg-slate-100 dark:bg-slate-900 text-slate-500 cursor-default'

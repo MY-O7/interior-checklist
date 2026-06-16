@@ -583,7 +583,7 @@ export function CalendarView() {
     const days = generateMonthDays(currentYear, month, compact);
     return (
       <Card className="overflow-hidden print:shadow-none print:border print:border-slate-400">
-        <div className="bg-emerald-700 text-white text-center py-1.5 font-bold text-sm print:bg-slate-800 print:text-white">{monthNames[month]}</div>
+        <div className="bg-emerald-700 text-white text-center py-1.5 font-bold text-sm print:bg-slate-600 print:text-white">{monthNames[month]}</div>
         <CardContent className={compact ? 'p-1' : 'p-2'}>
           <div className="grid grid-cols-7 gap-px mb-1 print:border-b-2 print:border-slate-400">
             {dayNames.map((day, i) => (
@@ -649,8 +649,8 @@ export function CalendarView() {
                         <div
                           key={schedule.id}
                           onClick={(e) => { e.stopPropagation(); handleScheduleClick(schedule, e); }}
-                          className="truncate px-1.5 py-0.5 rounded text-[11px] text-white hover:opacity-80 transition cursor-pointer print:text-[9px] print:py-0"
-                          style={{ backgroundColor: bgColor }}
+                          className="truncate px-1.5 py-[1px] rounded text-[11.5px] font-semibold text-slate-800 hover:opacity-80 transition cursor-pointer print:text-[10px]"
+                          style={{ backgroundColor: `${bgColor}22`, borderLeft: `3px solid ${bgColor}` }}
                           title={`${schedule.task}${schedule.note ? ' (' + schedule.note + ')' : ''}\n클릭하여 편집`}
                         >
                           {schedule.task}

@@ -638,7 +638,7 @@ export function CalendarView() {
                       : 'bg-slate-100 dark:bg-slate-900 text-slate-500 cursor-default'
                   } ${isToday ? 'today-cell border-emerald-600 dark:border-emerald-400 border-2' : 'border-slate-200 dark:border-slate-700'}`}
                 >
-                  <div className={`text-sm font-medium mb-1 print:text-xs ${!day.isCurrentMonth ? 'text-slate-500' : isSunday ? 'text-red-500' : isSaturday ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-500'}`}>
+                  <div className={`text-base font-semibold mb-1 print:text-sm ${!day.isCurrentMonth ? 'text-slate-500' : isSunday ? 'text-red-500' : isSaturday ? 'text-emerald-500' : 'text-slate-700 dark:text-slate-500'}`}>
                     {day.date.getDate()}
                   </div>
                   <div className="space-y-0.5">
@@ -649,7 +649,7 @@ export function CalendarView() {
                         <div
                           key={schedule.id}
                           onClick={(e) => { e.stopPropagation(); handleScheduleClick(schedule, e); }}
-                          className="truncate px-1.5 py-[1px] rounded text-[11.5px] font-semibold text-slate-800 hover:opacity-80 transition cursor-pointer print:text-[10px]"
+                          className="truncate px-1.5 py-[2px] rounded text-[12.5px] font-semibold text-slate-800 hover:opacity-80 transition cursor-pointer print:text-[11px]"
                           style={{ backgroundColor: `${bgColor}22`, borderLeft: `3px solid ${bgColor}` }}
                           title={`${schedule.task}${schedule.note ? ' (' + schedule.note + ')' : ''}\n클릭하여 편집`}
                         >

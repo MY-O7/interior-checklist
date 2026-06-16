@@ -605,10 +605,10 @@ export function CalendarView() {
                     key={dayIdx}
                     onClick={() => day.isCurrentMonth && handleDateClick(day.date)}
                     className={`p-0.5 rounded cursor-pointer transition text-center ${
-                      day.isCurrentMonth ? 'hover:bg-slate-100 dark:hover:bg-slate-700' : 'opacity-30 cursor-default'
+                      day.isCurrentMonth ? 'hover:bg-slate-100 dark:hover:bg-slate-700' : 'opacity-60 cursor-default'
                     } ${isToday ? 'today-cell ring-2 ring-emerald-600 dark:ring-emerald-400' : ''}`}
                   >
-                    <div className={`text-[11px] leading-tight ${!day.isCurrentMonth ? 'text-slate-300' : isSunday ? 'text-red-500' : isSaturday ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-500'}`}>
+                    <div className={`text-[11px] leading-tight ${!day.isCurrentMonth ? 'text-slate-400' : isSunday ? 'text-red-500' : isSaturday ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-500'}`}>
                       {day.date.getDate()}
                     </div>
                     {hasSchedules && (
@@ -635,10 +635,10 @@ export function CalendarView() {
                   className={`min-h-[100px] p-1.5 border rounded cursor-pointer transition print:min-h-[80px] print:p-1 ${
                     day.isCurrentMonth
                       ? hasSchedules ? 'bg-slate-50 dark:bg-slate-750 hover:bg-slate-100' : 'bg-white dark:bg-slate-800 hover:bg-slate-50'
-                      : 'bg-slate-100 dark:bg-slate-900 text-slate-300 cursor-default'
+                      : 'bg-slate-100 dark:bg-slate-900 text-slate-500 cursor-default'
                   } ${isToday ? 'today-cell border-emerald-600 dark:border-emerald-400 border-2' : 'border-slate-200 dark:border-slate-700'}`}
                 >
-                  <div className={`text-sm font-medium mb-1 print:text-xs ${!day.isCurrentMonth ? 'text-slate-300' : isSunday ? 'text-red-500' : isSaturday ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-500'}`}>
+                  <div className={`text-sm font-medium mb-1 print:text-xs ${!day.isCurrentMonth ? 'text-slate-500' : isSunday ? 'text-red-500' : isSaturday ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-500'}`}>
                     {day.date.getDate()}
                   </div>
                   <div className="space-y-0.5">

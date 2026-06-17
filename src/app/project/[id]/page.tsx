@@ -200,34 +200,37 @@ export default function ProjectPage() {
   };
 
   const updateItem = (sectionId: string, itemName: string, field: keyof ChecklistItemData, value: any) => {
-    setChecklist(prev => ({
-      ...prev,
-      [sectionId]: {
-        ...prev[sectionId],
-        [itemName]: {
-          ...prev[sectionId]?.[itemName],
-          checked: field === 'checked' ? value : prev[sectionId]?.[itemName]?.checked ?? false,
-          detail: field === 'detail' ? value : prev[sectionId]?.[itemName]?.detail ?? '',
-          value: field === 'value' ? value : prev[sectionId]?.[itemName]?.value ?? '',
-          note: field === 'note' ? value : prev[sectionId]?.[itemName]?.note ?? '',
-        }
+    setChecklist(prev => {
+      const cur = prev[sectionId]?.[itemName] ?? { checked: false, detail: '', value: '', note: '' };
+      const next: ChecklistItemData = {
+        checked: field === 'checked' ? value : (cur.checked ?? false),
+        detail: field === 'detail' ? value : (cur.detail ?? ''),
+        value: field === 'value' ? value : (cur.value ?? ''),
+        note: field === 'note' ? value : (cur.note ?? ''),
+      };
+      // 내용(항목/수치/비고)을 작성하면 자동으로 체크 (체크 해제는 수동으로만)
+      if (field !== 'checked') {
+        const hasContent = !!(String(next.detail || '').trim() || String(next.value || '').trim() || String(next.note || '').trim());
+        if (hasContent) next.checked = true;
       }
-    }));
+      return { ...prev, [sectionId]: { ...prev[sectionId], [itemName]: next } };
+    });
   };
 
   const updateRoomData = (itemKey: string, roomId: string, field: string, value: any) => {
-    setRoomChecklist(prev => ({
-      ...prev,
-      [itemKey]: {
-        ...prev[itemKey],
-        [roomId]: {
-          ...prev[itemKey]?.[roomId],
-          checked: field === 'checked' ? value : prev[itemKey]?.[roomId]?.checked ?? false,
-          value: field === 'value' ? value : prev[itemKey]?.[roomId]?.value ?? '',
-          note: field === 'note' ? value : prev[itemKey]?.[roomId]?.note ?? '',
-        }
+    setRoomChecklist(prev => {
+      const cur = prev[itemKey]?.[roomId] ?? { checked: false, value: '', note: '' };
+      const next = {
+        checked: field === 'checked' ? value : (cur.checked ?? false),
+        value: field === 'value' ? value : (cur.value ?? ''),
+        note: field === 'note' ? value : (cur.note ?? ''),
+      };
+      if (field !== 'checked') {
+        const hasContent = !!(String(next.value || '').trim() || String(next.note || '').trim());
+        if (hasContent) next.checked = true;
       }
-    }));
+      return { ...prev, [itemKey]: { ...prev[itemKey], [roomId]: next } };
+    });
   };
 
   if (!project) return null;

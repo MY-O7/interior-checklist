@@ -15,7 +15,8 @@ export async function GET(request: NextRequest) {
     // ADMIN은 전체, USER는 자기 프로젝트 + 공유받은 프로젝트
     const include = {
       user: { select: { id: true, name: true } },
-      shares: { select: { userId: true } }
+      shares: { select: { userId: true } },
+      checklists: { select: { data: true } },
     };
     let projects;
     if (user.role === 'ADMIN') {
@@ -33,9 +34,21 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // 체크리스트에 작성된 내용이 하나라도 있는지 (작성중 표기용)
+    const hasWritten = (data: string | null): boolean => {
+      try {
+        const d = JSON.parse(data || '{}');
+        return Object.values(d).some((sec: any) =>
+          sec && Object.values(sec).some((it: any) => it && (it.checked || it.detail || it.value || it.note))
+        );
+      } catch { return false; }
+    };
+
     // ownership 표시: 'mine' | 'shared' | 소유자 이름
-    const result = projects.map(p => ({
+    const result = projects.map((p: any) => ({
       ...p,
+      checklists: undefined, // 목록 응답엔 원본 체크리스트 데이터 제외
+      hasChecklist: (p.checklists || []).some((c: { data: string | null }) => hasWritten(c.data)),
       ownerName: p.user.name,
       ownership: p.userId === user.id ? 'mine' : p.shares.some((s: { userId: string }) => s.userId === user.id) ? 'shared' : 'other',
     }));

@@ -18,6 +18,7 @@ interface Project {
   createdAt: string;
   ownerName?: string;
   ownership?: 'mine' | 'shared' | 'other';
+  hasChecklist?: boolean;
 }
 
 interface ProjectsTabProps {
@@ -136,6 +137,11 @@ export function ProjectsTab({
                   }`}>
                     {project.status}
                   </span>
+                  {project.hasChecklist && (
+                    <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
+                      체크리스트 작성중
+                    </span>
+                  )}
                   {project.ownership === 'shared' && (
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-purple-100 text-purple-700">
                       공유 · {project.ownerName}

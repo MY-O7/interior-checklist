@@ -30,6 +30,7 @@ const DEFAULT_MATERIALS: Material[] = [
   { id: '8', category: '도배', name: '합지 도배 (평당)', unit: '평', unitPrice: 25000 },
   { id: '9', category: '도배', name: '실크 도배 (평당)', unit: '평', unitPrice: 40000 },
   { id: '10', category: '욕실', name: '화장실 올철거', unit: '실', unitPrice: 2000000 },
+  { id: '10b', category: '욕실', name: 'UBR 철거', unit: '실', unitPrice: 800000 },
   { id: '11', category: '욕실', name: '화장실 덧방', unit: '실', unitPrice: 1500000 },
   { id: '12', category: '욕실', name: '젠다이 시공', unit: '개', unitPrice: 300000 },
   { id: '13', category: '욕실', name: '욕조 설치', unit: '개', unitPrice: 500000 },

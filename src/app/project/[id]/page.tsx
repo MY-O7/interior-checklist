@@ -11,7 +11,7 @@ import { SidebarWrapper } from '@/components/mobile-menu';
 import { ArrowLeft, Download, Save, Printer, ChevronLeft, ChevronRight, Menu, FolderOpen, Calculator, Settings, Ruler, Home } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
 import { apiGet, apiPost } from '@/lib/api';
-import { OptionTag, DimensionInputs, RoomCheckGrid, RoomSizeSection } from '@/components/checklist';
+import { OptionTag, DimensionInputs, RoomCheckGrid, RoomSizeSection, MoldingOptionInputs, DoorRoomGrid } from '@/components/checklist';
 import { PageNav } from '@/components/shared';
 import { SECTIONS, DEFAULT_ROOMS, migrateChecklistKeys, migrateRoomChecklistKeys } from '@/config/sections';
 import { sectionColor } from '@/config/section-colors';
@@ -52,6 +52,9 @@ function ChecklistRow({ item, sectionId, data, roomData, onUpdate, onRoomUpdate,
           {item.options.map((opt) => <OptionTag key={opt} label={opt} color={item.optionColors?.[opt] || 'white'} checked={data.detail.includes(opt)} onToggle={() => toggleOption(opt)} />)}
         </div>
       )}
+      {item.name === '문선 / 몰딩' && data.detail && (
+        <MoldingOptionInputs options={data.detail.split(', ').filter(Boolean)} value={data.value} onChange={(v) => onUpdate('value', v)} />
+      )}
       {item.hasInput && (
         <div className="ml-9">
           <Input className="h-11 text-base bg-slate-50 dark:bg-slate-900 border-dashed" value={item.options ? data.value : data.detail} onChange={(e) => onUpdate(item.options ? 'value' : 'detail', e.target.value)} placeholder={item.placeholder} />
@@ -70,16 +73,23 @@ function ChecklistRow({ item, sectionId, data, roomData, onUpdate, onRoomUpdate,
         )
       )}
       {item.perRoom && data.checked && onRoomUpdate && (
-        <RoomCheckGrid 
-          rooms={roomData || {}} 
-          hasMeasurement={item.hasMeasurement} 
-          measurementLabel={item.measurementLabel} 
-          showJwa={item.name.includes('창호') || item.name.includes('폴딩도어')} 
-          roomList={roomList} 
-          onUpdate={onRoomUpdate}
-          selectOptions={item.name === '문 / 문틀' ? (data.detail ? data.detail.split(', ').filter(Boolean) : undefined) : undefined}
-          selectPlaceholder="문 종류 선택"
-        />
+        item.name === '문 / 문틀' ? (
+          <DoorRoomGrid
+            rooms={roomData || {}}
+            roomList={roomList}
+            doorTypes={data.detail ? data.detail.split(', ').filter(Boolean) : []}
+            onUpdate={onRoomUpdate}
+          />
+        ) : (
+          <RoomCheckGrid
+            rooms={roomData || {}}
+            hasMeasurement={item.hasMeasurement}
+            measurementLabel={item.measurementLabel}
+            showJwa={item.name.includes('창호') || item.name.includes('폴딩도어')}
+            roomList={roomList}
+            onUpdate={onRoomUpdate}
+          />
+        )
       )}
       <div className="ml-9"><Input className="h-10 text-sm bg-transparent border-slate-200 dark:border-slate-700" value={data.note} onChange={(e) => onUpdate('note', e.target.value)} placeholder="비고 / 특이사항" /></div>
     </div>

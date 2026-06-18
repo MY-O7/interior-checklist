@@ -135,10 +135,47 @@ export default function EstimatePage() {
     }
   }, [printMode, project?.name]);
 
-  // 사이드바 '인쇄' / 'PDF 저장' 버튼: 인쇄 미리보기를 열고 페이지 분할이 안정된 뒤 인쇄 대화상자 호출
-  const startPrint = () => {
-    setPrintMode(true);
-    setTimeout(() => window.print(), 500);
+  // 사이드바 '인쇄' 버튼:
+  //  - 인쇄 미리보기 화면이 아니면 → 미리보기로 이동
+  //  - 이미 미리보기 화면이면 → 실제 인쇄 대화상자 호출
+  const handlePrint = () => {
+    if (printMode) window.print();
+    else setPrintMode(true);
+  };
+
+  // 'PDF 저장' 버튼: 렌더된 견적서를 그대로 캡처해 프로젝트명.pdf 로 바로 다운로드
+  const [pdfSaving, setPdfSaving] = useState(false);
+  const savePdf = async () => {
+    if (pdfSaving) return;
+    setPdfSaving(true);
+    try {
+      setPrintMode(true);
+      // 페이지 분할/렌더가 안정되도록 대기
+      await new Promise(r => setTimeout(r, 700));
+      const [{ default: html2canvas }, jspdfMod] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ]);
+      const JsPDF = jspdfMod.jsPDF;
+      const sheets = Array.from(document.querySelectorAll('.a4-sheet')) as HTMLElement[];
+      if (!sheets.length) { setPdfSaving(false); return; }
+      const pdf = new JsPDF({ unit: 'px', format: 'a4', orientation: 'portrait' });
+      const pw = pdf.internal.pageSize.getWidth();
+      const ph = pdf.internal.pageSize.getHeight();
+      for (let i = 0; i < sheets.length; i++) {
+        const el = sheets[i];
+        const prevZoom = el.style.zoom; // 모바일용 축소(zoom) 해제 후 원본 크기로 캡처
+        el.style.zoom = '1';
+        const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+        el.style.zoom = prevZoom;
+        const img = canvas.toDataURL('image/jpeg', 0.95);
+        if (i > 0) pdf.addPage();
+        pdf.addImage(img, 'JPEG', 0, 0, pw, ph);
+      }
+      pdf.save(`${(project?.name || '견적서').replace(/[\\/:*?"<>|]/g, '_')}.pdf`);
+    } finally {
+      setPdfSaving(false);
+    }
   };
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showImport, setShowImport] = useState(false);
@@ -584,11 +621,11 @@ export default function EstimatePage() {
             <button onClick={save} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm">
               <Save className="w-4 h-4" /> 저장 {saving && '✓'}
             </button>
-            <button onClick={startPrint} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm">
-              <Printer className="w-4 h-4" /> 인쇄
+            <button onClick={handlePrint} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm">
+              <Printer className="w-4 h-4" /> {printMode ? '인쇄하기' : '인쇄 미리보기'}
             </button>
-            <button onClick={startPrint} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm">
-              <FileDown className="w-4 h-4" /> PDF 저장
+            <button onClick={savePdf} disabled={pdfSaving} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm disabled:opacity-50">
+              <FileDown className="w-4 h-4" /> {pdfSaving ? 'PDF 저장 중…' : 'PDF 저장'}
             </button>
             <button onClick={shareEstimate} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm text-blue-600 dark:text-blue-400 font-medium">
               <Link2 className="w-4 h-4" /> 고객 공유 링크 복사

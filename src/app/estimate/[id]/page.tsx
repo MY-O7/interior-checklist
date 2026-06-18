@@ -143,39 +143,10 @@ export default function EstimatePage() {
     else setPrintMode(true);
   };
 
-  // 'PDF 저장' 버튼: 렌더된 견적서를 그대로 캡처해 프로젝트명.pdf 로 바로 다운로드
-  const [pdfSaving, setPdfSaving] = useState(false);
-  const savePdf = async () => {
-    if (pdfSaving) return;
-    setPdfSaving(true);
-    try {
-      setPrintMode(true);
-      // 페이지 분할/렌더가 안정되도록 대기
-      await new Promise(r => setTimeout(r, 700));
-      const [{ default: html2canvas }, jspdfMod] = await Promise.all([
-        import('html2canvas'),
-        import('jspdf'),
-      ]);
-      const JsPDF = jspdfMod.jsPDF;
-      const sheets = Array.from(document.querySelectorAll('.a4-sheet')) as HTMLElement[];
-      if (!sheets.length) { setPdfSaving(false); return; }
-      const pdf = new JsPDF({ unit: 'px', format: 'a4', orientation: 'portrait' });
-      const pw = pdf.internal.pageSize.getWidth();
-      const ph = pdf.internal.pageSize.getHeight();
-      for (let i = 0; i < sheets.length; i++) {
-        const el = sheets[i];
-        const prevZoom = el.style.zoom; // 모바일용 축소(zoom) 해제 후 원본 크기로 캡처
-        el.style.zoom = '1';
-        const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
-        el.style.zoom = prevZoom;
-        const img = canvas.toDataURL('image/jpeg', 0.95);
-        if (i > 0) pdf.addPage();
-        pdf.addImage(img, 'JPEG', 0, 0, pw, ph);
-      }
-      pdf.save(`${(project?.name || '견적서').replace(/[\\/:*?"<>|]/g, '_')}.pdf`);
-    } finally {
-      setPdfSaving(false);
-    }
+  // 'PDF 저장' 버튼: 인쇄 대화상자를 열어 "PDF로 저장" 선택 (품질 보존 + 파일명=프로젝트명 자동)
+  const savePdf = () => {
+    if (printMode) setTimeout(() => window.print(), 100);
+    else { setPrintMode(true); setTimeout(() => window.print(), 600); }
   };
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showImport, setShowImport] = useState(false);
@@ -624,8 +595,8 @@ export default function EstimatePage() {
             <button onClick={handlePrint} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm">
               <Printer className="w-4 h-4" /> {printMode ? '인쇄하기' : '인쇄 미리보기'}
             </button>
-            <button onClick={savePdf} disabled={pdfSaving} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm disabled:opacity-50">
-              <FileDown className="w-4 h-4" /> {pdfSaving ? 'PDF 저장 중…' : 'PDF 저장'}
+            <button onClick={savePdf} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm">
+              <FileDown className="w-4 h-4" /> PDF로 저장
             </button>
             <button onClick={shareEstimate} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm text-blue-600 dark:text-blue-400 font-medium">
               <Link2 className="w-4 h-4" /> 고객 공유 링크 복사

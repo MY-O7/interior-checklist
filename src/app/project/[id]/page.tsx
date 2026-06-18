@@ -150,6 +150,7 @@ export default function ProjectPage() {
   const goToSection = (n: number) => {
     if (n !== currentSection) window.history.pushState({ ...window.history.state, section: n }, '');
     setCurrentSection(n);
+    setPrintMode(false); // 인쇄 미리보기 중 사이드바/목차로 이동하면 인쇄 모드 해제
   };
 
   useEffect(() => {

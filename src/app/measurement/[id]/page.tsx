@@ -18,7 +18,7 @@ const MEASUREMENT_ITEMS = [
   { sectionId: 'flooring', name: '데코타일 시공', label: '데코타일', category: '바닥', icon: '🔳', isDimension: true },
   { sectionId: 'furniture', name: '창호 (샷시)', label: '창호 (샷시)', category: '창호', icon: '🪟', isDimension: true, showJwa: true },
   { sectionId: 'furniture', name: '폴딩도어', label: '폴딩도어', category: '창호', icon: '🚪', isDimension: true, showJwa: true },
-  { sectionId: 'carpentry', name: '문 / 문틀', label: '문 / 문틀', category: '목공', icon: '🚪', isDimension: true },
+  { sectionId: 'carpentry', name: '문 / 문틀', label: '문 / 문틀', category: '목공', icon: '🚪', isDoor: true },
   { sectionId: 'furniture', name: '맞춤 가구', label: '맞춤 가구', category: '가구', icon: '🪑', isDimension: true },
   { sectionId: 'furniture', name: '시스템 에어컨', label: '시스템 에어컨', category: '설비', icon: '❄️' },
   { sectionId: 'film', name: '필름 시공', label: '필름', category: '마감', icon: '🎞️' },
@@ -30,6 +30,22 @@ const MEASUREMENT_ITEMS = [
   { sectionId: 'carpentry', name: '에어컨 단내림', label: '에어컨 단내림', category: '목공', icon: '🔧' },
   { sectionId: 'carpentry', name: '천장 평탄화', label: '천장 평탄화', category: '목공', icon: '📐' },
 ];
+
+// 문/문틀 JSON 값을 사람이 읽는 문장으로
+function formatDoor(value: string): string {
+  let d: any;
+  try { d = JSON.parse(value || '{}'); } catch { return value || ''; }
+  if (!d || typeof d !== 'object') return value || '';
+  const parts: string[] = [];
+  if (d.type) parts.push(d.type);
+  const door = [d.dw, d.dh].filter(Boolean).join('×');
+  const doorBits = [door ? `${door}mm` : '', d.handle ? `손잡이 ${d.handle}` : ''].filter(Boolean).join(' · ');
+  if (doorBits) parts.push(`문짝 ${doorBits}`);
+  const frame = [d.fw, d.fh].filter(Boolean).join('×');
+  const frameBits = [frame ? `${frame}mm` : '', d.bar ? `bar ${d.bar}` : ''].filter(Boolean).join(' · ');
+  if (frameBits) parts.push(`문틀 ${frameBits}`);
+  return parts.join('  /  ');
+}
 
 export default function MeasurementPage() {
   const router = useRouter();
@@ -121,6 +137,8 @@ export default function MeasurementPage() {
         const segs = r.value.split('|').filter(Boolean).map((s: string) => { const [w,h] = s.split('×'); return `${w}×${h}`; }).join(' + ');
         detail += `: ${segs}mm = ${r.area.m2.toFixed(1)}㎡ (${r.area.pyeong.toFixed(1)}평)`;
         if (item.showJwa) detail += ` [${r.area.jwa.toFixed(1)}좌]`;
+      } else if ((item as any).isDoor && r.value) {
+        detail += `: ${formatDoor(r.value)}`;
       } else if (r.value) {
         detail += `: ${r.value}`;
       }
@@ -186,6 +204,8 @@ export default function MeasurementPage() {
           if (r.area && r.area.mm2 > 0) {
             detail += `: ${r.area.m2.toFixed(1)}㎡ (${r.area.pyeong.toFixed(1)}평)`;
             if (item.showJwa) detail += ` [${r.area.jwa.toFixed(1)}좌]`;
+          } else if ((item as any).isDoor && r.value) {
+            detail += `: ${formatDoor(r.value)}`;
           } else if (r.value) {
             detail += `: ${r.value}`;
           }
@@ -345,6 +365,8 @@ export default function MeasurementPage() {
                                             {item.showJwa ? ` / ${r.area.jwa.toFixed(1)}좌` : ''}
                                           </div>
                                         </div>
+                                      ) : (item as any).isDoor && r.value ? (
+                                        <div className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed whitespace-pre-line">{formatDoor(r.value)}</div>
                                       ) : r.value ? (
                                         <div className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">{r.value}</div>
                                       ) : r.roomSizeArea ? (
@@ -460,7 +482,7 @@ export default function MeasurementPage() {
                             {item.rooms.map(r => (
                               <tr key={r.name} className="border-b border-slate-200">
                                 <td className="px-2 py-0.5 border-r border-slate-200 font-medium">{r.name}</td>
-                                <td className="px-2 py-0.5 border-r border-slate-200">{r.area && r.area.mm2 > 0 ? r.value.split('|').map((s: string) => { const [w,h]=s.split('×'); return `${w}×${h}`; }).join('+') : r.value || '-'}</td>
+                                <td className="px-2 py-0.5 border-r border-slate-200">{r.area && r.area.mm2 > 0 ? r.value.split('|').map((s: string) => { const [w,h]=s.split('×'); return `${w}×${h}`; }).join('+') : (item as any).isDoor && r.value ? formatDoor(r.value) : r.value || '-'}</td>
                                 <td className="px-2 py-0.5 border-r border-slate-200 text-right">{r.area && r.area.mm2 > 0 ? r.area.m2.toFixed(1) : '-'}</td>
                                 <td className="px-2 py-0.5 border-r border-slate-200 text-right">{r.area && r.area.mm2 > 0 ? r.area.pyeong.toFixed(1) : '-'}</td>
                                 {item.showJwa && <td className="px-2 py-0.5 border-r border-slate-200 text-right">{r.area ? r.area.jwa.toFixed(1) : '-'}</td>}

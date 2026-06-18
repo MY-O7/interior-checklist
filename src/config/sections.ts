@@ -52,7 +52,7 @@ export const SECTIONS: Section[] = [
     { name: '에어컨 단내림', perRoom: true },
     { name: '천장 평탄화', perRoom: true, hasInput: true, placeholder: '각 방별 천장 목공' },
     { name: '아트월 마감', options: ['목공 마감', '필름 마감', '타일 마감'], optionColors: { '목공 마감': 'green', '필름 마감': 'blue', '타일 마감': 'yellow' } },
-    { name: '문 / 문틀', options: ['일반문', '스텝도어', '히든도어', '폴딩도어'], optionColors: { '일반문': 'green', '스텝도어': 'blue', '히든도어': 'pink', '폴딩도어': 'yellow' }, badge: 'high' as const, perRoom: true, hasMeasurement: true, measurementLabel: 'W×H' },
+    { name: '문 / 문틀', options: ['일반문', '스텝도어', '히든도어', '폴딩도어', '9/12mm 문선'], optionColors: { '일반문': 'green', '스텝도어': 'blue', '히든도어': 'pink', '폴딩도어': 'yellow', '9/12mm 문선': 'white' }, badge: 'high' as const, perRoom: true, hasMeasurement: true, measurementLabel: 'W×H' },
     { name: '문선 / 몰딩', options: ['9mm 문선', '12mm 문선', '무몰딩', '일반 몰딩', '걸레받이'], optionColors: { '9mm 문선': 'green', '12mm 문선': 'blue', '무몰딩': 'yellow', '걸레받이': 'pink' } },
   ]},
   

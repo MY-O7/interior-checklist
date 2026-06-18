@@ -2,29 +2,57 @@
 
 import type { RoomMeasurement } from '@/types/checklist';
 
-const parse = (v?: string): Record<string, string> => {
+const parseObj = (v?: string): any => {
   try { const o = JSON.parse(v || '{}'); return o && typeof o === 'object' ? o : {}; } catch { return {}; }
 };
 
-const fieldCls = 'h-9 px-2 text-sm border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-900 focus:outline-none focus:border-emerald-500 w-full min-w-0 text-center placeholder:text-slate-400 placeholder:text-xs';
+const fieldCls = 'h-9 px-2 text-sm border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-900 focus:outline-none focus:border-emerald-500 w-full min-w-0 text-center placeholder:text-slate-300';
 
-// ── 문선/몰딩: 체크한 항목마다 자유 입력 ──
+// 라벨 항상 표시 + 입력칸
+function LabeledField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <div>
+      <span className="block text-[10px] font-medium text-slate-400 text-center mb-0.5">{label}</span>
+      <input value={value} onChange={e => onChange(e.target.value)} className={fieldCls} />
+    </div>
+  );
+}
+
+// ── 문선/몰딩: 체크한 항목마다 [개수(숫자) 개] + [비고 자유입력] ──
 export function MoldingOptionInputs({ options, value, onChange }: {
   options: string[]; value: string; onChange: (v: string) => void;
 }) {
   if (!options.length) return null;
-  const map = parse(value);
-  const set = (opt: string, v: string) => onChange(JSON.stringify({ ...map, [opt]: v }));
+  const map = parseObj(value);
+  // 구버전(문자열) 데이터 호환: 문자열이면 비고로 취급
+  const get = (opt: string) => {
+    const v = map[opt];
+    if (typeof v === 'string') return { count: '', note: v };
+    return { count: v?.count || '', note: v?.note || '' };
+  };
+  const set = (opt: string, patch: { count?: string; note?: string }) => {
+    onChange(JSON.stringify({ ...map, [opt]: { ...get(opt), ...patch } }));
+  };
   return (
     <div className="ml-8 mt-2 space-y-2">
-      <div className="text-sm font-semibold text-slate-500 dark:text-slate-400">✍️ 항목별 내용 (개수/규격 등)</div>
-      {options.map(opt => (
-        <div key={opt} className="flex items-center gap-2">
-          <span className="text-sm font-medium text-slate-600 dark:text-slate-300 w-24 shrink-0">{opt}</span>
-          <input value={map[opt] || ''} onChange={e => set(opt, e.target.value)}
-            placeholder="예: 5개 / 110m으로 1개 등" className={`${fieldCls} flex-1 text-left`} />
-        </div>
-      ))}
+      <div className="text-sm font-semibold text-slate-500 dark:text-slate-400">✍️ 항목별 수량 / 비고</div>
+      {options.map(opt => {
+        const { count, note } = get(opt);
+        return (
+          <div key={opt} className="flex items-center gap-2 flex-wrap">
+            <span className="w-24 shrink-0 text-sm font-medium text-slate-600 dark:text-slate-300">{opt}</span>
+            <div className="flex items-center gap-1 shrink-0">
+              <input type="number" inputMode="numeric" min="0" value={count}
+                onChange={e => set(opt, { count: e.target.value })}
+                className="w-16 h-9 px-2 text-sm text-center border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-900 focus:outline-none focus:border-emerald-500" />
+              <span className="text-sm text-slate-500">개</span>
+            </div>
+            <input value={note} onChange={e => set(opt, { note: e.target.value })}
+              placeholder="비고 (예: 110으로 1개)"
+              className="flex-1 min-w-[120px] h-9 px-2 text-sm border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-900 focus:outline-none focus:border-emerald-500 placeholder:text-slate-400 placeholder:text-xs" />
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -34,7 +62,7 @@ export function DoorRoomGrid({ rooms, roomList, doorTypes, onUpdate }: {
   rooms: RoomMeasurement; roomList: string[]; doorTypes: string[];
   onUpdate: (roomId: string, field: string, value: any) => void;
 }) {
-  const get = (room: string) => parse(rooms[room]?.value);
+  const get = (room: string) => parseObj(rooms[room]?.value);
   const setField = (room: string, key: string, val: string) => {
     onUpdate(room, 'value', JSON.stringify({ ...get(room), [key]: val }));
   };
@@ -63,21 +91,21 @@ export function DoorRoomGrid({ rooms, roomList, doorTypes, onUpdate }: {
                   <div>
                     <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">🚪 문짝</p>
                     <div className="grid grid-cols-3 gap-1">
-                      <input value={d.dw || ''} onChange={e => setField(name, 'dw', e.target.value)} placeholder="가로" className={fieldCls} />
-                      <input value={d.dh || ''} onChange={e => setField(name, 'dh', e.target.value)} placeholder="세로" className={fieldCls} />
-                      <input value={d.handle || ''} onChange={e => setField(name, 'handle', e.target.value)} placeholder="손잡이높이" className={fieldCls} />
+                      <LabeledField label="가로" value={d.dw || ''} onChange={v => setField(name, 'dw', v)} />
+                      <LabeledField label="세로" value={d.dh || ''} onChange={v => setField(name, 'dh', v)} />
+                      <LabeledField label="손잡이높이" value={d.handle || ''} onChange={v => setField(name, 'handle', v)} />
                     </div>
                   </div>
                   <div>
                     <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">🧱 문틀</p>
                     <div className="grid grid-cols-3 gap-1">
-                      <input value={d.fw || ''} onChange={e => setField(name, 'fw', e.target.value)} placeholder="가로" className={fieldCls} />
-                      <input value={d.fh || ''} onChange={e => setField(name, 'fh', e.target.value)} placeholder="세로" className={fieldCls} />
-                      <input value={d.bar || ''} onChange={e => setField(name, 'bar', e.target.value)} placeholder="bar" className={fieldCls} />
+                      <LabeledField label="가로" value={d.fw || ''} onChange={v => setField(name, 'fw', v)} />
+                      <LabeledField label="세로" value={d.fh || ''} onChange={v => setField(name, 'fh', v)} />
+                      <LabeledField label="bar" value={d.bar || ''} onChange={v => setField(name, 'bar', v)} />
                     </div>
                   </div>
                   <input value={rooms[name]?.note || ''} onChange={e => onUpdate(name, 'note', e.target.value)}
-                    placeholder="비고" className={`${fieldCls} text-left`} />
+                    placeholder="비고" className={`${fieldCls} text-left placeholder:text-slate-400`} />
                 </div>
               )}
             </div>

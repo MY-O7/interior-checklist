@@ -294,7 +294,10 @@ export function EstimatePaper({ project, estimate, companyInfo, miscRate, miscAm
       <div className="flex items-center justify-between bg-slate-800 text-white rounded-xl px-4 sm:px-6 py-4 mb-5 no-print">
         {onClose ? <button onClick={onClose} className="text-sm hover:text-slate-200 transition">← 돌아가기</button> : <span className="w-12" />}
         <span className="text-sm font-medium hidden sm:inline">견적서 미리보기 · {pages.length}p</span>
-        <button onClick={() => window.print()} className="bg-white text-slate-800 px-5 py-2 rounded-lg text-sm font-bold hover:bg-slate-100 transition">🖨 인쇄</button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => window.print()} className="bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-600 transition border border-slate-500">📄 PDF 저장</button>
+          <button onClick={() => window.print()} className="bg-white text-slate-800 px-5 py-2 rounded-lg text-sm font-bold hover:bg-slate-100 transition">🖨 인쇄</button>
+        </div>
       </div>
 
       <div className="paper-stack flex flex-col items-center gap-6">

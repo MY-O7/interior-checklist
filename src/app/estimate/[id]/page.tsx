@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SidebarWrapper } from '@/components/mobile-menu';
-import { Plus, Trash2, Save, Printer, X, ChevronLeft, Download, Menu, Home, ArrowLeft, ArrowUp, ArrowDown, ListOrdered, Link2, FileSpreadsheet, Undo2, Redo2 } from 'lucide-react';
+import { Plus, Trash2, Save, Printer, X, ChevronLeft, Download, Menu, Home, ArrowLeft, ArrowUp, ArrowDown, ListOrdered, Link2, FileSpreadsheet, Undo2, Redo2, FileDown } from 'lucide-react';
 import ExcelImportDialog from '@/components/ExcelImportDialog';
 import { NumInput, PageNav } from '@/components/shared';
 import { EstimatePaper } from '@/components/estimate/estimate-paper';
@@ -126,8 +126,20 @@ export default function EstimatePage() {
   const [printMode, setPrintMode] = useState(false);
 
   useEffect(() => {
-    if (printMode) window.scrollTo(0, 0);
-  }, [printMode]);
+    if (printMode) {
+      window.scrollTo(0, 0);
+      // PDF 저장 시 파일명이 프로젝트명이 되도록 문서 제목 변경
+      const prevTitle = document.title;
+      document.title = project?.name || '견적서';
+      return () => { document.title = prevTitle; };
+    }
+  }, [printMode, project?.name]);
+
+  // 사이드바 '인쇄' / 'PDF 저장' 버튼: 인쇄 미리보기를 열고 페이지 분할이 안정된 뒤 인쇄 대화상자 호출
+  const startPrint = () => {
+    setPrintMode(true);
+    setTimeout(() => window.print(), 500);
+  };
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showImport, setShowImport] = useState(false);
   // 솜씨인테리어 사업자등록증 기본값 (수정 가능, localStorage에 저장된 값이 있으면 그걸 우선)
@@ -572,8 +584,11 @@ export default function EstimatePage() {
             <button onClick={save} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm">
               <Save className="w-4 h-4" /> 저장 {saving && '✓'}
             </button>
-            <button onClick={() => setPrintMode(true)} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm">
+            <button onClick={startPrint} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm">
               <Printer className="w-4 h-4" /> 인쇄
+            </button>
+            <button onClick={startPrint} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm">
+              <FileDown className="w-4 h-4" /> PDF 저장
             </button>
             <button onClick={shareEstimate} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[var(--muted)] text-sm text-blue-600 dark:text-blue-400 font-medium">
               <Link2 className="w-4 h-4" /> 고객 공유 링크 복사

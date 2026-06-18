@@ -115,6 +115,16 @@ export default function ProjectPage() {
     return added.length > 0 ? added : DEFAULT_ROOMS; // 아직 추가 전이면 기본 목록
   })();
 
+  // 공정(섹션)에 작성된 내용이 있는지 — 목차 '작성중' 표기용
+  const sectionHasContent = (sectionId: string): boolean => {
+    const sec = checklist[sectionId];
+    if (sec && Object.values(sec).some((it: any) => it && (it.checked || it.detail || it.value || it.note))) return true;
+    const prefix = sectionId + '_';
+    return Object.entries(roomChecklist).some(([k, rooms]) =>
+      k.startsWith(prefix) && rooms && Object.values(rooms).some((r: any) => r && (r.checked || r.value || r.note))
+    );
+  };
+
   // 방 사이즈 섹션에서 방 삭제
   const removeRoomSize = (name: string) => {
     setChecklist(prev => {
@@ -312,6 +322,9 @@ export default function ProjectPage() {
                           <span className={`w-2.5 h-2.5 rounded-full ${c.dot}`} />
                           <span className={`text-xs font-mono font-bold ${c.num}`}>{String(i + 1).padStart(2, '0')}</span>
                         </div>
+                        {sectionHasContent(section.id) && (
+                          <span className="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-950/40 dark:text-blue-300 px-1.5 py-0.5 rounded-full">작성중</span>
+                        )}
                       </div>
                       <p className="text-base font-bold text-slate-800 dark:text-slate-100 leading-tight">{section.title}</p>
                       <p className="text-xs text-slate-500 mt-0.5">{section.subtitle}</p>

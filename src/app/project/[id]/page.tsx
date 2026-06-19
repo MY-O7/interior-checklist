@@ -57,7 +57,8 @@ function ChecklistRow({ item, sectionId, data, roomData, onUpdate, onRoomUpdate,
       )}
       {item.thicknessFor && item.thicknessOptions && data.detail && (
         <MaterialThicknessInputs
-          options={item.thicknessFor.filter((o) => data.detail.split(', ').filter(Boolean).includes(o))}
+          options={data.detail.split(', ').filter(Boolean)}
+          thicknessFor={item.thicknessFor}
           thicknesses={item.thicknessOptions}
           value={data.value}
           onChange={(v) => onUpdate('value', v)}

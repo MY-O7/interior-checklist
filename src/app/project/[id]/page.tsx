@@ -11,7 +11,7 @@ import { SidebarWrapper } from '@/components/mobile-menu';
 import { ArrowLeft, Download, Save, Printer, ChevronLeft, ChevronRight, Menu, FolderOpen, Calculator, Settings, Ruler, Home } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
 import { apiGet, apiPost } from '@/lib/api';
-import { OptionTag, DimensionInputs, RoomCheckGrid, RoomSizeSection, MoldingOptionInputs, DoorRoomGrid } from '@/components/checklist';
+import { OptionTag, DimensionInputs, RoomCheckGrid, RoomSizeSection, MoldingOptionInputs, DoorRoomGrid, MaterialThicknessInputs } from '@/components/checklist';
 import { PageNav } from '@/components/shared';
 import { SECTIONS, DEFAULT_ROOMS, migrateChecklistKeys, migrateRoomChecklistKeys } from '@/config/sections';
 import { sectionColor } from '@/config/section-colors';
@@ -54,6 +54,14 @@ function ChecklistRow({ item, sectionId, data, roomData, onUpdate, onRoomUpdate,
       )}
       {item.name === '문선 / 몰딩' && data.detail && (
         <MoldingOptionInputs options={data.detail.split(', ').filter(Boolean)} value={data.value} onChange={(v) => onUpdate('value', v)} />
+      )}
+      {item.thicknessFor && item.thicknessOptions && data.detail && (
+        <MaterialThicknessInputs
+          options={item.thicknessFor.filter((o) => data.detail.split(', ').filter(Boolean).includes(o))}
+          thicknesses={item.thicknessOptions}
+          value={data.value}
+          onChange={(v) => onUpdate('value', v)}
+        />
       )}
       {item.hasInput && (
         <div className="ml-9">

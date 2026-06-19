@@ -57,6 +57,41 @@ export function MoldingOptionInputs({ options, value, onChange }: {
   );
 }
 
+// ── 자재 두께 선택: 선택한 자재마다 두께 칩(다중) ──
+export function MaterialThicknessInputs({ options, thicknesses, value, onChange }: {
+  options: string[]; thicknesses: string[]; value: string; onChange: (v: string) => void;
+}) {
+  if (!options.length) return null;
+  const map = parseObj(value);
+  const sel = (opt: string): string[] => Array.isArray(map[opt]) ? map[opt] : [];
+  const toggle = (opt: string, t: string) => {
+    const cur = sel(opt);
+    const next = cur.includes(t) ? cur.filter(x => x !== t) : [...cur, t];
+    onChange(JSON.stringify({ ...map, [opt]: next }));
+  };
+  return (
+    <div className="ml-8 mt-2 space-y-2">
+      <div className="text-sm font-semibold text-slate-500 dark:text-slate-400">📏 자재 두께 선택</div>
+      {options.map(opt => (
+        <div key={opt} className="flex items-center gap-2 flex-wrap">
+          <span className="w-16 shrink-0 text-sm font-medium text-slate-600 dark:text-slate-300">{opt}</span>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {thicknesses.map(t => {
+              const on = sel(opt).includes(t);
+              return (
+                <button key={t} type="button" onClick={() => toggle(opt, t)}
+                  className={`px-2.5 h-8 rounded-md border text-sm font-medium transition-all ${on ? 'bg-blue-500 border-blue-500 text-white' : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-500 hover:border-blue-400'}`}>
+                  {t}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ── 문 / 문틀: 방별 (문 종류 + 문짝 가로/세로/손잡이 + 문틀 가로/세로/bar) ──
 export function DoorRoomGrid({ rooms, roomList, doorTypes, onUpdate }: {
   rooms: RoomMeasurement; roomList: string[]; doorTypes: string[];

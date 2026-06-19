@@ -23,6 +23,8 @@ export interface SectionItem {
   hasMeasurement?: boolean;
   measurementLabel?: string;
   showJwa?: boolean;
+  thicknessFor?: string[];      // 선택 시 두께 칩이 나타나는 옵션들
+  thicknessOptions?: string[];  // 두께 선택지 (예: 3mm/5mm/9mm/12mm)
 }
 
 export interface Section {

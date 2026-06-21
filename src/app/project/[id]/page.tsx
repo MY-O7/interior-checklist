@@ -10,6 +10,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { SidebarWrapper } from '@/components/mobile-menu';
 import { ArrowLeft, Download, Save, Printer, ChevronLeft, ChevronRight, Menu, FolderOpen, Calculator, Settings, Ruler, Home } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
+import { formatMolding, formatMaterial, formatDoorRoom } from '@/lib/format-checklist';
 import { apiGet, apiPost } from '@/lib/api';
 import { OptionTag, DimensionInputs, RoomCheckGrid, RoomSizeSection, MoldingOptionInputs, DoorRoomGrid, MaterialThicknessInputs } from '@/components/checklist';
 import { PageNav } from '@/components/shared';
@@ -573,13 +574,13 @@ export default function ProjectPage() {
                                 if (!d?.checked) return null;
                                 const roomKey = `${section.id}_${subKey}`;
                                 const rd = roomChecklist[roomKey] || {};
-                                const checkedRooms = Object.entries(rd).filter(([, r]: any) => r.checked).map(([name, r]: any) => r.value ? `${name} (${r.value})` : name);
+                                const checkedRooms = Object.entries(rd).filter(([, r]: any) => r.checked).map(([name, r]: any) => r.value ? `${name} (${formatDoorRoom(r.value)})` : name);
                                 return (
                                   <tr key={subKey} className="border-b border-slate-100">
                                     <td className="px-3 py-2.5 text-center text-emerald-600 font-bold">✓</td>
                                     <td className="px-3 py-2.5"><span className="text-[10px] text-slate-500 block">{item.name}</span><span className="font-semibold">{sub.name}</span></td>
                                     <td className="px-3 py-2.5">{d.detail && <span className="inline-block bg-slate-100 px-2 py-0.5 rounded text-xs mr-1 mb-0.5">{d.detail}</span>}{checkedRooms.length > 0 && <div className="mt-1 text-xs text-emerald-700 font-medium">📍 {checkedRooms.join(' · ')}</div>}</td>
-                                    <td className="px-3 py-2.5 text-slate-500 text-xs">{d.value}{d.note && <div className="text-slate-500 mt-0.5">{d.note}</div>}</td>
+                                    <td className="px-3 py-2.5 text-slate-500 text-xs">{sub.name === '문선 / 몰딩' ? formatMolding(d.value) : sub.thicknessFor ? formatMaterial(d.value) : d.value}{d.note && <div className="text-slate-500 mt-0.5">{d.note}</div>}</td>
                                   </tr>
                                 );
                               });
@@ -588,13 +589,13 @@ export default function ProjectPage() {
                             if (!d?.checked) return null;
                             const roomKey = `${section.id}_${item.name}`;
                             const rd = roomChecklist[roomKey] || {};
-                            const checkedRooms = Object.entries(rd).filter(([, r]: any) => r.checked).map(([name, r]: any) => r.value ? `${name} (${r.value})` : name);
+                            const checkedRooms = Object.entries(rd).filter(([, r]: any) => r.checked).map(([name, r]: any) => r.value ? `${name} (${formatDoorRoom(r.value)})` : name);
                             return (
                               <tr key={item.name} className="border-b border-slate-100">
                                 <td className="px-3 py-2.5 text-center text-emerald-600 font-bold">✓</td>
                                 <td className="px-3 py-2.5 font-semibold">{item.name}</td>
                                 <td className="px-3 py-2.5">{d.detail && <span className="inline-block bg-slate-100 px-2 py-0.5 rounded text-xs mr-1 mb-0.5">{d.detail}</span>}{checkedRooms.length > 0 && <div className="mt-1 text-xs text-emerald-700 font-medium">📍 {checkedRooms.join(' · ')}</div>}</td>
-                                <td className="px-3 py-2.5 text-slate-500 text-xs">{d.value}{d.note && <div className="text-slate-500 mt-0.5">{d.note}</div>}</td>
+                                <td className="px-3 py-2.5 text-slate-500 text-xs">{item.name === '문선 / 몰딩' ? formatMolding(d.value) : item.thicknessFor ? formatMaterial(d.value) : d.value}{d.note && <div className="text-slate-500 mt-0.5">{d.note}</div>}</td>
                               </tr>
                             );
                           })}

@@ -561,6 +561,8 @@ export default function ProjectPage() {
                           const build = (it: any, key: string, parentLabel: string): Row[] => {
                             const d = sectionData[key];
                             if (!d?.checked) return [];
+                            // 방 사이즈: 체크만 하고 실측값/비고 입력이 없으면 인쇄에서 제외
+                            if (section.id === 'roomSize' && !(d.value || '').trim() && !(d.note || '').trim()) return [];
                             const rd = roomChecklist[`${section.id}_${key}`] || {};
                             const checkedRooms = Object.entries(rd).filter(([, r]: any) => r.checked).map(([name, r]: any) => r.value ? `${name} (${formatDoorRoom(r.value)})` : name);
                             const valueText = it.name === '문선 / 몰딩' ? formatMolding(d.value) : it.thicknessFor ? formatMaterial(d.value) : (d.value || '');
@@ -598,19 +600,19 @@ export default function ProjectPage() {
                             {/* 모바일용 카드 (좁은 화면에서 칸 넘김 방지) */}
                             <div className="sm:hidden print:hidden divide-y divide-slate-100">
                               {rows.map((r) => (
-                                <div key={r.key} className="px-4 py-3">
-                                  <div className="flex items-start gap-2">
-                                    <span className="text-emerald-600 font-bold leading-6">✓</span>
+                                <div key={r.key} className="px-4 py-3.5">
+                                  <div className="flex items-start gap-2.5">
+                                    <span className="text-emerald-600 font-bold text-lg leading-7">✓</span>
                                     <div className="min-w-0">
-                                      {r.parentLabel && <span className="text-[10px] text-slate-500 block leading-none mb-0.5">{r.parentLabel}</span>}
-                                      <span className="font-semibold text-[15px] text-slate-800">{r.name}</span>
+                                      {r.parentLabel && <span className="text-xs text-slate-500 block leading-none mb-0.5">{r.parentLabel}</span>}
+                                      <span className="font-bold text-lg text-slate-800">{r.name}</span>
                                     </div>
                                   </div>
-                                  <div className="ml-6 mt-1 space-y-1">
-                                    {r.detail && <div className="text-[13px]"><span className="text-xs text-slate-400 mr-1">선택</span><span className="inline-block bg-slate-100 px-2 py-0.5 rounded text-xs">{r.detail}</span></div>}
-                                    {r.checkedRooms.length > 0 && <div className="text-xs text-emerald-700 font-medium leading-relaxed">📍 {r.checkedRooms.join(' · ')}</div>}
-                                    {r.valueText && <div className="text-[13px] text-slate-600 leading-relaxed break-words"><span className="text-xs text-slate-400 mr-1">상세</span>{r.valueText}</div>}
-                                    {r.note && <div className="text-xs text-slate-500 break-words">📝 {r.note}</div>}
+                                  <div className="ml-7 mt-1.5 space-y-1.5">
+                                    {r.detail && <div className="text-[15px]"><span className="text-sm text-slate-400 mr-1.5">선택</span><span className="inline-block bg-slate-100 px-2.5 py-1 rounded text-sm font-medium">{r.detail}</span></div>}
+                                    {r.checkedRooms.length > 0 && <div className="text-[15px] text-emerald-700 font-medium leading-relaxed">📍 {r.checkedRooms.join(' · ')}</div>}
+                                    {r.valueText && <div className="text-[15px] text-slate-700 leading-relaxed break-words"><span className="text-sm text-slate-400 mr-1.5">상세</span>{r.valueText}</div>}
+                                    {r.note && <div className="text-[15px] text-slate-500 break-words">📝 {r.note}</div>}
                                   </div>
                                 </div>
                               ))}

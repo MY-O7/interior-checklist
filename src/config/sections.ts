@@ -52,7 +52,7 @@ export const SECTIONS: Section[] = [
     { name: '에어컨 단내림', perRoom: true },
     { name: '천장 평탄화', perRoom: true, hasInput: true, placeholder: '각 방별 천장 목공' },
     { name: '아트월 마감', options: ['목공 마감', '필름 마감', '타일 마감'], optionColors: { '목공 마감': 'green', '필름 마감': 'blue', '타일 마감': 'yellow' } },
-    { name: '문 / 문틀', options: ['일반문', '스텝도어', '히든도어', '폴딩도어', '9/12mm 문선'], optionColors: { '일반문': 'green', '스텝도어': 'blue', '히든도어': 'pink', '폴딩도어': 'yellow', '9/12mm 문선': 'white' }, badge: 'high' as const, perRoom: true, hasMeasurement: true, measurementLabel: 'W×H' },
+    { name: '문 / 문틀', options: ['일반문', '스텝도어', '히든도어', '폴딩도어', '9mm 문선', '12mm 문선'], optionColors: { '일반문': 'green', '스텝도어': 'blue', '히든도어': 'pink', '폴딩도어': 'yellow', '9mm 문선': 'white', '12mm 문선': 'white' }, badge: 'high' as const, perRoom: true, hasMeasurement: true, measurementLabel: 'W×H' },
     { name: '문선 / 몰딩', options: ['9mm 문선', '12mm 문선', '무몰딩', '일반 몰딩', '걸레받이'], optionColors: { '9mm 문선': 'green', '12mm 문선': 'blue', '무몰딩': 'yellow', '걸레받이': 'pink' } },
     { name: '목공 자재 발주', options: ['일반석고', '방화석고', '방수석고', '합판', 'MD', '집성목', '루바', '다루끼', '투바이', '아이소핑크', '스티로폼', '이보드', '열반사'], optionColors: { '일반석고': 'green', '방화석고': 'green', '방수석고': 'green', '합판': 'blue', 'MD': 'blue', '다루끼': 'pink', '투바이': 'pink', '아이소핑크': 'yellow', '스티로폼': 'yellow', '이보드': 'yellow', '열반사': 'yellow' }, thicknessFor: ['합판', 'MD', '아이소핑크'], thicknessOptions: ['3mm', '5mm', '9mm', '12mm'] },
   ]},

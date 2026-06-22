@@ -554,53 +554,70 @@ export default function ProjectPage() {
                         <span className="font-bold text-base">{section.title}</span>
                         <span className="ml-auto text-xs text-slate-500">{section.subtitle}</span>
                       </div>
-                      <table className="w-full text-sm border-collapse">
-                        <thead>
-                          <tr className="bg-slate-100 text-slate-600 text-xs font-bold uppercase">
-                            <th className="px-3 py-2.5 text-center w-10 border-b border-slate-200">✓</th>
-                            <th className="px-3 py-2.5 text-left w-36 border-b border-slate-200">항목</th>
-                            <th className="px-3 py-2.5 text-left border-b border-slate-200">선택 옵션 / 방별</th>
-                            <th className="px-3 py-2.5 text-left w-44 border-b border-slate-200">비고</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {section.items.map((item) => {
-                            if (item.subItems) {
-                              const parentEnabled = sectionData[item.name]?.checked !== false;
-                              if (!parentEnabled) return null;
-                              return item.subItems.map((sub) => {
-                                const subKey = `${item.name}_${sub.name}`;
-                                const d = sectionData[subKey];
-                                if (!d?.checked) return null;
-                                const roomKey = `${section.id}_${subKey}`;
-                                const rd = roomChecklist[roomKey] || {};
-                                const checkedRooms = Object.entries(rd).filter(([, r]: any) => r.checked).map(([name, r]: any) => r.value ? `${name} (${formatDoorRoom(r.value)})` : name);
-                                return (
-                                  <tr key={subKey} className="border-b border-slate-100">
-                                    <td className="px-3 py-2.5 text-center text-emerald-600 font-bold">✓</td>
-                                    <td className="px-3 py-2.5"><span className="text-[10px] text-slate-500 block">{item.name}</span><span className="font-semibold">{sub.name}</span></td>
-                                    <td className="px-3 py-2.5">{d.detail && <span className="inline-block bg-slate-100 px-2 py-0.5 rounded text-xs mr-1 mb-0.5">{d.detail}</span>}{checkedRooms.length > 0 && <div className="mt-1 text-xs text-emerald-700 font-medium">📍 {checkedRooms.join(' · ')}</div>}</td>
-                                    <td className="px-3 py-2.5 text-slate-500 text-xs">{sub.name === '문선 / 몰딩' ? formatMolding(d.value) : sub.thicknessFor ? formatMaterial(d.value) : d.value}{d.note && <div className="text-slate-500 mt-0.5">{d.note}</div>}</td>
-                                  </tr>
-                                );
-                              });
-                            }
-                            const d = sectionData[item.name];
-                            if (!d?.checked) return null;
-                            const roomKey = `${section.id}_${item.name}`;
-                            const rd = roomChecklist[roomKey] || {};
+                      {(() => {
+                        // 행 데이터 1회 빌드 → 데스크톱/인쇄는 표, 모바일은 카드로 렌더
+                        type Row = { key: string; parentLabel: string; name: string; detail: string; checkedRooms: string[]; valueText: string; note: string };
+                        const rows: Row[] = section.items.flatMap((item): Row[] => {
+                          const build = (it: any, key: string, parentLabel: string): Row[] => {
+                            const d = sectionData[key];
+                            if (!d?.checked) return [];
+                            const rd = roomChecklist[`${section.id}_${key}`] || {};
                             const checkedRooms = Object.entries(rd).filter(([, r]: any) => r.checked).map(([name, r]: any) => r.value ? `${name} (${formatDoorRoom(r.value)})` : name);
-                            return (
-                              <tr key={item.name} className="border-b border-slate-100">
-                                <td className="px-3 py-2.5 text-center text-emerald-600 font-bold">✓</td>
-                                <td className="px-3 py-2.5 font-semibold">{item.name}</td>
-                                <td className="px-3 py-2.5">{d.detail && <span className="inline-block bg-slate-100 px-2 py-0.5 rounded text-xs mr-1 mb-0.5">{d.detail}</span>}{checkedRooms.length > 0 && <div className="mt-1 text-xs text-emerald-700 font-medium">📍 {checkedRooms.join(' · ')}</div>}</td>
-                                <td className="px-3 py-2.5 text-slate-500 text-xs">{item.name === '문선 / 몰딩' ? formatMolding(d.value) : item.thicknessFor ? formatMaterial(d.value) : d.value}{d.note && <div className="text-slate-500 mt-0.5">{d.note}</div>}</td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
+                            const valueText = it.name === '문선 / 몰딩' ? formatMolding(d.value) : it.thicknessFor ? formatMaterial(d.value) : (d.value || '');
+                            return [{ key, parentLabel, name: it.name, detail: d.detail || '', checkedRooms, valueText, note: d.note || '' }];
+                          };
+                          if (item.subItems) {
+                            if (sectionData[item.name]?.checked === false) return [];
+                            return item.subItems.flatMap((sub) => build(sub, `${item.name}_${sub.name}`, item.name));
+                          }
+                          return build(item, item.name, '');
+                        });
+                        return (
+                          <>
+                            {/* 데스크톱 · 인쇄용 표 */}
+                            <table className="w-full text-sm border-collapse hidden sm:table print:table">
+                              <thead>
+                                <tr className="bg-slate-100 text-slate-600 text-xs font-bold uppercase">
+                                  <th className="px-3 py-2.5 text-center w-10 border-b border-slate-200">✓</th>
+                                  <th className="px-3 py-2.5 text-left w-36 border-b border-slate-200">항목</th>
+                                  <th className="px-3 py-2.5 text-left border-b border-slate-200">선택 옵션 / 방별</th>
+                                  <th className="px-3 py-2.5 text-left w-44 border-b border-slate-200">비고</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {rows.map((r) => (
+                                  <tr key={r.key} className="border-b border-slate-100">
+                                    <td className="px-3 py-2.5 text-center text-emerald-600 font-bold align-top">✓</td>
+                                    <td className="px-3 py-2.5 align-top">{r.parentLabel && <span className="text-[10px] text-slate-500 block">{r.parentLabel}</span>}<span className="font-semibold">{r.name}</span></td>
+                                    <td className="px-3 py-2.5 align-top">{r.detail && <span className="inline-block bg-slate-100 px-2 py-0.5 rounded text-xs mr-1 mb-0.5">{r.detail}</span>}{r.checkedRooms.length > 0 && <div className="mt-1 text-xs text-emerald-700 font-medium">📍 {r.checkedRooms.join(' · ')}</div>}</td>
+                                    <td className="px-3 py-2.5 text-slate-500 text-xs align-top">{r.valueText}{r.note && <div className="text-slate-500 mt-0.5">{r.note}</div>}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                            {/* 모바일용 카드 (좁은 화면에서 칸 넘김 방지) */}
+                            <div className="sm:hidden print:hidden divide-y divide-slate-100">
+                              {rows.map((r) => (
+                                <div key={r.key} className="px-4 py-3">
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-emerald-600 font-bold leading-6">✓</span>
+                                    <div className="min-w-0">
+                                      {r.parentLabel && <span className="text-[10px] text-slate-500 block leading-none mb-0.5">{r.parentLabel}</span>}
+                                      <span className="font-semibold text-[15px] text-slate-800">{r.name}</span>
+                                    </div>
+                                  </div>
+                                  <div className="ml-6 mt-1 space-y-1">
+                                    {r.detail && <div className="text-[13px]"><span className="text-xs text-slate-400 mr-1">선택</span><span className="inline-block bg-slate-100 px-2 py-0.5 rounded text-xs">{r.detail}</span></div>}
+                                    {r.checkedRooms.length > 0 && <div className="text-xs text-emerald-700 font-medium leading-relaxed">📍 {r.checkedRooms.join(' · ')}</div>}
+                                    {r.valueText && <div className="text-[13px] text-slate-600 leading-relaxed break-words"><span className="text-xs text-slate-400 mr-1">상세</span>{r.valueText}</div>}
+                                    {r.note && <div className="text-xs text-slate-500 break-words">📝 {r.note}</div>}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
                   );
                 })}

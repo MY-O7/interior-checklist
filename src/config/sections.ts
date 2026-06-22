@@ -3,7 +3,7 @@ import type { Section } from '@/types/checklist';
 export const DEFAULT_ROOMS = [
   '거실', '주방', '안방 1', '안방 2', '작은방 1', '작은방 2', '입구방 1', '입구방 2',
   '거실 발코니', '안방 발코니', '주방 발코니', '작은방 발코니',
-  '공용 화장실', '안방 화장실',
+  '공용 화장실', '안방 화장실', '현관',
 ];
 
 export const SECTIONS: Section[] = [

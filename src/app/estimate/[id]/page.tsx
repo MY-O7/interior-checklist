@@ -455,10 +455,12 @@ export default function EstimatePage() {
             mappingKeys.push(`${sk}-${itemName}`);
           }
           
+          let matchedAny = false;
           for (const mk of mappingKeys) {
             const preset = CHECKLIST_TO_ESTIMATE[mk];
             if (!preset) continue;
-            
+            matchedAny = true;
+
             const existing = existingByName.get(preset.name);
             if (existing && !updatedIds.has(existing.id)) {
               // 기존 항목 업데이트 (수량, 비고)
@@ -499,6 +501,27 @@ export default function EstimatePage() {
               });
               existingByName.set(preset.name, newItems[newItems.length - 1]);
             }
+          }
+
+          // 매핑에 없지만 체크된 항목 → 누락 방지용 '기타' 0원 항목으로 추가
+          if (!matchedAny && !existingByName.has(itemName)) {
+            const qty = totalPyeong > 0 ? Math.ceil(totalPyeong) : checkedRoomCount || 1;
+            const unit = totalPyeong > 0 ? '평' : checkedRoomCount > 0 ? '개' : '식';
+            const noteParts: string[] = [];
+            if (options.length > 0) noteParts.push(options.join(', '));
+            const rd = roomDetails.length > 0 ? roomDetails.join(', ') : checkedRooms.join(', ');
+            if (rd) noteParts.push(rd);
+            newItems.push({
+              id: Date.now().toString() + Math.random().toString(36).slice(2, 6),
+              category: '기타',
+              name: itemName,
+              unit,
+              unitPrice: 0,
+              quantity: qty,
+              labor: [],
+              note: noteParts.join(' / '),
+            });
+            existingByName.set(itemName, newItems[newItems.length - 1]);
           }
         });
       });
